@@ -24,6 +24,7 @@ LIB		:= lib
 RC		:= res
 ASM		:= asm
 3RD		:= 3rd
+HEADER  := header
 
 ifeq ($(OS),Windows_NT)
 MAIN	:= main.exe
@@ -33,6 +34,7 @@ LIBDIRS		:= $(LIB)
 RCDIRS		:= $(RC)
 ASMDIRS		:= $(ASM)
 3RDDIRS		:= $(3RD)
+HEADERDIRS		:= $(HEADER)
 FIXPATH = $(subst /,\\,$1)
 RM			:= del
 TARGET 		:=  /s /q /f
@@ -45,6 +47,7 @@ LIBDIRS		:= $(shell find $(LIB) -type d)
 RCDIRS		:= $(shell find $(RC) -type d)
 ASMDIRS		:= $(shell find $(ASM) -type d)
 3RDDIRS		:= $(shell find $(3RD) -type d)
+HEADERDIRS		:= $(shell find $(HEADER) -type d)
 FIXPATH = $1
 RM = rm 
 TARGET 		:= -f
@@ -55,6 +58,7 @@ CURRENT := $(abspath $(lastword $(MAKEFILE_LIST)))# 当前Makefile路径
 CURRENTPATH := $(dir $(CURRENT))# 当前Makefile所在目录
 # SUBDIRS := $(patsubst %/,%,$(dir $(3RDDIRS))) # 获取子目录
 INCLUDES	:= $(patsubst %,-I%, $(INCLUDEDIRS:%/=%))
+HEADERS	:= $(patsubst %,-I%, $(HEADERDIRS:%/=%))
 LIBS		:= $(patsubst %,-L%, $(LIBDIRS:%/=%))
 3RDS		:= $(patsubst %/,%,$(wildcard $(3RDDIRS)/*/)) # 动态获取子目录
 3RD_CLEAN_DIRS := $(foreach dir,$(3RDS),$(call FIXPATH,$(dir)))
@@ -133,13 +137,13 @@ $(ASMDIRS)/%.o:$(ASMDIRS)/%.s
 $(RCDIRS)/%.o:$(RCDIRS)/%.rc
 	$(WINDRES) $(RCFLAGS) $< -o $@
 %.o:%.cxx
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(3RDINCLUDES) -I$(3RDDIRS) -c -MMD $<  -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(3RDINCLUDES) $(HEADERS)  -I$(3RDDIRS) -c -MMD $<  -o $@
 %.o:%.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(3RDINCLUDES) -I$(3RDDIRS) -c -MMD $<  -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(3RDINCLUDES)  $(HEADERS) -I$(3RDDIRS) -c -MMD $<  -o $@
 %.o:%.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(3RDINCLUDES) -I$(3RDDIRS) -c -MMD $<  -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(3RDINCLUDES) $(HEADERS)  -I$(3RDDIRS) -c -MMD $<  -o $@
 %.o:%.c
-	$(CC) $(CCFLAGS) $(INCLUDES) $(3RDINCLUDES) -I$(3RDDIRS) -c -MMD $<  -o $@ 
+	$(CC) $(CCFLAGS) $(INCLUDES) $(3RDINCLUDES)  $(HEADERS) -I$(3RDDIRS) -c -MMD $<  -o $@ 
 .PHONY: clean
 
 clean:
