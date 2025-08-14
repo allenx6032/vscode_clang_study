@@ -1,9 +1,7 @@
 ﻿#include <stack>
 #include "public.h"
 
-import tools;
-
-
+#include "tools.ixx"
 
 ImVec4 RGBAtoIV4(int r, int g, int b, int a)
 {

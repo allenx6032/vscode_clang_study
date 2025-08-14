@@ -5,8 +5,8 @@
 #include <thread>
 #include <vector>
 
-import widget;
-import tools;
+#include "widget.ixx"
+#include "tools.ixx"
 
 widget::widget() : style(GImGui->Style)
 {

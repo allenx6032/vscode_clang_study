@@ -1,15 +1,13 @@
-﻿module;
+﻿#ifndef __widget__
+#define __widget__
 #include "public.h"
+#include "file.ixx"
 #include <vector>
 #include <filesystem>
 #include <locale>
 #include <codecvt>
 
-export module widget;
-
-import file;
-
-export class widget
+class widget
 {
 public:
 	widget();
@@ -24,3 +22,4 @@ private:
 private:
 	static void openFile(std::string path);
 };
+#endif

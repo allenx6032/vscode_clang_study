@@ -6,13 +6,12 @@
 #include "stb_image.h"
 #include <filesystem>
 
-#pragma comment(lib,"d3d11.lib")
-#pragma execution_character_set("utf-8")
+//#pragma comment(lib,"d3d11.lib")
+//#pragma execution_character_set("utf-8")
 
-
-import tools;
-import widget;
-import file;
+#include "tools.ixx"
+#include "widget.ixx"
+#include "file.ixx"
 /*
 						  _ooOoo_
 						 o8888888o

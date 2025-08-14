@@ -1,13 +1,11 @@
-﻿module;
-
+﻿#ifndef __file__
+#define __file__
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-export module file;
-
-export class File
+class File
 {
 private:
     std::string filename;
@@ -22,3 +20,4 @@ public:
     void ReplaceInFile(std::string old_text, std::string new_text);
     std::vector<std::string> ListDir(const std::filesystem::path& path);
 };
+#endif

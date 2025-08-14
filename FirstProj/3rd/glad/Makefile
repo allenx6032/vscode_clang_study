@@ -11,7 +11,7 @@ SRC_DIR = .
 OBJ_DIR = .
 LIB_DIR = ../../lib
 INCLUDE_DIR = .
-LIB_NAME = glad_new
+LIB_NAME = glad
 
 
 ifeq ($(OS),Windows_NT)

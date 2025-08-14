@@ -1,4 +1,5 @@
-﻿import file;
+﻿
+#include "file.ixx"
 
 #include <fstream>
 #include <sstream>
