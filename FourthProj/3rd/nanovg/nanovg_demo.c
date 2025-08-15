@@ -3,9 +3,9 @@
 #include <string.h>
 #include <math.h>
 #ifdef NANOVG_GLEW
-#  include <glew.h>
+#  include <glew/glew.h>
 #endif
-#include <glfw3.h>
+#include <glfw/glfw3.h>
 #include "nanovg.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"

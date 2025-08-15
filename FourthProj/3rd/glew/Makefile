@@ -60,7 +60,7 @@ $(LIB): $(C_OBJS) $(CPP_OBJS) $(CXX_OBJS) $(CC_OBJS)
 -include $(C_DEPS) $(CPP_DEPS) $(CXX_DEPS) $(CC_DEPS)
 # 生成目标文件
 %.o:%.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c -MMD $< -o  $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -MMD $< -o  $@
 %.o:%.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES)  -c -MMD $< -o $@
 %.o:%.cxx
