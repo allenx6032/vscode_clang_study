@@ -1,0 +1,24 @@
+#include <sdl/SDL.h>
+#include <sdl/SDL_image.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <map>
+#include <vector>
+#include "GameDebug.hpp"
+#include "Global.h"
+
+using namespace std;
+
+#include "AnimatedSprite.hpp"
+#include "GameMap.hpp"
+#include "HUD.hpp"
+
+void GameMap::InitMap(std::string initMapFile, SDL_Rect pos, SDL_Renderer* gRenderer) {
+	this->mapSprite.LoadTexture(initMapFile, gRenderer);
+	this->mapSprite.BuildAnimation(0, 1, pos.w, pos.h, 0.0f);
+}
+
+void GameMap::DrawMap(SDL_Rect pos) {
+	this->mapSprite.Animate(pos, 0, NULL, SDL_FLIP_NONE, nullptr);
+}
