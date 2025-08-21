@@ -229,6 +229,7 @@ adb connect IP:端口号
 gradlew app:assembleRelease
 gradlew :app:dependencies  > app.txt
 gradlew :app:androidDependencies > app.txt
+gradlew :app:androidDependencies --configuration compileClasspath > app.txt
 gradlew clean  assembleRelease --stacktrace --no-daemon
 gradlew clean  assembleRelease --stacktrace --no-daemon --debug --scan
 
@@ -905,6 +906,207 @@ VBoxManage clonehd source.vdi target.vhd --format VHD //vdi转换vhd
 VBoxManage clonehd source.vmdk target.vdi --format vdi  //vmdk转换vdi
 VBoxManage clonehd source.vhd target.vdi --format vdi  //vhd转换vdi
 VBoxManage internalcommands sethduuid source.vdi //重制vdi的uuid
+
+
+在Windows系统下创建软链接复用大文件
+PowerShell指令New-Item可以在Windows系统下建立软链接，指令具体使用方式如下：
+New-Item -ItemType SymbolicLink -Path .\link -Target .\Notice.txt
+New-Item -ItemType SymbolicLink -Name checkpoints -Target C:\AI\stable-diffusion-webui\models\Stable-diffusion
+PowerShell帮助：
+Get-Command：查找可用的 PowerShell 指令。 Get-Command
+命令非常多，这里不列出了，如果使用Get-Command *将获取本地计算机上的所有类型的所有命令。
+Get-Help：获取指令的帮助信息。 Get-Help <指令>
+这个指令推荐加上-Online参数，会打开网页显示更详细的中文指令帮助。
+文件和目录操作：
+Get-ChildItem：列出指定路径下的文件和目录。 Get-ChildItem <路径>
+New-Item：创建新的文件、目录或注册表项。 New-Item -Path <路径> -ItemType <类型>
+Remove-Item：删除文件、目录或注册表项。 Remove-Item <路径>
+Copy-Item：复制文件或目录。 Copy-Item <源路径> <目标路径>
+Move-Item：移动文件或目录。 Move-Item <源路径> <目标路径>
+Rename-Item：重命名文件或目录。 Rename-Item <原名称> <新名称>
+Get-Content：显示文件的内容。 Get-Content <文件路径>
+Set-Content：设置文件的内容。 Set-Content <文件路径> <内容>
+网络操作：
+Invoke-WebRequest：执行网络请求。 Invoke-WebRequest -Uri <URL>
+进程操作：
+Start-Process：启动一个新的进程。 Start-Process <可执行文件路径>
+Stop-Process：停止指定的进程。 Stop-Process -Name <进程名称>
+别名操作：
+Get-Alias：获取当前系统定义的所有别名。 Get-Alias 默认别名如下：
+CommandType	Name	Version	Source
+Alias	?		Where-Object
+Alias	%		ForEach-Object
+Alias	ac		Add-Content
+Alias	cat		Get-Content
+Alias	cd		Set-Location
+Alias	chdir		Set-Location
+Alias	clc		Clear-Content
+Alias	clear		Clear-Host
+Alias	clhy		Clear-History
+Alias	cli		Clear-Item
+Alias	clp		Clear-ItemProperty
+Alias	cls		Clear-Host
+Alias	clv		Clear-Variable
+Alias	cnsn		Connect-PSSession
+Alias	compare		Compare-Object
+Alias	copy		Copy-Item
+Alias	cp		Copy-Item
+Alias	cpi		Copy-Item
+Alias	cpp		Copy-ItemProperty
+Alias	cvpa		Convert-Path
+Alias	dbp		Disable-PSBreakpoint
+Alias	del		Remove-Item
+Alias	diff		Compare-Object
+Alias	dir		Get-ChildItem
+Alias	dnsn		Disconnect-PSSession
+Alias	ebp		Enable-PSBreakpoint
+Alias	echo		Write-Output
+Alias	epal		Export-Alias
+Alias	epcsv		Export-Csv
+Alias	erase		Remove-Item
+Alias	etsn		Enter-PSSession
+Alias	exsn		Exit-PSSession
+Alias	fc		Format-Custom
+Alias	fhx	7.0.0.0	Microsoft.PowerShell.Utility
+Alias	fl		Format-List
+Alias	foreach		ForEach-Object
+Alias	ft		Format-Table
+Alias	fw		Format-Wide
+Alias	gal		Get-Alias
+Alias	gbp		Get-PSBreakpoint
+Alias	gc		Get-Content
+Alias	gcb	7.0.0.0	Microsoft.PowerShell.Management
+Alias	gci		Get-ChildItem
+Alias	gcm		Get-Command
+Alias	gcs		Get-PSCallStack
+Alias	gdr		Get-PSDrive
+Alias	gerr		Get-Error
+Alias	ghy		Get-History
+Alias	gi		Get-Item
+Alias	gin	7.0.0.0	Microsoft.PowerShell.Management
+Alias	gjb		Get-Job
+Alias	gl		Get-Location
+Alias	gm		Get-Member
+Alias	gmo		Get-Module
+Alias	gp		Get-ItemProperty
+Alias	gps		Get-Process
+Alias	gpv		Get-ItemPropertyValue
+Alias	group		Group-Object
+Alias	gsn		Get-PSSession
+Alias	gsv		Get-Service
+Alias	gtz	7.0.0.0	Microsoft.PowerShell.Management
+Alias	gu		Get-Unique
+Alias	gv		Get-Variable
+Alias	h		Get-History
+Alias	history		Get-History
+Alias	icm		Invoke-Command
+Alias	iex		Invoke-Expression
+Alias	ihy		Invoke-History
+Alias	ii		Invoke-Item
+Alias	ipal		Import-Alias
+Alias	ipcsv		Import-Csv
+Alias	ipmo		Import-Module
+Alias	irm		Invoke-RestMethod
+Alias	iwr		Invoke-WebRequest
+Alias	kill		Stop-Process
+Alias	ls		Get-ChildItem
+Set-Alias：创建或修改别名。 Set-Alias -Name <别名> -Value <实际命令>
+New-Alias：创建新的别名。 New-Alias -Name <别名> -Value <实际命令>
+Remove-Alias：移除指定的别名。 Remove-Alias -Name <别名>
+
+
+Windows系统下的软链接创建教程与实践
+1 mklink 命令全面解析
+1.1 mklink 命令的基本语法
+Windows操作系统提供了一个非常强大的命令行工具 mklink ，它允许用户创建符号链接、junction点和硬链接。 mklink 命令的基本语法如下：
+mklink [[/D] | [/H] | [/J]] Link Target
+/D ：创建目录符号链接。默认情况下， mklink 创建的是文件符号链接。
+/H ：创建硬链接而非符号链接。
+/J ：创建junction。
+Link ：要创建的符号链接、junction或硬链接的名称。
+Target ：符号链接、junction或硬链接所指向的目标位置。
+1.2 创建junction链接的方法和技巧
+Junction是一种特殊的文件系统重定向技术，它允许重定向一个目录到另一个目录，从而使得用户可以在不移动文件的情况下改变文件系统上文件的组织结构。创建junction点的命令如下：
+mklink /J "Link" "Target"
+其中"Link"是junction点的路径，"Target"是目标目录的路径。例如，如果你想要创建一个junction，使得 C:\MyJunction 指向 D:\RealData ，你可以运行：
+mklink /J C:\MyJunction D:\RealData
+在命令执行之后，你可以在 C:\ 目录下看到一个名为 MyJunction 的junction点，它实际上会重定向到 D:\RealData 目录下的内容。
+1.3 Junction链接的实际应用场景
+在实际的工作中，junction链接经常被用来组织和管理文件系统。例如，假设你有两个数据目录，一个存储着旧项目的数据，另一个存储着当前项目的数据。你可以使用junction链接来将旧项目的数据目录重定向到当前项目目录下，这样在程序或服务中访问当前项目目录时，也能获取到旧项目的数据，无需更改任何路径配置。
+2 文件链接的创建与管理
+2.1 创建文件链接的详细步骤
+创建文件链接比创建junction更为常见，尤其是在需要对单个文件进行快速访问时。以下是创建文件链接的详细步骤：
+打开命令提示符（以管理员权限运行）。
+使用 cd 命令导航到目标文件所在的目录。
+执行 mklink 命令，同时指定新链接的名称和目标文件的路径。例如：
+mklink "C:\path\to\link.txt" "C:\path\to\target.txt"
+这将创建一个名为 link.txt 的符号链接，它指向同一台计算机上的 target.txt 文件。
+2.2 管理和维护文件链接的要点
+文件链接在管理上非常灵活，但在维护上需要注意以下几点：
+权限问题 ：创建文件链接的用户需要有权限访问目标文件。
+目标文件移动或删除 ：如果移动或删除了目标文件，符号链接将失效。如果目标文件被替换，链接将指向新的目标文件。
+恢复和备份 ：定期备份链接及其目标文件，以防数据丢失或损坏。
+此外，还可以通过 dir 命令查看链接的属性，例如：
+dir /A:L
+列出所有符号链接。
+2.3 文件链接与junction的选择
+在选择使用文件链接还是junction时，需要考虑以下几个关键因素：
+目录还是文件 ：junction只能用于目录，而文件链接可用于文件和目录。
+重定向需求 ：junction用于重定向整个目录结构，而文件链接用于单个文件或目录。
+跨卷链接 ：文件链接可以跨不同卷创建，而junction必须在同一个卷上。
+根据这些考虑因素，可以选择最适合当前需求的链接类型。
+2.4 文件链接的高级使用技巧
+在高级使用中，文件链接可用于多种场景，例如：
+软件安装和部署 ：通过符号链接指向软件的可执行文件，可以实现软件的快速更新和版本控制。
+系统服务配置 ：通过链接，可以快速更改服务的配置文件或数据目录，而不影响服务的正常运行。
+需要注意的是，尽管符号链接提供了极大的灵活性，但也可能存在安全风险，特别是当链接的目标文件或目录包含敏感信息时。确保适当的安全措施，如访问控制列表（ACLs）和权限管理，已被适当配置，以防止未授权访问。
+2.5 通过 mklink 命令管理软链接的注意事项
+使用 mklink 命令时需要确保：
+不要对 System Volume Information 和 Recycle Bin 等系统文件夹创建链接，因为这些目录具有特殊的系统用途。
+使用 /D 参数时，需要确保目标是一个目录，使用 /H 时，确保目标是一个文件。
+如果目标文件或目录不存在，则 mklink 会失败。
+不要对junction链接进行递归创建，即不要创建一个junction指向另一个junction。
+通过遵循上述指导原则，可以有效地利用 mklink 命令来创建和管理junction点和文件链接，从而提高系统的灵活性和效率。
+3 创建软链接时需要注意的事项
+3.1 权限问题和解决方法
+在创建软链接时，需要确保你有足够的权限访问目标文件或目录。如果当前用户没有足够的权限，将会收到一个错误提示，例如“无法创建链接”。
+为解决权限问题，你可以尝试以下步骤：
+以管理员身份运行命令提示符：在开始菜单搜索“cmd”，右键点击“命令提示符”，选择“以管理员身份运行”。
+确保目标路径和链接路径的所有者和权限设置正确，使用 icacls 命令可以检查和修改权限。
+例如，要修改目录权限以便当前用户有完全控制权，可以使用如下命令：
+icacls "C:\目标目录" /grant 用户名:F
+1.2 软链接失效的常见原因
+软链接失效通常有以下几种原因：
+目标文件或目录被移动或删除。
+链接路径指向错误。
+系统恢复过程中链接文件属性被改变。
+为避免这些情况发生，你需要：
+确保在创建链接前目标文件位置稳定且不会变动。
+经常检查链接的有效性。
+使用系统管理工具定期进行备份。
+4 如何安全地删除软链接
+4.1 删除软链接的步骤
+删除软链接与删除普通文件类似，你可以使用 del 命令或直接在文件资源管理器中删除。
+例如，在命令提示符中删除软链接可以使用：
+del C:\链接路径
+或者在文件资源管理器中直接右键点击软链接，选择删除。
+4.2 删除后可能出现的问题及对策
+删除软链接后，可能遇到的问题包括：
+如果应用程序使用的是链接而不是目标路径，则该应用可能会中断。
+在系统恢复或某些特定场景下，删除链接可能会对系统稳定性造成影响。
+解决这些问题的对策包括：
+确保在删除软链接前关闭所有使用该链接的应用程序。
+如果是系统关键的软链接，请谨慎处理，最好在进行系统维护前创建备份。
+5 使用第三方工具 junction
+5.1 第三方工具的简介和优势
+第三方工具 junction 提供了一个命令行界面来管理软链接。它的一个主要优势是可以创建junction点，这是Windows自带工具 mklink 不支持的。
+5.2 通过 junction 工具创建和管理软链接
+使用 junction 创建junction点的方法如下：
+junction.exe 目标路径 链接路径
+junction 也支持删除junction点，示例如下：
+junction.exe -d 链接路径
+这个工具在某些场景下提供了一种简洁有效的方式来处理软链接问题，特别适合批量操作或者在脚本中使用。
+
 
 wsl2使用说明
 设置默认版本2：wsl --set-default-version 2
