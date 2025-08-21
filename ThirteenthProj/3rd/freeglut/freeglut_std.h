@@ -62,6 +62,8 @@
 #  endif
 #   include <windows.h>
 
+#define FREEGLUT_STATIC
+
 /* Windows static library */
 #   ifdef FREEGLUT_STATIC
 
