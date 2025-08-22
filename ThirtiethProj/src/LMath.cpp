@@ -1,4 +1,4 @@
-#include "Math.h"
+#include "LMath.h"
 
 namespace sen {
     float getDistance(const sf::Vector2f &a, const sf::Vector2f &b) {

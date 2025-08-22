@@ -1,4 +1,4 @@
 #include "FPSCounter.h"
-#include "Math.h"
+#include "LMath.h"
 #include "Random.h"
 #include "Animation.h"

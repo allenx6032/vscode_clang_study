@@ -1,7 +1,7 @@
 #include "Transformable.h"
 
 #include "AnimationController.h"
-#include "Math.h"
+#include "LMath.h"
 
 namespace sen {
     void Transformable::setPosition(float x, float y, float speed) {
