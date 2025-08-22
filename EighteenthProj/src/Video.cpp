@@ -1,5 +1,5 @@
 #include "Video.h"
-#include "Core/Window.h"
+#include "Window.h"
 #include <thread>
 
 Video *Video::load(const std::string &url, int width, int height)

@@ -1,5 +1,5 @@
 #include "SoundSystem.h"
-#include <SDL2/SDL.h>
+#include <sdl/SDL.h>
 
 void SoundSystem::run(World &world)
 {

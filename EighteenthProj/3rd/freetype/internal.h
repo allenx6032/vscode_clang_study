@@ -24,28 +24,28 @@
   /*************************************************************************/
 
 
-#define FT_INTERNAL_OBJECTS_H             <ftobjs.h>
-#define FT_INTERNAL_PIC_H                 <ftpic.h>
-#define FT_INTERNAL_STREAM_H              <ftstream.h>
-#define FT_INTERNAL_MEMORY_H              <ftmemory.h>
-#define FT_INTERNAL_DEBUG_H               <ftdebug.h>
-#define FT_INTERNAL_CALC_H                <ftcalc.h>
-#define FT_INTERNAL_DRIVER_H              <ftdriver.h>
-#define FT_INTERNAL_TRACE_H               <fttrace.h>
-#define FT_INTERNAL_GLYPH_LOADER_H        <ftgloadr.h>
-#define FT_INTERNAL_SFNT_H                <sfnt.h>
-#define FT_INTERNAL_SERVICE_H             <ftserv.h>
-#define FT_INTERNAL_RFORK_H               <ftrfork.h>
-#define FT_INTERNAL_VALIDATE_H            <ftvalid.h>
+#define FT_INTERNAL_OBJECTS_H             <freetype/ftobjs.h>
+#define FT_INTERNAL_PIC_H                 <freetype/ftpic.h>
+#define FT_INTERNAL_STREAM_H              <freetype/ftstream.h>
+#define FT_INTERNAL_MEMORY_H              <freetype/ftmemory.h>
+#define FT_INTERNAL_DEBUG_H               <freetype/ftdebug.h>
+#define FT_INTERNAL_CALC_H                <freetype/ftcalc.h>
+#define FT_INTERNAL_DRIVER_H              <freetype/ftdriver.h>
+#define FT_INTERNAL_TRACE_H               <freetype/fttrace.h>
+#define FT_INTERNAL_GLYPH_LOADER_H        <freetype/ftgloadr.h>
+#define FT_INTERNAL_SFNT_H                <freetype/sfnt.h>
+#define FT_INTERNAL_SERVICE_H             <freetype/ftserv.h>
+#define FT_INTERNAL_RFORK_H               <freetype/ftrfork.h>
+#define FT_INTERNAL_VALIDATE_H            <freetype/ftvalid.h>
 
-#define FT_INTERNAL_TRUETYPE_TYPES_H      <tttypes.h>
-#define FT_INTERNAL_TYPE1_TYPES_H         <t1types.h>
+#define FT_INTERNAL_TRUETYPE_TYPES_H      <freetype/tttypes.h>
+#define FT_INTERNAL_TYPE1_TYPES_H         <freetype/t1types.h>
 
-#define FT_INTERNAL_POSTSCRIPT_AUX_H      <psaux.h>
-#define FT_INTERNAL_POSTSCRIPT_HINTS_H    <pshints.h>
-#define FT_INTERNAL_POSTSCRIPT_GLOBALS_H  <psglobal.h>
+#define FT_INTERNAL_POSTSCRIPT_AUX_H      <freetype/psaux.h>
+#define FT_INTERNAL_POSTSCRIPT_HINTS_H    <freetype/pshints.h>
+#define FT_INTERNAL_POSTSCRIPT_GLOBALS_H  <freetype/psglobal.h>
 
-#define FT_INTERNAL_AUTOHINT_H            <autohint.h>
+#define FT_INTERNAL_AUTOHINT_H            <freetype/autohint.h>
 
 
 /* END */

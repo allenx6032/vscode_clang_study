@@ -1,0 +1,13 @@
+#pragma once
+#include "System.h"
+#include "Transform.h"
+#include "Camera.h"
+
+class CameraSystem : public System
+{
+public:
+	void run(World &world) override;
+
+private:
+	void update_camera(Camera *cam, Transform *tr, World &world);
+};

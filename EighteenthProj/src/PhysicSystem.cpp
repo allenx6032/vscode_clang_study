@@ -2,19 +2,19 @@
 #include <algorithm>
 
 #include "PhysicSystem.h"
-#include "Entities/FootHold.h"
-#include "Entities/LadderRope.h"
-#include "Entities/Character.h"
-#include "Entities/Mob.h"
-#include "Entities/Npc.h"
-#include "Entities/Portal.h"
-#include "Entities/Timer.h"
-#include "Components/Line.h"
-#include "Components/Avatar.h"
-#include "Components/Player.h"
-#include "Components/Camera.h"
+#include "FootHold.h"
+#include "LadderRope.h"
+#include "Character.h"
+#include "Mob.h"
+#include "Npc.h"
+#include "Portal.h"
+#include "Timer.h"
+#include "Line.h"
+#include "Avatar.h"
+#include "Player.h"
+#include "Camera.h"
 
-#include "Core/Map.h"
+#include "Map.h"
 
 void PhysicSystem::run(World &world)
 {

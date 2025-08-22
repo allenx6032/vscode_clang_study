@@ -4,7 +4,7 @@
 #include <array>
 #include <utility>
 #include <iostream>
-#include <zlib.h>
+#include <zlib/zlib.h>
 #include "Node.hpp"
 #include "Keys.hpp"
 

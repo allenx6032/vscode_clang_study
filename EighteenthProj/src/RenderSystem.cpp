@@ -1,9 +1,9 @@
 #include "RenderSystem.h"
 
-#include "Core/World.h"
-#include "Core/ECSSystem.h"
-#include "Components/Camera.h"
-#include "Components/Avatar.h"
+#include "World.h"
+#include "ECSSystem.h"
+#include "Camera.h"
+#include "Avatar.h"
 
 void RenderSystem::run(World &world)
 {

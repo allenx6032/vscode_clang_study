@@ -1,7 +1,7 @@
 #include "TransformSystem.h"
 
-#include "Entities/Border.h"
-#include "Components/Physic/Normal.h"
+#include "Border.h"
+#include "Normal.h"
 
 void TransformSystem::run(World &world)
 {

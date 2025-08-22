@@ -4,14 +4,14 @@
 #include "NameTag.h"
 #include "String.h"
 
-#include "Components/Sprite.h"
-#include "Components/Transform.h"
-#include "Components/RelativeTransform.h"
-#include "Components/RandomInput.h"
-#include "Components/LimitTransform.h"
-#include "Components/Line.h"
-#include "Components/Physic/Normal.h"
-#include "Resource/Wz.h"
+#include "Sprite.h"
+#include "Transform.h"
+#include "RelativeTransform.h"
+#include "RandomInput.h"
+#include "LimitTransform.h"
+#include "Line.h"
+#include "Normal.h"
+#include "Wz.h"
 
 Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
 {

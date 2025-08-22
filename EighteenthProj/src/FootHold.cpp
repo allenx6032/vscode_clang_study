@@ -1,6 +1,6 @@
 #include "FootHold.h"
-#include "Components/Line.h"
-#include "Components/Physic/Normal.h"
+#include "Line.h"
+#include "Normal.h"
 #include "Timer.h"
 
 FootHold::FootHold(wz::Node *node, int page, int zmass, World *world) : page(page), zmass(zmass)

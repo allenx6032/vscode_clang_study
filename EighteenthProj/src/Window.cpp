@@ -1,8 +1,8 @@
 #include "Window.h"
 
-#include <SDL2/SDL.h>
+#include <sdl/SDL.h>
 
-#include "Core/ECSSystem.h"
+#include "ECSSystem.h"
 
 #include <cstdlib>
 

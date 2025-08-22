@@ -18,7 +18,7 @@
 
 #define FT_MAKE_OPTION_SINGLE_OBJECT
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include "t1parse.c.h"
 #include "t1load.c.h"
 #include "t1objs.c.h"

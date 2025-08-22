@@ -1,5 +1,5 @@
 #include "CameraSystem.h"
-#include "Entities/Border.h"
+#include "Border.h"
 #include <cmath>
 
 void CameraSystem::run(World &world)

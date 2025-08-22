@@ -740,24 +740,24 @@ FT_BEGIN_HEADER
    *  The header files containing the services.
    */
 
-#define FT_SERVICE_BDF_H                <svbdf.h>
-#define FT_SERVICE_CID_H                <svcid.h>
-#define FT_SERVICE_GLYPH_DICT_H         <svgldict.h>
-#define FT_SERVICE_GX_VALIDATE_H        <svgxval.h>
-#define FT_SERVICE_KERNING_H            <svkern.h>
-#define FT_SERVICE_MULTIPLE_MASTERS_H   <svmm.h>
-#define FT_SERVICE_OPENTYPE_VALIDATE_H  <svotval.h>
-#define FT_SERVICE_PFR_H                <svpfr.h>
-#define FT_SERVICE_POSTSCRIPT_CMAPS_H   <svpscmap.h>
-#define FT_SERVICE_POSTSCRIPT_INFO_H    <svpsinfo.h>
-#define FT_SERVICE_POSTSCRIPT_NAME_H    <svpostnm.h>
-#define FT_SERVICE_PROPERTIES_H         <svprop.h>
-#define FT_SERVICE_SFNT_H               <svsfnt.h>
-#define FT_SERVICE_TRUETYPE_ENGINE_H    <svtteng.h>
-#define FT_SERVICE_TT_CMAP_H            <svttcmap.h>
-#define FT_SERVICE_WINFNT_H             <svwinfnt.h>
-#define FT_SERVICE_XFREE86_NAME_H       <svxf86nm.h>
-#define FT_SERVICE_TRUETYPE_GLYF_H      <svttglyf.h>
+#define FT_SERVICE_BDF_H                <freetype/svbdf.h>
+#define FT_SERVICE_CID_H                <freetype/svcid.h>
+#define FT_SERVICE_GLYPH_DICT_H         <freetype/svgldict.h>
+#define FT_SERVICE_GX_VALIDATE_H        <freetype/svgxval.h>
+#define FT_SERVICE_KERNING_H            <freetype/svkern.h>
+#define FT_SERVICE_MULTIPLE_MASTERS_H   <freetype/svmm.h>
+#define FT_SERVICE_OPENTYPE_VALIDATE_H  <freetype/svotval.h>
+#define FT_SERVICE_PFR_H                <freetype/svpfr.h>
+#define FT_SERVICE_POSTSCRIPT_CMAPS_H   <freetype/svpscmap.h>
+#define FT_SERVICE_POSTSCRIPT_INFO_H    <freetype/svpsinfo.h>
+#define FT_SERVICE_POSTSCRIPT_NAME_H    <freetype/svpostnm.h>
+#define FT_SERVICE_PROPERTIES_H         <freetype/svprop.h>
+#define FT_SERVICE_SFNT_H               <freetype/svsfnt.h>
+#define FT_SERVICE_TRUETYPE_ENGINE_H    <freetype/svtteng.h>
+#define FT_SERVICE_TT_CMAP_H            <freetype/svttcmap.h>
+#define FT_SERVICE_WINFNT_H             <freetype/svwinfnt.h>
+#define FT_SERVICE_XFREE86_NAME_H       <freetype/svxf86nm.h>
+#define FT_SERVICE_TRUETYPE_GLYF_H      <freetype/svttglyf.h>
 
  /* */
 

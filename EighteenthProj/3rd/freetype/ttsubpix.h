@@ -19,7 +19,7 @@
 #ifndef __TTSUBPIX_H__
 #define __TTSUBPIX_H__
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include "ttobjs.h"
 #include "ttinterp.h"
 

@@ -1,5 +1,5 @@
 #include "Avatar.h"
-#include "Resource/Wz.h"
+#include "Wz.h"
 #include <ranges>
 
 Avatar *Avatar::load()

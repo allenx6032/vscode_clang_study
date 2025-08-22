@@ -1,6 +1,6 @@
 #include "LadderRope.h"
-#include "Components/Line.h"
-#include "Components/Physic/Normal.h"
+#include "Line.h"
+#include "Normal.h"
 
 LadderRope::LadderRope(wz::Node *node, World *world)
 {

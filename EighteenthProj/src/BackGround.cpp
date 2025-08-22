@@ -1,10 +1,10 @@
 #include "BackGround.h"
-#include "Resource/Wz.h"
-#include "Components/Sprite.h"
-#include "Components/AnimatedSprite.h"
-#include "Components/HVTile.h"
-#include "Components/HVMove.h"
-#include "Components/Transform.h"
+#include "Wz.h"
+#include "Sprite.h"
+#include "AnimatedSprite.h"
+#include "HVTile.h"
+#include "HVMove.h"
+#include "Transform.h"
 
 BackGround::BackGround(wz::Node *node, int id, World *world)
 {

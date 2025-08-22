@@ -11,6 +11,7 @@ SRC_DIR = .
 OBJ_DIR = .
 LIB_DIR = ../../lib
 INCLUDE_DIR = .
+INCLUDE_DIR += ../
 LIB_NAME = freetype
 
 

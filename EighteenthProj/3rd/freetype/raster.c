@@ -18,7 +18,7 @@
 
 #define FT_MAKE_OPTION_SINGLE_OBJECT
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include "rastpic.c.h"
 #include "ftraster.c.h"
 #include "ftrend1.c.h"

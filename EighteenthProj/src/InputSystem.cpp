@@ -1,6 +1,6 @@
 #include "InputSystem.h"
-#include "Core/Input.h"
-#include "Components/Avatar.h"
+#include "Input.h"
+#include "Avatar.h"
 #include "SDL_keycode.h"
 
 void InputSystem::run(World &world)

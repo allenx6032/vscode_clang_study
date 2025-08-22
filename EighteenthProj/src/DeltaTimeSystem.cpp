@@ -1,7 +1,7 @@
 #include "DeltaTimeSystem.h"
 #include <ranges>
 #include <algorithm>
-#include <SDL2/SDL.h>
+#include <sdl/SDL.h>
 
 void DeltaTimeSystem::run(World &world)
 {

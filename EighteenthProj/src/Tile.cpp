@@ -1,7 +1,7 @@
 #include "Tile.h"
-#include "Components/Sprite.h"
-#include "Components/Transform.h"
-#include "Resource/Wz.h"
+#include "Sprite.h"
+#include "Transform.h"
+#include "Wz.h"
 #include <format>
 #include <string>
 

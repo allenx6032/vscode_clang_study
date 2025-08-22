@@ -1,6 +1,6 @@
 #include "NameTag.h"
-#include "Components/Sprite.h"
-#include "Resource/Wz.h"
+#include "Sprite.h"
+#include "Wz.h"
 
 NameTag::NameTag(int width, int height)
 {

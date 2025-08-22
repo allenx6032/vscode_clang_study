@@ -3,11 +3,11 @@
 #include "String.h"
 #include "ChatBalloon.h"
 
-#include "Components/Avatar.h"
-#include "Components/Transform.h"
-#include "Components/LimitTransform.h"
-#include "Components/RelativeTransform.h"
-#include "Resource/Wz.h"
+#include "Avatar.h"
+#include "Transform.h"
+#include "LimitTransform.h"
+#include "RelativeTransform.h"
+#include "Wz.h"
 
 #include <optional>
 

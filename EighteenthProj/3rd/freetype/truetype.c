@@ -18,7 +18,7 @@
 
 #define FT_MAKE_OPTION_SINGLE_OBJECT
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 #include "ttpic.c.h"
 #include "ttdriver.c.h"   /* driver interface    */
 #include "ttpload.c.h"    /* tables loader       */

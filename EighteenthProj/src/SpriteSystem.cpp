@@ -1,6 +1,6 @@
 #include <vector>
 #include "SpriteSystem.h"
-#include "Components/Player.h"
+#include "Player.h"
 
 void SpriteSystem::run(World &world)
 {

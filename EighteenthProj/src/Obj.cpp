@@ -1,7 +1,7 @@
 #include "Obj.h"
-#include "Components/AnimatedSprite.h"
-#include "Components/Transform.h"
-#include "Resource/Wz.h"
+#include "AnimatedSprite.h"
+#include "Transform.h"
+#include "Wz.h"
 
 Obj::Obj(wz::Node *node, int id, int layer, World *world)
 {

@@ -1,8 +1,8 @@
 #include "Portal.h"
-#include "Resource/Wz.h"
-#include "Components/Sprite.h"
-#include "Components/Transform.h"
-#include "Components/DistanceSprite.h"
+#include "Wz.h"
+#include "Sprite.h"
+#include "Transform.h"
+#include "DistanceSprite.h"
 #include "Timer.h"
 
 Portal::Portal(wz::Node *node, World *world)

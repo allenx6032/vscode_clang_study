@@ -1,5 +1,5 @@
 #include "ChatBalloon.h"
-#include "Resource/Wz.h"
+#include "Wz.h"
 
 ChatBalloon::ChatBalloon(int width, int height, const std::u16string &val)
 {

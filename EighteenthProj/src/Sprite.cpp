@@ -1,5 +1,5 @@
 #include "Sprite.h"
-#include "Core/Window.h"
+#include "Window.h"
 
 Sprite::Sprite(wz::Node *node, int alpha)
 {

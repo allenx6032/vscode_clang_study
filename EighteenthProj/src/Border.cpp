@@ -1,6 +1,6 @@
 #include "Border.h"
 #include "FootHold.h"
-#include "Components/Line.h"
+#include "Line.h"
 
 Border::Border(wz::Node *node, World *world)
 {

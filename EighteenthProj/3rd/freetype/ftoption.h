@@ -20,7 +20,7 @@
 #define __FTOPTION_H__
 
 
-#include <ft2build.h>
+#include <freetype/ft2build.h>
 
 
 FT_BEGIN_HEADER
@@ -46,12 +46,12 @@ FT_BEGIN_HEADER
   /*    directory `builds/<system>' by default, but you can easily change  */
   /*    that for your own projects.                                        */
   /*                                                                       */
-  /*  - Copy the file <ft2build.h> to `$BUILD/ft2build.h' and modify it    */
+  /*  - Copy the file <freetype/ft2build.h> to `$BUILD/ft2build.h' and modify it    */
   /*    slightly to pre-define the macro FT_CONFIG_OPTIONS_H used to       */
   /*    locate this file during the build.  For example,                   */
   /*                                                                       */
   /*      #define FT_CONFIG_OPTIONS_H  <myftoptions.h>                     */
-  /*      #include <ftheader.h>                            */
+  /*      #include <freetype/ftheader.h>                            */
   /*                                                                       */
   /*    will use `$BUILD/myftoptions.h' instead of this file for macro     */
   /*    definitions.                                                       */
@@ -59,7 +59,7 @@ FT_BEGIN_HEADER
   /*    Note also that you can similarly pre-define the macro              */
   /*    FT_CONFIG_MODULES_H used to locate the file listing of the modules */
   /*    that are statically linked to the library at compile time.  By     */
-  /*    default, this file is <ftmodule.h>.                */
+  /*    default, this file is <freetype/ftmodule.h>.                */
   /*                                                                       */
   /*  We highly recommend using the third method whenever possible.        */
   /*                                                                       */
