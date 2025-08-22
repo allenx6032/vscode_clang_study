@@ -143,7 +143,7 @@ $(RCDIRS)/%.o:$(RCDIRS)/%.rc
 %.o:%.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) -c -MMD $<  -o $@
 %.o:%.c
-	$(CC) $(CFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) -c -MMD $<  -o $@ 
+	$(CC) $(CCFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) -c -MMD $<  -o $@ 
 .PHONY: clean
 
 clean:
