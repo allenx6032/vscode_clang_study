@@ -1,0 +1,149 @@
+import * from core
+
+type TestCase = {
+    scope_name: string,
+    name: string,
+    result: bool,
+    failures: [string],
+    body: fn,
+    branches_expected: number,
+    branches_taken: number,
+}
+
+type TestScope = {
+    name: string = "",
+    tests: [TestCase],
+    subscopes: [TestScope],
+    parent: TestScope? = null
+}
+
+type TestState = {
+    root: TestScope,
+    current_scope: TestScope? = null,
+    current_test: TestCase? = null,
+    failures: [TestCase],
+    total_tests: number = 0,
+}
+
+let state: TestState
+
+state.current_scope = state.root
+
+fn run_scope(scope: TestScope): ! {
+    let n_total = scope.tests.length()
+    let n_success = 0
+
+    for test in scope.tests.each() {
+        state.current_test = test
+        state.total_tests += 1
+
+        if let e = protect(test.body) as Error {
+            test.failures.push(e.what)
+            state.failures.push(test)
+        }
+        
+        if test.branches_expected != test.branches_taken {
+            test.result = false
+            test.failures.push("Expected branch was not taken!")
+        }
+
+        if test.result {
+            n_success += 1
+        } else {
+            state.failures.push(test)
+        }
+    }
+
+    if n_total > 0 {
+        print("[" + scope.name + "] " + to_string(n_success) + "/" + to_string(n_total) + " tests successful!")
+    }
+
+    for subscope in scope.subscopes.each() {
+        run_scope(subscope)
+    }
+}
+
+export fn run {
+    let const start = time()
+    run_scope(state.root)
+    let const end = time()
+
+    if state.failures.length() > 0 {
+        print("Tests Failed (" + to_string(state.failures.length()) + "):")
+        for test in state.failures.each() {
+            print("[" + test.scope_name + "]: " + test.name)
+            for message in test.failures.each() {
+                print("-    " + message)
+            }
+        }
+    }
+
+    let const n_passed = state.total_tests - state.failures.length()
+    print("DONE: " + to_string(n_passed) + "/" + to_string(state.total_tests) + " tests passed!")
+    print("All tests completed in " + to_string((end - start) / 1000) + "ms")
+}
+
+export fn push_scope(name: string) {
+    let new_name = state.current_scope!.name
+
+    if new_name.length() > 0 { new_name += "." }
+    new_name += name
+
+    let const new_scope = TestScope => {
+        name: new_name,
+        tests: [:TestCase],
+        subscopes: [:TestScope],
+        parent: state.current_scope
+    }
+    
+    state.current_scope!.subscopes.push(new_scope)
+    state.current_scope = new_scope
+} 
+
+export fn pop_scope {
+    state.current_scope = state.current_scope!.parent
+
+    if state.current_scope == state.root {
+        run()
+    }
+}
+
+export fn test(name: string, body: fn) {
+    let scope = state.current_scope!
+    scope.tests.push(
+        TestCase => {
+            scope_name: scope.name,
+            name: name,
+            result: true,
+            failures: [:string],
+            body: body,
+            branches_expected: 0,
+            branches_taken: 0
+        }
+    )
+}
+
+export fn ensure_branch {
+    if let test = state.current_test {
+        test.branches_expected += 1
+    }
+}
+
+export fn expect(condition: bool, message: string) {
+    if not condition {
+        if let test = state.current_test {
+            test.result = false
+            test.failures.push(message)
+        } else {
+            print("TRIED TO RAISE ERROR WITH NO CURRENT TEST SET!!")
+        }
+    }
+}
+
+export fn expect_branched(condition: bool, message: string) {
+    if let test = state.current_test {
+        test.branches_taken += 1
+    }
+
+    expect(condition, message)
+}

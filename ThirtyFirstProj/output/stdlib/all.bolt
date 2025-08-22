@@ -1,0 +1,7 @@
+import * from "../test"
+import "_scope"
+
+import "arrays"
+import "regex"
+
+pop_scope()

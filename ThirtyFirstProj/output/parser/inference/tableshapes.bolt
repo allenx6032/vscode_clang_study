@@ -1,0 +1,159 @@
+import * from "../../test"
+
+push_scope("tableshapes")
+
+test("tableshape type inference", fn {
+    let a = { a: 100 }
+
+    expect(typeof(a) == type({ a: number }), "Expected a to be '{a: number}'")
+    expect(a is type({ a: number }), "Expected a to be '{a: number}'")
+})
+
+test("nested tableshape type inference", fn {
+    let a = {
+        a: { a: [1, 2, 3] }
+    }
+
+    expect(typeof(a) == type({a: {a: [number]}}), "Expected a to be '{a: {a: [number]}}'")
+    expect(a is type({a: {a: [number]}}), "Expected a to be '{a: {a: [number]}}'")
+})
+
+test("multi-field tableshape type inference", fn {
+    let t = {
+        a: 10,
+        b: "hello",
+        c: true
+    }
+
+    expect(typeof(t) == type({a: number, b: string, c: bool}), "Expected t to be '{a: number, b: string, c: bool}'")
+    expect(t is type({a: number, b: string, c: bool}), "Expected t to be '{a: number, b: string, c: bool}'")
+})
+
+test("unsealed tableshape type inference", fn {
+    let a = unsealed {}
+
+    expect(typeof(a) == type(unsealed {}), "Expected a to be 'unsealed {}'")
+    expect(a is type(unsealed {}), "Expected a to be 'unsealed {}'")
+})
+
+test("unsealed tableshape with field type inference", fn {
+    let a = unsealed { a: 10 }
+
+    expect(typeof(a) == type(unsealed {a: number}), "Expected a to be 'unsealed {a: number}'")
+    expect(a is type(unsealed {a: number}), "Expected a to be 'unsealed {a: number}'")
+})
+
+test("strongly typed tableshape type inference", fn {
+    type T = { a: number }
+
+    let a = T => { a: 10 }
+    expect(typeof(a) == T, "Expected a to be 'T'")
+    expect(a is T, "Expected a to be 'T'")
+})
+
+test("strongly typed unsealed tableshape type inference", fn {
+    type T = unsealed { a: number }
+
+    let a = T => { a: 10, b: 20 }
+    expect(typeof(a) == T, "Expected a to be 'T'")
+    expect(a is T, "Expected a to be 'T'")
+})
+
+
+test("strongly typed tables have weak identities", fn {
+    type A = { a: number }
+    type B = { a: number }
+
+    let a = A => { a: 10 }
+    
+    expect(typeof(a) == B, "Expected a to be 'B'")
+    expect(a is B,         "Expected a to be 'B'")
+})
+
+test("strongly typed tables with prototypes have strong identities", fn {
+    type A = { a: number }
+    fn A.a {}
+
+    type B = { a: number }
+
+    let a = A => { a: 10 }
+
+    expect(typeof(a) != B, "Expected a to not be 'B'")
+    expect(not (a is B),   "Expected a to not be 'B'")
+})
+
+test("dictionary table type inference", fn {
+    let const a = {
+        1: true,
+        2: false,
+        3: false
+    }
+
+    expect(typeof(a) == type({..number: bool}), "Expected a to be '{..number: bool}'")
+    expect(a is type({..number: bool}),         "Expected a to be '{..number: bool}'")
+})
+
+test("dictionary table with complex values type inference", fn {
+    let const a = {
+        1: true,
+        2: "string",
+        3: 10
+    }
+
+    expect(typeof(a) == type({..number: bool | string | number}), "Expected a to be '{..number: bool | string | number}'")
+    expect(a is type({..number: bool | string | number}),         "Expected a to be '{..number: bool | string | number}'")
+})
+
+test("dictionary table with complex keys type inference", fn {
+    let const a = {
+        1: 1,
+        "string": 2,
+        true: 3
+    }
+
+    expect(typeof(a) == type({..bool | string | number: number}), "Expected a to be '{..bool | string | number: number}'")
+    expect(a is type({..bool | string | number: number}),         "Expected a to be '{..bool | string | number: number}'")
+})
+
+test("tableshape key access inference", fn {
+    let a = { a: 10 }
+
+    expect(typeof(a.a) == number, "Expected a.a to be 'number'")
+    expect(a.a is number,         "Expected a.a to be 'number'")
+})
+
+test("unsealed tableshape key access inference", fn {
+    let a = unsealed { a: 10 }
+
+    expect(typeof(a.a) == number, "Expected a.a to be 'number'")
+    expect(a.a is number,         "Expected a.a to be 'number'")
+    
+    expect(typeof(a.b) == any, "Expected a.b to be 'any'")
+    expect(a.b is type(null),  "Expected a.b to be 'null'")
+})
+
+test("dictionary tableshape key access inference", fn {
+    let a = { "string": 10 }
+
+    expect(typeof(a.a) == type(number?),         "Expected a.a to be 'number?'")
+    expect(typeof(a["string"]) == type(number?), "Expected a[\"string\"] to be 'number?'")
+    expect(a["string"] is number,                "Expected a[\"string\"] to be 'number'")
+})
+
+test("bracket access tableshape inference", fn {
+    let a = { a: 10 }
+
+    expect(typeof(a["a"]) == number, "Expected a[\"a\"] to be 'number'")
+    expect(a["a"] is number,         "Expected a[\"a\"] to be 'number'")
+})
+
+test("expression access tableshape", fn {
+    let elements: { ..string: bool } = {}
+    let key = { x: "hello!" }
+
+    elements[key.x] = true
+    expect(elements[key.x] == true, "Expected 'elements[key.x] to be 'true'")
+    expect(elements["hello!"] == true, "Expected 'elements[\"hello!\"] to be 'true'")
+})
+
+pop_scope()

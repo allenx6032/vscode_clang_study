@@ -1,0 +1,8 @@
+import * from "test"
+import "_scope"
+
+import "parser/all"
+import "runtime/all"
+import "stdlib/all"
+
+pop_scope()
