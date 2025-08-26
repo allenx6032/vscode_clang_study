@@ -1,0 +1,36 @@
+{
+  "name": "player2",
+  "image": "ship.png",
+  "frames": [
+    {
+      "width": 34,
+      "height": 20,
+      "x": 0,
+      "y": 16
+    },
+    {
+      "width": 34,
+      "height": 20,
+      "x": 33,
+      "y": 16
+    },
+    {
+      "width": 34,
+      "height": 20,
+      "x": 66,
+      "y": 16
+    },
+    {
+      "width": 34,
+      "height": 20,
+      "x": 98,
+      "y": 16
+    },
+    {
+      "width": 34,
+      "height": 20,
+      "x": 131,
+      "y": 16
+    }
+  ]
+}

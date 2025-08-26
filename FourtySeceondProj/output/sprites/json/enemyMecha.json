@@ -1,0 +1,24 @@
+{
+    "name": "enemyMecha",
+    "image": "r-typesheet7.png",
+    "frames": [
+      {
+        "width": 34,
+        "height": 34,
+        "x": 100,
+        "y": 0
+      },
+      {
+        "width": 34,
+        "height": 34,
+        "x": 133,
+        "y": 0
+      },
+      {
+        "width": 34,
+        "height": 34,
+        "x": 166,
+        "y": 0
+      }
+    ]
+  }

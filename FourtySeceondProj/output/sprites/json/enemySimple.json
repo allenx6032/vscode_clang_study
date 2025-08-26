@@ -1,0 +1,54 @@
+{
+  "name": "enemySimple",
+  "image": "r-typesheet5.png",
+  "frames": [
+    {
+      "width": 34,
+      "height": 36,
+      "x": 498,
+      "y": 0
+    },
+    {
+      "width": 34,
+      "height": 36,
+      "x": 467,
+      "y": 0
+    },
+    {
+      "width": 34,
+      "height": 36,
+      "x": 433,
+      "y": 0
+    },
+    {
+      "width": 34,
+      "height": 36,
+      "x": 401,
+      "y": 0
+    },
+    {
+      "width": 34,
+      "height": 36,
+      "x": 368,
+      "y": 0
+    },
+    {
+      "width": 34,
+      "height": 36,
+      "x": 335,
+      "y": 0
+    },
+    {
+      "width": 34,
+      "height": 36,
+      "x": 301,
+      "y": 0
+    },
+    {
+      "width": 34,
+      "height": 36,
+      "x": 268,
+      "y": 0
+    }
+  ]
+}
