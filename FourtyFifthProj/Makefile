@@ -1,4 +1,6 @@
 ## SHELL=powershell
+BUILD_DATE=$(shell date "+%Y-%m-%dT%H:%M:%S")
+
 SHELL=cmd
 CXX = g++
 CXX = g++

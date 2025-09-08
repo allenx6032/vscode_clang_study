@@ -53,6 +53,7 @@ CURRENTPATH := $(dir $(CURRENT))# 当前Makefile所在目录
 # SUBDIRS := $(patsubst %/,%,$(dir $(3RDDIRS))) # 获取子目录
 INCLUDES	:= $(patsubst %,-I%, $(INCLUDEDIRS:%/=%))
 HEADERS	:= $(patsubst %,-I%, $(HEADERDIRS:%/=%))
+RESINCOUDE	:= $(patsubst %,-I%, $(RCDIRS:%/=%))
 LIBS		:= $(patsubst %,-L%, $(LIBDIRS:%/=%))
 3RDS		:= $(patsubst %/,%,$(wildcard $(3RDDIRS)/*/)) # 动态获取子目录
 3RD_CLEAN_DIRS := $(foreach dir,$(3RDS),$(call FIXPATH,$(dir)))
@@ -125,17 +126,17 @@ $(MAIN): $(ASMOBJECTS)  $(CPPOBJECTS) $(CXXOBJECTS) $(CCOBJECTS) $(COBJECTS) $(R
 	$(CXX) -o $(OUTPUTMAIN) $(CPPOBJECTS) $(ASMOBJECTS) $(CXXOBJECTS) $(CCOBJECTS) $(COBJECTS) $(RCOBJECTS) $(LIBS) $(3RDLIBS) $(LFLAGS) 
 -include   $(CPPDEPS) $(CXXDEPS) $(CCDEPS) $(CDEPS) $(RCDEPS)
 $(ASMDIRS)/%.o:$(ASMDIRS)/%.s
-	$(CXX) $(ASMFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) -c -MMD $< -o $@
+	$(CXX) $(ASMFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) $(RESINCOUDE) -c -MMD $< -o $@
 $(RCDIRS)/%.o:$(RCDIRS)/%.rc
 	$(WINDRES) $(RCFLAGS) $< -o $@
 %.o:%.cxx
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) -c -MMD $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) $(RESINCOUDE) -c -MMD $< -o $@
 %.o:%.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) -c -MMD $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) $(RESINCOUDE) -c -MMD $< -o $@
 %.o:%.cc
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) -c -MMD $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) $(RESINCOUDE)v -c -MMD $< -o $@
 %.o:%.c
-	$(CC) $(CCFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) -c -MMD $< -o $@ 
+	$(CC) $(CCFLAGS) $(INCLUDES) -I$(3RDDIRS) $(HEADERS) $(RESINCOUDE) -c -MMD $< -o $@ 
 .PHONY: clean
 
 clean:
