@@ -155,13 +155,13 @@ ifeq ($(OS),Windows_NT)
 		) \
 	)
 	@echo 清理项目文件...
-	del /Q $(call FIXPATH,src\*.o) 2>nul
-	del /Q $(call FIXPATH,src\*.d) 2>nul
-	del /Q $(call FIXPATH,res\*.o) 2>nul
-	del /Q $(call FIXPATH,res\*.d) 2>nul
-	del /Q $(call FIXPATH,asm\*.o) 2>nul
-	del /Q $(call FIXPATH,asm\*.d) 2>nul
-	del /Q $(OUTPUTMAIN) 2>nul
+	del /Q $(call FIXPATH,src\*.o) 
+	del /Q $(call FIXPATH,src\*.d) 
+	del /Q $(call FIXPATH,res\*.o) 
+	del /Q $(call FIXPATH,res\*.d) 
+	del /Q $(call FIXPATH,asm\*.o) 
+	del /Q $(call FIXPATH,asm\*.d) 
+	del /Q $(OUTPUTMAIN) 
 	@echo 清理完成!
 else
 	@for dir in $(3RDS); do \
