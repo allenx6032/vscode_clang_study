@@ -1,0 +1,56 @@
+--=========== Copyright © 2019, Planimeter, All rights reserved. ===========--
+--
+-- Purpose: GUI autoloader
+--
+--==========================================================================--
+
+local error        = error
+local ipairs       = ipairs
+local pcall        = pcall
+local rawget       = rawget
+local require      = require
+local setmetatable = setmetatable
+local string       = string
+local _G           = _G
+
+module( "gui" )
+
+local metatable = {}
+local panelDirectories = {
+	"game.client",
+	"engine.client"
+}
+
+function metatable.__index( t, k )
+	-- Ignore private members.
+	local privateMember = string.sub( k, 1, 1 ) == "_"
+	if ( privateMember ) then
+		return
+	end
+
+	-- Look in `/game/client/gui` and `/engine/client/gui` for
+	-- panels not yet required and require them.
+	--
+	-- Otherwise, return a standard Lua error.
+	for _, module in ipairs( panelDirectories ) do
+		local library = module .. ".gui." .. k
+		local status, err = pcall( require, library )
+		if ( status == true ) then
+			break
+		end
+
+		local message = "module '" .. library .. "' not found:"
+		local notFound = string.find( err, message ) ~= 1
+		if ( notFound ) then
+			error( err, 2 )
+		end
+	end
+
+	-- Return pass-through.
+	local v = rawget( t, k )
+	if ( v ~= nil ) then
+		return v
+	end
+end
+
+setmetatable( _M, metatable )

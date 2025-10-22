@@ -1,13 +1,26 @@
-## SHELL=powershell
-SHELL=cmd
+# 编译器和工具
+ifeq ($(OS),Windows_NT)
+    # Windows 使用 PowerShell 获取时间
+    BUILD_DATE := $(shell powershell -Command "Get-Date -Format 'yyyy-MM-ddTHH:mm:ss'")
+    BUILD_ARCH	:= Windows_NT
+	BUILD_TIME	:= $(shell powershell Get-Date)
+	SHELL := powershell.exe
+else
+    # 类Unix系统使用 date 命令
+    BUILD_DATE := $(shell date "+%Y-%m-%dT%H:%M:%S")
+	BUILD_ARCH	:= $(shell uname -a)
+	BUILD_TIME	:= $(shell date)
+endif
+# SHELL=powershell
+# SHELL=cmd
 CXX = g++
 CXX = g++
 CC = gcc
 WINDRES = windres
 ASMFLAGS	:=               
 RCFLAGS		:= -O coff
-CXXFLAGS	:= -fPIE -Wl,--allow-multiple-definition -std=c++14 -m64 -w -O3 -g -static -DWIN32 -D_WIN32 -D__WIN32__ -D_WINDOWS -DWINDOWS -D__WINDOWS__ -D_GLFW_USE_CONFIG_H -D_GLFW_WIN32 -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DLUA_COMPAT_5_3 -DLUA_COMPAT_5_2  -DFT2_BUILD_LIBRARY -DFT_CONFIG_OPTION_SYSTEM_ZLIB -DBUILDING_LIBCURL -DCURL_HIDDEN_SYMBOLS -DHAVE_CURL_CONFIG_H -DCURL_STATICLIB -DSFML_STATIC -DAL_BUILD_LIBRARY -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DFLAC__CPU_X86_64 -DFLAC__HAS_X86INTRIN -DFLAC__ALIGN_MALLOC_DATA -DFLAC__NO_DLL -DFLAC__OVERFLOW_DETECT -DFLAC__HAS_OGG -DFLAC__ENABLE_64_BIT_WORDS -DLOAD_PNG -DLOAD_JPG -DLOAD_WEBP -DLOAD_GIF -DCC_STATIC -DHAVE_FAAD_CONFIG_H -D_USRLUASTATIC -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP=1 -DSOL_NO_COMPAT -DSOL_USING_CXX_LUA=1 -DWINVER=0x0600        
-CCFLAGS		:= -fPIE -Wl,--allow-multiple-definition -std=c11 -m64 -w -O3 -g -static -DWIN32 -D_WIN32 -D__WIN32__ -D_WINDOWS -DWINDOWS -D__WINDOWS__ -D_GLFW_USE_CONFIG_H -D_GLFW_WIN32 -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DLUA_COMPAT_5_3 -DLUA_COMPAT_5_2  -DFT2_BUILD_LIBRARY -DFT_CONFIG_OPTION_SYSTEM_ZLIB -DBUILDING_LIBCURL -DCURL_HIDDEN_SYMBOLS -DHAVE_CURL_CONFIG_H -DCURL_STATICLIB -DSFML_STATIC -DAL_BUILD_LIBRARY -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DFLAC__CPU_X86_64 -DFLAC__HAS_X86INTRIN -DFLAC__ALIGN_MALLOC_DATA -DFLAC__NO_DLL -DFLAC__OVERFLOW_DETECT -DFLAC__HAS_OGG -DFLAC__ENABLE_64_BIT_WORDS -DLOAD_PNG -DLOAD_JPG -DLOAD_WEBP -DLOAD_GIF -DCC_STATIC -DHAVE_FAAD_CONFIG_H -D_USRLUASTATIC -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP=1 -DSOL_NO_COMPAT -DSOL_USING_CXX_LUA=1 -DWINVER=0x0600                    
+CXXFLAGS	:= -fPIE -Wl,--allow-multiple-definition -std=c++14 -m64 -w -O3 -g -static -DWIN32 -D_WIN32 -D__WIN32__ -D_WINDOWS -DWINDOWS -D__WINDOWS__ -D_GLFW_USE_CONFIG_H -D_GLFW_WIN32 -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DLUA_COMPAT_5_3 -DLUA_COMPAT_5_2  -DFT2_BUILD_LIBRARY -DFT_CONFIG_OPTION_SYSTEM_ZLIB -DBUILDING_LIBCURL -DCURL_HIDDEN_SYMBOLS -DHAVE_CURL_CONFIG_H -DCURL_STATICLIB -DSFML_STATIC -DAL_BUILD_LIBRARY -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DFLAC__CPU_X86_64 -DFLAC__HAS_X86INTRIN -DFLAC__ALIGN_MALLOC_DATA -DFLAC__NO_DLL -DFLAC__OVERFLOW_DETECT -DFLAC__HAS_OGG -DFLAC__ENABLE_64_BIT_WORDS -DLOAD_PNG -DLOAD_JPG -DLOAD_WEBP -DLOAD_GIF -DCC_STATIC -DHAVE_FAAD_CONFIG_H -D_USRLUASTATIC -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP=1 -DSOL_NO_COMPAT -DSOL_USING_CXX_LUA=1 -DWINVER=0x0600 -DCOMPAT53_PREFIX=moongl_compat_ -DVAR_ARRAYS -DLPUGL_BUILD_DATE=\"$(BUILD_DATE)\"        
+CCFLAGS		:= -fPIE -Wl,--allow-multiple-definition -std=c11 -m64 -w -O3 -g -static -DWIN32 -D_WIN32 -D__WIN32__ -D_WINDOWS -DWINDOWS -D__WINDOWS__ -D_GLFW_USE_CONFIG_H -D_GLFW_WIN32 -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DLUA_COMPAT_5_3 -DLUA_COMPAT_5_2  -DFT2_BUILD_LIBRARY -DFT_CONFIG_OPTION_SYSTEM_ZLIB -DBUILDING_LIBCURL -DCURL_HIDDEN_SYMBOLS -DHAVE_CURL_CONFIG_H -DCURL_STATICLIB -DSFML_STATIC -DAL_BUILD_LIBRARY -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DFLAC__CPU_X86_64 -DFLAC__HAS_X86INTRIN -DFLAC__ALIGN_MALLOC_DATA -DFLAC__NO_DLL -DFLAC__OVERFLOW_DETECT -DFLAC__HAS_OGG -DFLAC__ENABLE_64_BIT_WORDS -DLOAD_PNG -DLOAD_JPG -DLOAD_WEBP -DLOAD_GIF -DCC_STATIC -DHAVE_FAAD_CONFIG_H -D_USRLUASTATIC -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP=1 -DSOL_NO_COMPAT -DSOL_USING_CXX_LUA=1 -DWINVER=0x0600 -DCOMPAT53_PREFIX=moongl_compat_ -DVAR_ARRAYS -DLPUGL_BUILD_DATE=\"$(BUILD_DATE)\"                    
 LFLAGS = -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ldxguid -ld3d11 -lxinput -ldinput8 -ld2d1 -ldwrite -lwindowscodecs -lshlwapi -lWs2_32 -lIphlpapi -lcomctl32 -lpthread -ldsound -lddraw -lm -lbcrypt -lsetupapi -lsecur32 -lcrypt32  -lpsapi -luserenv -ld3dcompiler -ldwmapi  -lwsock32 -lUxTheme -lWininet -lpthread
 ## LFLAGS = -Wl,--subsystem,console -municode -mconsole -fexec-charset=gbk -finput-charset=gbk
 ## LFLAGS = -Wl,--subsystem,windows -municode -mwindows
@@ -19,10 +32,14 @@ RC		:= res
 ASM		:= asm
 3RD		:= 3rd
 HEADER  := header
+CACHE_EXTENSIONS := .o .d
 
 ifeq ($(OS),Windows_NT)
 MAIN	:= main.exe
 SOURCEDIRS	:= $(SRC)
+SOURCEDIRS	+= $(shell powershell -Command "Get-ChildItem -LiteralPath '$(SRC)' -Directory -Recurse -Force | Resolve-Path -Relative")
+# ESCAPED_SRC := $(subst \, \\\\, $(SRC))
+# SOURCEDIRS := $(shell dir /s /b /ad "$(SRC)" | findstr /i /r "^$(ESCAPED_SRC)\\\\.*")
 INCLUDEDIRS	:= $(INCLUDE)
 LIBDIRS		:= $(LIB)
 RCDIRS		:= $(RC)
@@ -33,9 +50,13 @@ FIXPATH = $(subst /,\\,$1)
 RM			:= del
 TARGET 		:=  /s /q /f
 MD	:= mkdir
+SHELL := cmd.exe
+RM_CMD := del /S /Q
+CACHE_PATTERNS := $(foreach ext,$(CACHE_EXTENSIONS),"*$(ext)")
 else
 MAIN	:= main
-SOURCEDIRS	:= $(shell find $(SRC) -type d)
+SOURCEDIRS	:= $(shell find $(SRC) -type d) 
+SOURCEDIRS	+= $(shell find $(SRC) -maxdepth 5 -type d) #递归查找5层
 INCLUDEDIRS	:= $(shell find $(INCLUDE) -type d)
 LIBDIRS		:= $(shell find $(LIB) -type d)
 RCDIRS		:= $(shell find $(RC) -type d)
@@ -46,6 +67,9 @@ FIXPATH = $1
 RM = rm 
 TARGET 		:= -f
 MD	:= mkdir -p
+SHELL := /bin/bash
+RM_CMD := rm -f
+CACHE_PATTERNS := $(foreach ext,$(CACHE_EXTENSIONS),-name '*$(ext)')
 endif
 
 CURRENT := $(abspath $(lastword $(MAKEFILE_LIST)))# 当前Makefile路径
@@ -155,8 +179,17 @@ ifeq ($(OS),Windows_NT)
 		) \
 	)
 	@echo 清理项目文件...
-	del /Q $(call FIXPATH,src\*.o) 2>nul
-	del /Q $(call FIXPATH,src\*.d) 2>nul
+	@for %%d in ($(SOURCEDIRS)) do ( \
+        if exist "%%d" ( \
+            echo 扫描目录: %%d & \
+            $(RM_CMD) %%d\$(CACHE_PATTERNS) & \
+            echo 已清除 %%d 中的缓存文件 \
+        ) else ( \
+            echo 跳过不存在目录: %%d \
+        ) \
+    )
+# del /Q $(call FIXPATH,src\*.o) 2>nul
+# del /Q $(call FIXPATH,src\*.d) 2>nul
 	del /Q $(call FIXPATH,res\*.o) 2>nul
 	del /Q $(call FIXPATH,res\*.d) 2>nul
 	del /Q $(call FIXPATH,asm\*.o) 2>nul
@@ -164,9 +197,20 @@ ifeq ($(OS),Windows_NT)
 	del /Q $(OUTPUTMAIN) 2>nul
 	@echo 清理完成!
 else
+	@echo 清理第三方库...
 	@for dir in $(3RDS); do \
 		$(MAKE) -C $$dir clean; \
 	done
+	@echo 清理项目文件...
+	@for dir in $(SOURCEDIRS); do \
+        if [ -d "$$dir" ]; then \
+            echo "扫描目录: $$dir" && \
+            find "$$dir" -type f \( $(CACHE_PATTERNS) \) -delete && \
+            echo "已清除 $$dir 中的缓存文件"; \
+        else \
+            echo "跳过不存在目录: $$dir"; \
+        fi; \
+    done
 	@rm -f $(CXXOBJECTS) $(CPPOBJECTS) $(CCOBJECTS) $(COBJECTS) $(RCOBJECTS) $(ASMOBJECTS)
 	@rm -f $(OUTPUTMAIN)
 	@echo 清理完成!

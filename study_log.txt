@@ -21,6 +21,10 @@ mkdir bld&cd bld&cmake  ..
 cmake --build release --config Release --target all
 cmake --build debug --config Debug --target all
 nm *.o >> symbols.txt //可以查看 obj文件中的所有导出符号
+make > xxx.txt //导出make编译日志
+./configure  --help
+./configure --arch=x86_64 --enable-static --disable-x86asm --disable-shared
+scons -j8 platform=windows tools=yes > xxx.txt //导出scons编译日志
 gcc -E main.c  -I../include > main.i //查看展开后的源文件
 
 VC万能头文件 <YVALS.H>
@@ -390,6 +394,7 @@ scons platform=windows                # 默认去寻找VS的编译环境，找�
 scons platform=windows use_mingw=yes  # 强制使用mingw编译
 scons -j6 platform=windows            # 多线程编译
 scons platform=windows bits=32        # 软件是64位还是32位置，bits=64 或者 bits=32
+scons -j6 platform=windows use_mingw=yes
 生产版本发布，默认打包是debug+tools
 target=release_debug
 target=release          # 生产环境发布，可以加快编译速度和减小包的体积 q q
@@ -2305,6 +2310,7 @@ pacman -S mingw-w64-ucrt-x86_64-SDL2
 git clone github.com/FFmpeg/FFmpe
 cd FFmpeg
 ./configure --arch=x86_64 --enable-shared --enable-static
+./configure --arch=x86_64 --enable-static --disable-x86asm --disable-shared
 make
 make install
 
@@ -8844,6 +8850,13 @@ int main() {
 }
 
 
+SetWindowLong(m_window, GWL_USERDATA, reinterpret_cast<LONG>(this));
+MCIDevice* This = reinterpret_cast<MCIDevice*>(GetWindowLong(window, GWL_USERDATA));
+转
+SetWindowLongPtr(m_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+MCIDevice* This = reinterpret_cast<MCIDevice*>(GetWindowLongPtr(window, GWLP_USERDATA));
+
+
 strndup函数实现
 char* strndup(const char* str, size_t n) {
     char* ret = (char*)malloc(n + 1);
@@ -8879,13 +8892,21 @@ void srand48(unsigned int i)
 // #include <algorithm>
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
+#define F_PI       3.14159265358979323846f
 #define M_PI_2     1.57079632679489661923
+#define F_PI_2     1.57079632679489661923f  // Float precision
 #define M_PI_4     0.785398163397448309616
+#define F_PI_4     0.785398163397448309616f
 #define M_1_PI     0.318309886183790671538
+#define F_1_PI     0.318309886183790671538f
 #define M_2_PI     0.636619772367581343076
+#define F_2_PI     0.636619772367581343076f
 #define M_2_SQRTPI 1.12837916709551257390
+#define F_2_SQRTPI 1.12837916709551257390f
 #define M_SQRT2    1.41421356237309504880
+#define F_SQRT2    1.41421356237309504880f
 #define M_SQRT1_2  0.707106781186547524401
+#define F_SQRT1_2  0.707106781186547524401f
 #endif
 
 non-const lvalue reference to type 'xxx' cannot bind to a  temporary of type 'xxx'
