@@ -490,6 +490,53 @@ static const luaL_Reg raylib_functions[] = {
 
 int luaopen_raylib(lua_State *L) {
     luaL_newlib(L, raylib_functions);
+    lua_pushvalue(L, -1);
+    lua_setglobal(L, "raylib");
     register_raylib_colors(L);
     return 1;
 }
+
+#ifdef LUA_51
+#ifdef LUA_STATIC
+// 注册 raylib 模块
+void register_raylib(lua_State *L) {
+    // 创建一个新表并将函数注册到表中（Lua 5.1 兼容写法）
+    luaL_register(L, "raylib", raylib_functions);
+    
+    // 或者用 luaL_newlib + 手动设置全局变量（等价写法）：
+    // luaL_newlib(L, raylib_functions);
+    // lua_setglobal(L, "raylib");
+}
+#else
+void register_raylib(lua_State *L) {
+    luaL_register(L, "raylib", raylib_functions);
+    lua_pop(L, 1);  // 将表留在栈顶，以便后续操作（可选）
+}
+// 在 Lua 初始化时调用
+luaL_requiref(L, "raylib", register_raylib, 1);
+#endif
+#endif
+
+
+#ifdef LUA_54
+// 注册 raylib 模块
+int luaopen_raylib(lua_State *L) {
+    // 1. 创建一个新表作为模块表
+    luaL_newlib(L, raylib_functions); // Lua 5.4 直接使用 luaL_newlib
+    // 或者手动创建表并绑定函数（等价写法）：
+    // lua_newtable(L);
+    // luaL_setfuncs(L, raylib_functions, 0);
+
+    // 2. 将模块表命名为 "raylib"，并绑定到全局环境
+    // 若希望通过 require 加载模块，需注册到 package.loaded：
+    lua_pushvalue(L, -1);
+    lua_setglobal(L, "raylib");      // 设为全局变量 raylib
+    lua_setfield(L, -2, "raylib");   // 可选：保存到 package.loaded
+
+    return 1; // 返回模块表
+}
+
+// 注册 raylib 模块
+luaL_requiref(L, "raylib", luaopen_raylib, 1); // 使用 require 机制
+lua_pop(L, 1); // 移除栈顶多余的模块引用
+#endif
