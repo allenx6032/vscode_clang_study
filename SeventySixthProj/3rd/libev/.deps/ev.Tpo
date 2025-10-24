@@ -1,0 +1,559 @@
+ev.lo: ev.c config.h D:/llvm-mingw-20240606-ucrt-x86_64/include/stdlib.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/corecrt.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_mac.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_secapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/vadefs.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/vadefs.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sdks/_mingw_ddk.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/corecrt_wstdlib.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/limits.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/limits.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/crtdefs.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/stdlib_s.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/malloc.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/mm_malloc.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/string.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/string_s.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/fcntl.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/io.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_off_t.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/stddef.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/stddef.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_header_macro.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_ptrdiff_t.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_size_t.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_wchar_t.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_null.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_max_align_t.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_offsetof.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/stdio.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/corecrt_stdio_config.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/swprintf.inl \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/stdio_s.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/assert.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/errno.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sys/types.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/time.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sys/timeb.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/sys/timeb_s.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/_timeval.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/pthread_time.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/pthread_compat.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/signal.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/pthread_signal.h ev.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sys/stat.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_stat64.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winsock2.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_unicode.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/windows.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sdkddkver.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/excpt.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/stdarg.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/stdarg.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg_header_macro.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg___gnuc_va_list.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg_va_list.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg_va_arg.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg___va_copy.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg_va_copy.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/windef.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winapifamily.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/minwindef.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/specstrings.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sal.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/concurrencysal.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/driverspecs.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winnt.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/ctype.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/corecrt_wctype.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/apiset.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/intrin-impl.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/basetsd.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/guiddef.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/x86intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/ia32intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/immintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/x86gprintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/hresetintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/uintrintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/usermsrintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/crc32intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/prfchiintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/raointintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/cmpccxaddintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/mmintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xmmintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/emmintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/pmmintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/tmmintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/smmintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/popcntintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/wmmintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__wmmintrin_aes.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__wmmintrin_pclmul.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/clflushoptintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/clwbintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx2intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/f16cintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/bmiintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/bmi2intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/lzcntintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/fmaintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512fintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512bwintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512bitalgintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512cdintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vpopcntdqintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vpopcntdqvlintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vnniintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlvnniintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxvnniintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512dqintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlbitalgintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlbwintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlcdintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vldqintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512ifmaintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512ifmavlintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxifmaintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vbmiintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vbmivlintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vbmi2intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlvbmi2intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512fp16intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlfp16intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512bf16intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlbf16intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/pkuintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/vpclmulqdqintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/vaesintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/gfniintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxvnniint8intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxneconvertintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sha512intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sm3intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sm4intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxvnniint16intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/rtmintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xtestintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/shaintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/fxsrintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xsaveintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xsaveoptintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xsavecintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xsavesintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/cetintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/adcintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/adxintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/rdseedintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/wbnoinvdintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/cldemoteintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/waitpkgintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/movdirintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/movrsintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/movrs_avx10_2intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/movrs_avx10_2_512intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/pconfigintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sgxintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/ptwriteintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/invpcidintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/keylockerintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxfp16intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxcomplexintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxfp8intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxtransposeintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxmovrsintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxmovrstransposeintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxavx512intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxtf32intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxtf32transposeintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxbf16transposeintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxfp16transposeintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxcomplextransposeintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vp2intersectintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlvp2intersectintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2bf16intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2convertintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2copyintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2minmaxintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2niintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2satcvtdsintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2satcvtintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512bf16intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512convertintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512minmaxintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512niintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512satcvtdsintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512satcvtintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sm4evexintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/enqcmdintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/serializeintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/tsxldtrkintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/prfchwintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/ammintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/fma4intrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xopintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/tbmintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/lwpintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/mwaitxintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/clzerointrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/rdpruintrin.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/pshpack4.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/poppack.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/pshpack2.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/pshpack8.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/ktmtypes.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winbase.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/apisetcconv.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/minwinbase.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/bemapiset.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/debugapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/errhandlingapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/fibersapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/fileapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/handleapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/heapapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/ioapiset.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/interlockedapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/jobapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/libloaderapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/memoryapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/namedpipeapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/namespaceapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/processenv.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/processthreadsapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/processtopologyapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/profileapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/realtimeapiset.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/securityappcontainer.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/securitybaseapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/synchapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sysinfoapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/systemtopologyapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/threadpoolapiset.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/threadpoollegacyapiset.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/utilapiset.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/wow64apiset.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winerror.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/fltwinerror.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/timezoneapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/wingdi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/pshpack1.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winuser.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/tvout.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winnls.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/datetimeapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/stringapiset.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/wincon.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/wincontypes.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/consoleapi.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/consoleapi2.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/consoleapi3.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winver.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winreg.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/reason.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winnetwk.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/wnnc.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/virtdisk.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/stralign.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/stralign_s.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/winsvc.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/mcx.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/imm.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_ws1_undef.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/_bsd_types.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/inaddr.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_socket_types.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_fd_types.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_ip_types.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_wsadata.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/ws2def.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_wsa_errnos.h \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/qos.h ev_win32.c \
+  D:/llvm-mingw-20240606-ucrt-x86_64/include/math.h ev_vars.h ev_wrap.h
+config.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/stdlib.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/corecrt.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_mac.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_secapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/vadefs.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/vadefs.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sdks/_mingw_ddk.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/corecrt_wstdlib.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/limits.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/limits.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/crtdefs.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/stdlib_s.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/malloc.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/mm_malloc.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/string.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/string_s.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/fcntl.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/io.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_off_t.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/stddef.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/stddef.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_header_macro.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_ptrdiff_t.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_size_t.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_wchar_t.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_null.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_max_align_t.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stddef_offsetof.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/stdio.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/corecrt_stdio_config.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/swprintf.inl:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/stdio_s.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/assert.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/errno.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sys/types.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/time.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sys/timeb.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/sys/timeb_s.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/_timeval.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/pthread_time.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/pthread_compat.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/signal.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/pthread_signal.h:
+ev.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sys/stat.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_stat64.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winsock2.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/_mingw_unicode.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/windows.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sdkddkver.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/excpt.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/stdarg.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/stdarg.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg_header_macro.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg___gnuc_va_list.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg_va_list.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg_va_arg.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg___va_copy.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__stdarg_va_copy.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/windef.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winapifamily.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/minwindef.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/specstrings.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sal.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/concurrencysal.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/driverspecs.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winnt.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/ctype.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/corecrt_wctype.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/apiset.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/intrin-impl.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/basetsd.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/guiddef.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/x86intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/ia32intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/immintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/x86gprintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/hresetintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/uintrintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/usermsrintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/crc32intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/prfchiintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/raointintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/cmpccxaddintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/mmintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xmmintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/emmintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/pmmintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/tmmintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/smmintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/popcntintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/wmmintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__wmmintrin_aes.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/__wmmintrin_pclmul.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/clflushoptintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/clwbintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx2intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/f16cintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/bmiintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/bmi2intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/lzcntintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/fmaintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512fintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512bwintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512bitalgintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512cdintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vpopcntdqintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vpopcntdqvlintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vnniintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlvnniintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxvnniintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512dqintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlbitalgintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlbwintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlcdintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vldqintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512ifmaintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512ifmavlintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxifmaintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vbmiintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vbmivlintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vbmi2intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlvbmi2intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512fp16intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlfp16intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512bf16intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlbf16intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/pkuintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/vpclmulqdqintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/vaesintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/gfniintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxvnniint8intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxneconvertintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sha512intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sm3intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sm4intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avxvnniint16intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/rtmintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xtestintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/shaintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/fxsrintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xsaveintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xsaveoptintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xsavecintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xsavesintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/cetintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/adcintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/adxintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/rdseedintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/wbnoinvdintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/cldemoteintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/waitpkgintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/movdirintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/movrsintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/movrs_avx10_2intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/movrs_avx10_2_512intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/pconfigintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sgxintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/ptwriteintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/invpcidintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/keylockerintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxfp16intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxcomplexintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxfp8intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxtransposeintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxmovrsintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxmovrstransposeintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxavx512intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxtf32intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxtf32transposeintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxbf16transposeintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxfp16transposeintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/amxcomplextransposeintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vp2intersectintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx512vlvp2intersectintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2bf16intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2convertintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2copyintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2minmaxintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2niintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2satcvtdsintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2satcvtintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512bf16intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512convertintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512minmaxintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512niintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512satcvtdsintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/avx10_2_512satcvtintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/sm4evexintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/enqcmdintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/serializeintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/tsxldtrkintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/prfchwintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/ammintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/fma4intrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/xopintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/tbmintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/lwpintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/mwaitxintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/clzerointrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/lib/clang/21/include/rdpruintrin.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/pshpack4.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/poppack.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/pshpack2.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/pshpack8.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/ktmtypes.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winbase.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/apisetcconv.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/minwinbase.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/bemapiset.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/debugapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/errhandlingapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/fibersapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/fileapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/handleapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/heapapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/ioapiset.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/interlockedapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/jobapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/libloaderapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/memoryapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/namedpipeapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/namespaceapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/processenv.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/processthreadsapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/processtopologyapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/profileapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/realtimeapiset.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/securityappcontainer.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/securitybaseapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/synchapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sysinfoapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/systemtopologyapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/threadpoolapiset.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/threadpoollegacyapiset.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/utilapiset.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/wow64apiset.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winerror.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/fltwinerror.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/timezoneapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/wingdi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/pshpack1.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winuser.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/tvout.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winnls.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/datetimeapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/stringapiset.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/wincon.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/wincontypes.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/consoleapi.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/consoleapi2.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/consoleapi3.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winver.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winreg.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/reason.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winnetwk.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/wnnc.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/virtdisk.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/stralign.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/sec_api/stralign_s.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/winsvc.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/mcx.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/imm.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_ws1_undef.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/_bsd_types.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/inaddr.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_socket_types.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_fd_types.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_ip_types.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_wsadata.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/ws2def.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/psdk_inc/_wsa_errnos.h:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/qos.h:
+ev_win32.c:
+D:/llvm-mingw-20240606-ucrt-x86_64/include/math.h:
+ev_vars.h:
+ev_wrap.h:
