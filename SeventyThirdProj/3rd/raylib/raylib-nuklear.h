@@ -64,6 +64,8 @@ NK_API struct nk_context* InitNuklearEx(Font font, float fontSize); // Initializ
 NK_API Font LoadFontFromNuklear(int fontSize);                      // Loads the default Nuklear font
 NK_API void UpdateNuklear(struct nk_context * ctx);                 // Update the input state and internal components for Nuklear
 NK_API void UpdateNuklearEx(struct nk_context * ctx, float deltaTime); // Update the input state and internal components for Nuklear, with a custom frame time
+NK_API void UpdateNuklear(struct nk_context * ctx);                 // Update the input state and internal components for Nuklear
+NK_API void UpdateNuklear_MouseAdjusted(struct nk_context * ctx, Vector2 adjusted_mouse_pos);
 NK_API void DrawNuklear(struct nk_context * ctx);                   // Render the Nuklear GUI on the screen
 NK_API void UnloadNuklear(struct nk_context * ctx);                 // Deinitialize the Nuklear context
 NK_API struct nk_color ColorToNuklear(Color color);                 // Convert a raylib Color to a Nuklear color object
@@ -808,6 +810,56 @@ UpdateNuklearEx(struct nk_context * ctx, float deltaTime)
     nk_input_begin(ctx);
     {
         nk_raylib_input_mouse(ctx);
+        nk_raylib_input_keyboard(ctx);
+    }
+    nk_input_end(ctx);
+}
+
+/**
+ * Update the Nuklear context for the adjusted mouse input from raylib.
+ *
+ * @param ctx The nuklear context.
+ * @param adjusted_mouse_pos Adjusted mouse position.
+ *
+ * @internal
+ */
+NK_API void nk_raylib_input_mouse_adjusted(struct nk_context * ctx, Vector2 adjusted_mouse_pos)
+{
+    const float scale = GetNuklearScaling(ctx);
+    const int mouseX = (int)((float)adjusted_mouse_pos.x / scale);
+    const int mouseY = (int)((float)adjusted_mouse_pos.y / scale);
+
+    nk_input_motion(ctx, mouseX, mouseY);
+    nk_input_button(ctx, NK_BUTTON_LEFT, mouseX, mouseY, IsMouseButtonDown(MOUSE_LEFT_BUTTON));
+    nk_input_button(ctx, NK_BUTTON_RIGHT, mouseX, mouseY, IsMouseButtonDown(MOUSE_RIGHT_BUTTON));
+    nk_input_button(ctx, NK_BUTTON_MIDDLE, mouseX, mouseY, IsMouseButtonDown(MOUSE_MIDDLE_BUTTON));
+
+    // Mouse Wheel
+    float mouseWheel = GetMouseWheelMove();
+    if (mouseWheel != 0.0f) {
+        struct nk_vec2 mouseWheelMove;
+        mouseWheelMove.x = 0.0f;
+        mouseWheelMove.y = mouseWheel;
+        nk_input_scroll(ctx, mouseWheelMove);
+    }
+}
+
+/**
+ * Update the Nuklear context for raylib's state, using adjusted mouse position
+ *
+ * @param ctx The nuklear context to act upon.
+ * @param adjusted_mouse_pos Adjusted mouse position.
+ */
+NK_API void
+UpdateNuklear_MouseAdjusted(struct nk_context * ctx, Vector2 adjusted_mouse_pos)
+{
+    // Update the time that has changed since last frame.
+    ctx->delta_time_seconds = GetFrameTime();
+
+    // Update the input state.
+    nk_input_begin(ctx);
+    {
+        nk_raylib_input_mouse_adjusted(ctx, adjusted_mouse_pos);
         nk_raylib_input_keyboard(ctx);
     }
     nk_input_end(ctx);

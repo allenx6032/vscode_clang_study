@@ -1,5 +1,5 @@
-#include "engine.h"
-#include "scene.h"
+#include "engine/engine.h"
+#include "engine/scene.h"
 
 int main() {
     Engine_t engine;
