@@ -39,8 +39,10 @@ git clone --depth=1 git@gitlab.com:
 git submodule update --init --recursive --depth=1 --force
 git submodule update --remote  --force <路径/子模块目录>  #强制指定更新某个子模块
 git config --global submodule.fetchJobs 8  # 设置并行下载数
+git submodule add https://github.com/glfw/glfw glfw 子模块glfw添加
 git config --file .gitmodules --get-regexp "\.url" # 查看所有子模块的URL配置
 git config -f .gitmodules submodule.external/box2d.url <NEW_REPO_URL> #手动修正子模块URL
+git config -f .gitmodules submodule.external/box2d.path <NEW_PATH_URL> #手动修正子模块路径
 git submodule sync  # 同步子模块远程URL
 git submodule foreach "git submodule update --init --recursive --depth=1 --force --checkout || :"
 git submodule foreach "git checkout -f" //强制更新所有子模块
@@ -8577,11 +8579,6 @@ snprintf重定义
 #define snprintf _snprintf
 #endif
 #endif
-
-sol2 no member named 'construct' in 'optional<type-parameter-0-0 &>'
-// this->construct(std::forward<Args>(args)...);
-new (static_cast<void*>(this)) optional(std::in_place, std::forward<Args>(args)...);
-return **this;
 
 #pragma comment(lib, "comctl32.lib")
 #ifdef _UNICODE
