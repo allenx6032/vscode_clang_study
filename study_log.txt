@@ -203,9 +203,9 @@ vcpkg upgrade
 
 set PROMTP=$p$_$+$g /m //缩短cmd路径显示
 set JAVA_HOME=U:\android-studio\jre 临时用户变量
-setx "JAVA_HOME" "U:\android-studio\jre" 临时系统变量
-setx /m "JAVA_HOME" "U:\android-studio\jre" 永久系统变量
-setx -m "JAVA_HOME" "U:\android-studio\jre" 追加临时系统变量
+setx JAVA_HOME U:\android-studio\jre 用户变量
+setx /m JAVA_HOME U:\android-studio\jre 系统变量
+setx GOOGLE_CLOUD_PROJECT woven-flash-476002-e3
 setx  HTTP_PROXY socks5://127.0.0.1:7890
 setx  HTTPS_PROXY socks5://127.0.0.1:7890
 setx PATH %PATH%;D:\android-sdk\platform-tools
@@ -418,6 +418,273 @@ Android Compile
 godot.windows.tools.64.exe --editor --path D:/github/godot-project-test
 scons -j15 platform=windows use_mingw=yes
 scons -j15 platform=android use_mingw=yes target=release android_arch=arm64v8
+
+
+M1/M2/M3/M4 Mac OS 修改统一内存VRAM分配
+iogpu.wired_limit_mb 只有在 Sonoma 上才有效。所以如果你用的是旧版本的 Mac OS，试试 debug.iogpu.wired_limit 吧
+Mac Studio M3 Ultra 512G
+sudo sysctl iogpu.wired_limit_mb=488000// 舒适分配
+sudo sysctl iogpu.wired_limit_mb=500000// 工作分配
+sudo sysctl iogpu.wired_limit_mb=516100// 极限分配
+Mac Studio M1 Max 64G
+sudo sysctl iogpu.wired_limit_mb=57344//极限分配
+# 查看当前上限
+sysctl iogpu.wired_limit_mb
+# 临时把 GPU 锁定上限调至 128 GB
+sudo sysctl -w iogpu.wired_limit_mb=131072
+以下一行命令，可清理闲置内存、提高上限并验证：
+sudo purge && \
+sudo sysctl -w iogpu.wired_limit_mb=131072 && \
+sysctl iogpu.wired_limit_mb
+sudo purge
+清空 macOS 的闲置缓存，为新设置腾空间。
+sudo sysctl -w …
+将 GPU 锁定内存上限从默认值（≈120 GB）提升到 128 GB。
+sysctl iogpu.wired_limit_mb
+确认更改结果。
+（抱歉，我花了很多时间寻找这个特定问题的解决方案，我想我找到了最简单的解决方案）
+对我（Sonoma）有用的是创建 sysctl.conf，并向其中添加适当的参数：
+sudo nano /etc/sysctl.conf
+里面有：
+# change default CPU/GPU RAM split
+iogpu.wired_limit_mb=28672
+（如前所述，该数字是 GPU 可以拥有的最大 RAM（以 MB 为单位）；选择适合您的机器的某个合理值）。
+我不确定为什么 /etc/sysctl.conf 默认不存在（好的旧 unix 习惯是放置一些带有注释掉的默认值的模板），但据我所知 sysctl 并未被弃用，因此它应该继续工作。
+代码实现
+// this tool allows you to change the VRAM/RAM split on Unified Memory on Apple Silicon to whatever you want, allowing for more VRAM for inference
+// c++ -std=c++17 -framework CoreFoundation -o vram_patcher vram_patcher.cpp
+// credits to @asentientbot for helping me with some stuff because I never owned a Mac before
+// please read the code, if you don't understand what it does don't use it
+// tested on macos ventura beta 3, pattern might be different on other versions
+// usage: ./vram_patcher <desired percentage of VRAM>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <sys/sysctl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/mount.h>
+#include <CoreFoundation/CoreFoundation.h>
+// A helper function to get the sysctl value for a given name
+std::string get_sysctl(const std::string& name) {
+    size_t len = 0;
+    // Get the size of the value
+    if (sysctlbyname(name.c_str(), nullptr, &len, nullptr, 0) == -1) {
+        std::cerr << "Failed to get sysctl size for " << name << std::endl;
+        return "";
+    }
+    // Allocate a buffer for the value
+    char* buf = new char[len];
+    // Get the value
+    if (sysctlbyname(name.c_str(), buf, &len, nullptr, 0) == -1) {
+        std::cerr << "Failed to get sysctl value for " << name << std::endl;
+        delete[] buf;
+        return "";
+    }
+    // Convert the value to a string
+    std::string value(buf, len);
+    delete[] buf;
+    return value;
+}
+// A helper function to convert a CFString to a std::string
+std::string CFStringToStdString(CFStringRef cfstr) {
+  if (cfstr == nullptr) return "";
+  CFIndex length = CFStringGetLength(cfstr);
+  CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+  char* buffer = new char[maxSize];
+  if (CFStringGetCString(cfstr, buffer, maxSize, kCFStringEncodingUTF8)) {
+    std::string result(buffer);
+    delete[] buffer;
+    return result;
+  } else {
+    delete[] buffer;
+    return "";
+  }
+}
+// A function to get the name of a disk from a path
+std::string get_volume_name(const std::string& path) {
+  // Create a CFURL from the path
+  CFURLRef url = CFURLCreateFromFileSystemRepresentation(nullptr, (const UInt8*)path.c_str(), path.length(), false);
+  if (url == nullptr) return "";
+  // Get the volume URL from the path URL
+  CFURLRef volumeURL = CFURLCreateCopyDeletingLastPathComponent(nullptr, url);
+  CFRelease(url);
+  if (volumeURL == nullptr) return "";
+  // Get the volume name from the volume URL
+  CFStringRef volumeName = nullptr;
+  if (CFURLCopyResourcePropertyForKey(volumeURL, kCFURLVolumeNameKey, &volumeName, nullptr)) {
+    CFRelease(volumeURL);
+    if (volumeName == nullptr) return "";
+    // Convert the volume name to a std::string
+    std::string result = CFStringToStdString(volumeName);
+    CFRelease(volumeName);
+    return result;
+  } else {
+    CFRelease(volumeURL);
+    return "";
+  }
+}
+void change_float_constant(std::vector<uint8_t>& code, float new_value) {
+  // Check that the code vector has enough bytes for the two instructions
+  if (code.size() < 8) {
+    throw std::invalid_argument("code vector is too small");
+  }
+  // Convert the new float value to a 32-bit unsigned integer representation
+  uint32_t new_bits = *reinterpret_cast<uint32_t*>(&new_value);
+  // Extract the lower and upper 16 bits of the new value
+  uint16_t low_bits = new_bits & 0xffff;
+  uint16_t high_bits = new_bits >> 16;
+  // Encode the new value as two mov instructions
+  // The first instruction is movz w8, #low_bits
+  // The second instruction is movk w8, #high_bits, lsl #16
+  // The opcode format is:
+  // | 31 30 29 28 | 27 26 25 24 | 23 22 21 20 | 19 18 17 16 | 15 14 13 12 | 11 10 9 8 | 7 6 5 4 | 3 2 1 0 |
+  // | sf  0  0  1 | opc  1  0  0 | 0  0  0  0 |    hw    |     imm16     | 0  0  0  0 |   Rd   |   0  0  0  0 |
+  // where sf = 0 for 32-bit register, opc = 00 for movz, 01 for movn, 10 for movk, hw = 00 for lsl #0, 01 for lsl #16, 10 for lsl #32, 11 for lsl #48, imm16 = 16-bit immediate value, Rd = destination register
+  // The first instruction has sf = 0, opc = 00, hw = 00, imm16 = low_bits, Rd = 8
+  uint32_t first_opcode = 0x52800000 | (low_bits << 5) | 8;
+  // The second instruction has sf = 0, opc = 10, hw = 01, imm16 = high_bits, Rd = 8
+  uint32_t second_opcode = 0x72800000 | (high_bits << 5) | (1 << 21) | 8;
+  // Convert the opcodes to little endian bytes and overwrite the code vector
+  code[0] = first_opcode & 0xff;
+  code[1] = (first_opcode >> 8) & 0xff;
+  code[2] = (first_opcode >> 16) & 0xff;
+  code[3] = (first_opcode >> 24) & 0xff;
+  code[4] = second_opcode & 0xff;
+  code[5] = (second_opcode >> 8) & 0xff;
+  code[6] = (second_opcode >> 16) & 0xff;
+  code[7] = (second_opcode >> 24) & 0xff;
+}
+int main(int argc, char** argv) {
+    // Check if the program is run as root
+    if (getuid() != 0) {
+        std::cerr << "Sorry, this program must be run as root" << std::endl;
+        return 1;
+    }
+    // Check if the program has one argument
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " vram_percentage" << std::endl;
+        return 1;
+    }
+    // Check if the argument is a valid percentage
+    int percentage = std::stoi(argv[1]);
+    if (percentage < 10 || percentage > 95) {
+        std::cerr << "Invalid percentage: " << percentage << std::endl;
+        return 1;
+    }
+    // Check if the CPU is Apple Silicon
+    std::string cpu_brand = get_sysctl("machdep.cpu.brand_string");
+    if (cpu_brand.find("Apple") == std::string::npos) {
+        std::cerr << "Sorry, this program only works on Apple Silicon" << std::endl;
+        return 1;
+    }
+    // Define the paths for the original and patched kernel collections
+    std::string original_kc = "/private/var/db/KernelExtensionManagement/KernelCollections/BootKernelCollection.kc";
+    std::string patched_kc = "/tmp/BootKernelCollection.kc";
+    std::string final_kc = "/Library/KernelCollections/vram_patch.kc";
+    std::string script_kc = "/Library/KernelCollections/complete_patch.sh";
+    // Copy the original kernel collection to a temporary directory
+    std::ifstream src(original_kc, std::ios::binary);
+    std::ofstream dst(patched_kc, std::ios::binary);
+    if (!src || !dst) {
+        std::cerr << "Failed to copy the kernel collection" << std::endl;
+        return 1;
+    }
+    dst << src.rdbuf();
+    src.close();
+    dst.close();
+    // Read the patched kernel collection into a vector of bytes
+    std::ifstream in(patched_kc, std::ios::binary);
+    if (!in) {
+        std::cerr << "Failed to read the patched kernel collection" << std::endl;
+        return 1;
+    }
+    std::vector<uint8_t> data((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    in.close();
+    // Define the byte sequence to search for
+    std::vector<uint8_t> target = {0x08, 0x01, 0xC0, 0xD2, 0x3F, 0x00, 0x08, 0xEB, 0xA8, 0xAA, 0x8A, 0x52, 0xA8, 0x40, 0xA8, 0x72, 0x00, 0x01, 0x27, 0x1E, 0x01, 0x30, 0x27, 0x1E, 0x28, 0x8C, 0x20, 0x1E};
+    // Define the byte sequence to replace with
+    std::vector<uint8_t> replacement = {0x68, 0x73, 0x89, 0x52, 0xA8, 0x94, 0xA8, 0x72, 0x08, 0x01, 0x27, 0x1E, 0x1F, 0x20, 0x03, 0xD5, 0x1F, 0x20, 0x03, 0xD5, 0x1F, 0x20, 0x03, 0xD5, 0x1F, 0x20, 0x03, 0xD5};
+    // Subtract the percentage from 100
+    percentage = 100 - percentage;
+    // Change the floating point constant in the replacement byte sequence
+    change_float_constant(replacement, percentage);
+    // Find the first occurrence of the target byte sequence in the data vector
+    auto it = std::search(data.begin(), data.end(), target.begin(), target.end());
+    // If the target byte sequence is found, replace it with the replacement byte sequence
+    if (it != data.end()) {
+        std::copy(replacement.begin(), replacement.end(), it);
+    } else {
+        std::cerr << "Failed to find the target byte sequence in the kernel collection" << std::endl;
+        return 1;
+    }
+    // Write the modified data vector to the patched kernel collection
+    std::ofstream out(patched_kc, std::ios::binary);
+    if (!out) {
+        std::cerr << "Failed to write the patched kernel collection" << std::endl;
+        return 1;
+    }
+    out.write(reinterpret_cast<char*>(data.data()), data.size());
+    out.close();
+    // Copy the patched kernel collection to the final destination
+    std::ifstream src2(patched_kc, std::ios::binary);
+    std::ofstream dst2(final_kc, std::ios::binary);
+    if (!src2 || !dst2) {
+        std::cerr << "Failed to copy the patched kernel collection" << std::endl;
+        return 1;
+    }
+    dst2 << src2.rdbuf();
+    src2.close();
+    dst2.close();
+    // Change the ownership of the final kernel collection to root:wheel
+    if (chown(final_kc.c_str(), 0, 0) == -1) {
+        std::cerr << "Failed to change the ownership of the final kernel collection" << std::endl;
+        return 1;
+    }    
+    // Get the volume name for the /System path
+    std::string volume_name = get_volume_name("/System");
+    if (volume_name.empty()) {
+        std::cerr << "Failed to get the volume name for /System" << std::endl;
+        return 1;
+    }
+    // Create a shell script to configure the boot with the final kernel collection
+    std::ofstream script(script_kc);
+    if (!script) {
+        std::cerr << "Failed to create the shell script" << std::endl;
+        return 1;
+    }
+    script << "#!/bin/bash\n";
+    script << "# Disable System Integrity Protection\n";
+    script << "csrutil disable\n";
+    script << "# Disable Apple Mobile File Integrity\n";
+    script << "nvram boot-args=\"ipc_control_port_options=0 amfi_get_out_of_my_way=1\"\n";
+    script << "# Get the absolute path of this script\n";
+    script << "SCRIPT=$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)/$(basename \"${BASH_SOURCE[0]}\")\n";
+    script << "# Append the kernel collection name to the script path\n";
+    script << "KC=\"${SCRIPT%/*}/vram_patch.kc\"\n"; // This line replaces the original one
+    script << "# Get the volume name from the script path\n";
+    script << "VOLUME=\"${SCRIPT%%/Library*}\"\n";
+    script << "# Run the kmutil command with the absolute paths\n";
+    script << "kmutil configure-boot -C -c \"$KC\" -v \"$VOLUME\"\n";
+    script << "sync\n";
+    script << "echo Finished. You may reboot your system now.\n";
+    script.close();
+    // Change the ownership and permissions of the shell script to root:wheel and 755
+    if (chown(script_kc.c_str(), 0, 0) == -1) {
+        std::cerr << "Failed to change the ownership of the shell script" << std::endl;
+        return 1;
+    }
+    if (chmod(script_kc.c_str(), 0755) == -1) {
+        std::cerr << "Failed to change the permissions of the shell script" << std::endl;
+        return 1;
+    }
+    // Output the instructions to run the shell script in RecoveryOS
+    std::cout << "The shell script to configure the boot with the patched kernel collection has been created at " << script_kc << std::endl;
+    std::cout << "Now reboot to RecoveryOS and run: \"/Volumes/" << volume_name << "/Library/KernelCollections/complete_patch.sh\"" << std::endl;
+    std::cout << "If your boot fails after running the script or after an update, you need to go to Utilities->Startup Security Tool in RecoveryOS and pick Full Security" << std::endl;
+    return 0;
+}
 
 
 ncnn 多平台编译
@@ -2228,6 +2495,165 @@ Huggingface镜像站hf-mirror.com 大模型下载
 pip install -U huggingface_hub hf_transfer
 set HF_ENDPOINT=https://hf-mirror.com;set HF_HOME=D:/Work/hf-mirror/.cache/huggingface/hub;set TRANSFORMERS_CACHE=D:/Work/hf-mirror/.cache
 huggingface-cli download --resume-download xxx/xx --local-dir xx
+
+Modelscope站 大模型下载
+pip install  -U modelscope ##安装ModelScope
+set MODELSCOPE_HOME=D:/Work/hf-mirror/.cache/modelscope/hub;set MODELSCOPE_CACHE=D:/Work/hf-mirror/.cache
+modelscope download --model xxx/xx  --local_dir xx
+
+Fastllm 大模型加载
+pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+#Linux  + CUDA
+wget https://developer.download.nvidia.com/compute/cuda/12.8.1/local_installers/cuda_12.8.1_570.124.06_linux.run
+sudo sh cuda_12.8.1_570.124.06_linux.run
+pip install ftllm -U 
+#Linux + Rocm
+wget wget https://repo.radeon.com/amdgpu-install/6.3.3/ubuntu/jammy/amdgpu-install_6.3.60303-1_all.deb
+apt install ./amdgpu-install_6.3.60303-1_all.deb -y
+amdgpu-install --usecase=hiplibsdk,rocm,dkms -y
+pip install ftllm-rocm -U
+#Windows + CUDA
+pip install https://www.modelscope.cn/models/huangyuyang/fastllmdepend-windows/resolve/master/ftllmdepend-0.0.0.1-py3-none-win_amd64.whl
+pip install ftllm -U
+1. 如何启动模型
+基本的启动命令格式如下：
+ftllm run Qwen/Qwen3-0.6B # 启动本地对话
+ftllm webui Qwen/Qwen3-0.6B # 启动WebUI
+ftllm server Qwen/Qwen3-0.6B # 启动API Server
+根据你需要开启的服务，选择相应的命令。以 server 命令为例，格式如下：
+ftllm server model
+这里的model可以是:
+Huggingface上的模型，例如 Qwen/Qwen3-0.6B 代表 千问3-0.6B模型
+本地模型路径。例如/mnt/Qwen3-0.6B，高速下载模型可以参考 模型下载
+无论是在线模型还是本地模型，目前支持以下几种格式 （均以在线模型举例，可以在Huggingface上搜到对应模型）:
+FP16, BF16格式的原始模型，例如Qwen/Qwen3-0.6B
+FP8格式的模型，例如Qwen/Qwen3-0.6B-FP8
+AWQ格式的模型，例如Qwen/Qwen3-14B-AWQ
+Fastllm格式的模型，例如fastllm/DeepSeek-V3-0324-INT4。也可以下载原始模型后通过 模型导出 中的命令导出
+GGUF 格式的模型，需要用--ori参数指定原始模型路径，例如
+ftllm server DeepSeek-V3-0324-Q4_K_M-00001-of-00009.gguf --ori DeepSeek-V3
+这里的DeepSeek-V3是原始模型文件夹，无需下载权重文件，可以参考如下命令下载：
+ftllm download deepseek-ai/DeepSeek-V3 --exclude "*safetensors*"
+如果您是第一次使用ftllm，建议直接使用基本的启动命令启动，所有的参数都会自动设置。如果您希望继续调参，请参照下面的参数设置说明
+2. 如何设定推理精度
+当启动的模型为浮点精度时（BF16, FP16, FP8）时，可以通过以下参数来设置模型的推理精度：
+--dtype:
+描述: 指定模型的数据类型。
+可选值: int4g int4 int8 fp8 float16 或其他支持的数据类型。
+示例: --dtype int4
+--moe_dtype:
+描述: 指定模型MOE层的数据类型。
+可选值: int4g int4 int8 fp8 float16 或其他支持的数据类型。
+示例: --moe_dtype int4
+说明: 如果指定的模型不是moe结构的模型，这个参数不会生效
+命令示例：
+ftllm server Qwen/Qwen3-0.6B --dtype int8 
+# 上面的命令会读取原始模型（这个模型是BF16精度），并在线量化为INT8精度推理
+ftllm server deepseek-ai/DeepSeek-V3-0324 --dtype fp8 --moe_dtype int4
+# 上面的命令会读取原始模型（这个模型是FP8精度），并使用FP8 + INT4的混合精度推理
+--dtype_config:
+描述: 指定动态量化配置文件。
+说明: 参考动态量化说明
+若不设定这些参数，ftllm会使用模型中设定的精度来进行推理
+若使用的模型已经是量化好的模型（例如AWQ模型，Fastllm导出的量化模型等），建议不指定这些参数
+3. 如何设定运行设备
+可以通过以下参数来设定执行推理的设备
+--device:
+描述: 指定模型运行的计算设备。
+示例: --device cpu, --device cuda
+常用值说明:
+cpu 使用cpu推理
+cuda 使用gpu推理
+numa 使用多路numa节点加速推理，在多CPU的机器才会有提升。使用numa加速时，强烈建议关闭系统numa平衡。（ubuntu中可使用命令sudo sysctl -w kernel.numa_balancing=0)
+multicuda 使用多设备张量并行推理
+使用多显卡: --device multicuda:0,1
+使用多显卡+CPU: --device multicuda:0,cpu
+按比例使用多显卡+CPU: --device multicuda:0:4,1:5,cpu:1 (cuda:0计算4/10, cuda:1计算5/10, cpu计算1/10)
+串行计算: 一些场景下可以指定不同的device串行执行。例如
+--device "{'cuda:0':3,'cuda:1':2}": 这样3/5的层会运行在cuda:0上，2/5的层会运行在cuda:1上
+--device "{'multicuda:0,1':3,'cuda:1':2}": 这样3/5的层会使用cuda:0,cuda:1张量并行，2/5的层仅仅运行在cuda:1上
+--moe_device:
+描述: 指定 MOE（Mixture of Experts）层的计算设备。
+示例: --moe_device cpu, --moe_device numa
+常用值说明:
+cpu 使用cpu推理
+numa 使用多路numa节点加速推理，在多CPU的机器才会有提升
+cuda 使用gpu推理 （MOE层需要大量显存，一般不建议指定为cuda）
+说明: 一般和device指定为不同的设备实现混合推理，例如 --device cuda --moe_device cpu来实现MOE模型的单卡+CPU混合推理。 --device cuda --moe_device numa 来实现MOE模型的单卡+多NUMA节点加速推理 如果指定的模型不是moe结构的模型，这个参数不会生效
+若不设定这些参数，会使用默认配置来推理，默认配置如下：
+模型类型	device	moe_device
+稠密模型	cuda	不生效
+MOE模型	cuda	cpu
+对于发烧友而言，如果想更进一步榨干硬件，可以参考 混合推理指南
+4. 如何设定运行参数
+可以通过下列参数设置运行参数。
+需要注意的是，速度和参数设置并不一定正相关，如果对性能要求高，可以多方向尝试一下
+-t 或 --threads:
+描述: 设置使用的CPU线程数。
+当device为cpu时，这个参数决定了推理使用的线程数
+当device为numa时，推理线程数主要由环境变量FASTLLM_NUMA_THREADS决定，threads参数请设得小一点（推荐设为1）
+示例: -t 27
+例如我们在多CPU设备上用GPU + 多CPU混合部署一个MOE模型fastllm/DeepSeek-V3-0324-INT4，可以尝试这些命令：
+export FASTLLM_NUMA_THREADS=27 && ftllm server fastllm/DeepSeek-V3-0324-INT4 --device cuda --moe_device numa -t 1 
+# 使用多numa推理，每个numa节点使用27个线程
+export FASTLLM_NUMA_THREADS=16 && ftllm server fastllm/DeepSeek-V3-0324-INT4 --device cuda --moe_device numa -t 1 
+# 使用多numa推理，每个numa节点使用16个线程
+numactl -C 0-31 -m 0 ftllm server fastllm/DeepSeek-V3-0324-INT4 --device cuda --moe_device cpu -t 27 
+# 绑定单numa节点，使用CPU推理，使用27线程
+不同硬件上，不同参数发挥出的性能有很大不同。一般而言，CPU上使用的线程数不建议超过物理核数
+5. 其它参数
+--moe_experts:
+描述: 指定 MOE（Mixture of Experts）层使用的专家数。不设定则根据模型配置设定。减少专家数可以提高推理速度，但可能降低推理准确度
+示例: --moe_experts 6
+--cuda_se:
+描述: 指定 MOE中的共享专家 是否在cuda上执行，默认为true
+示例: --cuda_se false
+--port:
+描述: 指定服务运行的端口号。
+示例: --port 8080
+--help:
+描述: 查看模块参数详细信息。
+示例: ftllm server --help
+--version 或 -v:
+描述: 查看ftllm版本号。
+示例: ftllm -v
+--hide_input:
+描述: server模式隐藏日志中的请求信息。
+示例: ftllm server --hide_input
+--api_key:
+描述: server模式设定api_key。
+示例: ftllm server --api_key xxxxxxxx
+--max_token:
+描述: webui模式指定最大输出。
+示例: ftllm webui --max_token
+--think:
+描述: 强制思考。
+示例: ftllm webui --think
+--cache_dir:
+描述: 指定在线Huggingface模型的缓存目录
+示例: ftllm --cache_dir /mnt
+--chat_template:
+描述: 指定chat_template文件
+示例: ftllm --chat_template deepseekv31.jinja
+模型获取
+模型下载
+可以使用如下命令将模型下载到本地（使用高速镜像，无需科学上网）
+ftllm download deepseek-ai/DeepSeek-R1
+模型导出
+如果使用量化加载模型（如--dtype int4），那么每次读取模型时会在线量化，读取速度较慢。
+ftllm export 是一个用于导出和转换模型权重的工具。它支持将模型权重转换为不同的数据类型。以下是如何使用 ftllm export 的详细说明。
+命令格式
+ftllm export <模型路径> -o <输出路径> --dtype <数据类型> -t <线程数>
+示例命令
+ftllm export /mnt/DeepSeek-V3 -o /mnt/DeepSeek-V3-INT4 --dtype int4 -t 16
+混合精度
+可以通过指定--moe_dtype来实现混合精度，例如
+ftllm export /mnt/DeepSeek-V3 -o /mnt/DeepSeek-V3-FP16INT4 --dtype float16 --moe_dtype int4 -t 16
+加载导出后的模型
+导出后的模型使用方法和原始模型类似，使用导出模型时--dtype参数将被忽略
+例如
+ftllm run /mnt/DeepSeek-V3-INT4/
+
 
 https://gitdl.cn/https://github.com/gorhill/uBlock/releases/download/1.60.1b13/uBlock0_1.60.1b13.chromium.zip
 https://www.tampermonkey.net/crx/tampermonkey_stable.crx
@@ -12231,6 +12657,17 @@ smali中的函数和成员变量也分为两种，分别为 direct 和 virtual
 　　move-result-object v2
 　　 v2保存的就是调用t方法返回的String字符串
 
+SOL2 mingw编译error: no member named 'construct' in 'optional<T &>'
+修复方案
+1、
+                        *this = nullopt;
+-			this->construct(std::forward<Args>(args)...);
++			new (static_cast<void*>(this)) optional(std::in_place, std::forward<Args>(args)...);
+2、
+                        *this = nullopt;
+-			this->construct(std::forward<Args>(args)...);
++			new (static_cast<void*>(this)) optional(std::in_place, std::forward<Args>(args)...);
++			return **this;
 
 <bits/stdc++.h>
 // C++ includes used for precompiling -*- C++ -*-
@@ -12370,4 +12807,4 @@ https://jiaobenwang.com/
 http://bbs.523play.com/
 https://fm.jzyu.com/ymzq?down_price=0
 https://www.gamecbg.com/forum.php?mod=forumdisplay&fid=36&filter=author&orderby=dateline
-https://search.bilibili.com/all?keyword=frida&from_source=video_tag#bilibili Tag搜索
+https://search.bilibili.com/all?keyword=frida&from_source=video_tag#bilibili Tag搜索v
