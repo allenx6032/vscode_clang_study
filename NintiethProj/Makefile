@@ -32,6 +32,32 @@ RC		:= res
 ASM		:= asm
 3RD		:= 3rd
 HEADER  := header
+HEADER +== 3rd/skia/animator
+HEADER +== 3rd/skia/config
+HEADER +== 3rd/skia/core
+HEADER +== 3rd/skia/device
+HEADER +== 3rd/skia/doc
+HEADER +== 3rd/skia/effects
+HEADER +== 3rd/skia/fonts
+HEADER +== 3rd/skia/gpu
+HEADER +== 3rd/skia/image
+HEADER +== 3rd/skia/images
+HEADER +== 3rd/skia/lazy
+HEADER +== 3rd/skia/opts
+HEADER +== 3rd/skia/pathops
+HEADER +== 3rd/skia/pdf
+HEADER +== 3rd/skia/pipe
+HEADER +== 3rd/skia/pipe/utils
+HEADER +== 3rd/skia/ports
+HEADER +== 3rd/skia/record
+HEADER +== 3rd/skia/sfnt
+HEADER +== 3rd/skia/svg
+HEADER +== 3rd/skia/text
+HEADER +== 3rd/skia/utils
+HEADER +== 3rd/skia/utils/win
+HEADER +== 3rd/skia/utils/debugger
+HEADER +== 3rd/skia/views
+HEADER +== 3rd/skia/xml
 CACHE_EXTENSIONS := .o .d
 
 ifeq ($(OS),Windows_NT)
