@@ -40,6 +40,18 @@
 # debug information files
 *.dwo
 
+# OS X Files
+.DS_Store
+**/.DS_Store
 
 /.idea
 *.iml
+
+/.gradle
+
+*.7z
+*.rar
+*.zip
+*.bat
+*.jks
+*.keystore
