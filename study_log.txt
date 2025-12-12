@@ -39,10 +39,10 @@ git clone --depth=1 git@gitlab.com:
 git submodule update --init --recursive --depth=1 --force
 git submodule update --remote  --force <路径/子模块目录>  #强制指定更新某个子模块
 git config --global submodule.fetchJobs 8  # 设置并行下载数
-git submodule add https://github.com/glfw/glfw glfw 子模块glfw添加
 git config --file .gitmodules --get-regexp "\.url" # 查看所有子模块的URL配置
-git config -f .gitmodules submodule.external/box2d.url <NEW_REPO_URL> #手动修正子模块URL
-git config -f .gitmodules submodule.external/box2d.path <NEW_PATH_URL> #手动修正子模块路径
+git config -f .gitmodules submodule.<MODULLE>.url <NEW_REPO_URL> #手动修正子模块URL
+git config -f .gitmodules submodule.<MODULLE>.branch <NEW_BRANCH> #手动修正子模块分支
+git config -f .gitmodules submodule.<MODULLE>.path <NEW_PATH> #手动修正子模块分支
 git submodule sync  # 同步子模块远程URL
 git submodule foreach "git submodule update --init --recursive --depth=1 --force --checkout || :"
 git submodule foreach "git checkout -f" //强制更新所有子模块
@@ -205,9 +205,9 @@ vcpkg upgrade
 
 set PROMTP=$p$_$+$g /m //缩短cmd路径显示
 set JAVA_HOME=U:\android-studio\jre 临时用户变量
-setx JAVA_HOME U:\android-studio\jre 用户变量
-setx /m JAVA_HOME U:\android-studio\jre 系统变量
-setx GOOGLE_CLOUD_PROJECT woven-flash-476002-e3
+setx "JAVA_HOME" "U:\android-studio\jre" 临时系统变量
+setx /m "JAVA_HOME" "U:\android-studio\jre" 永久系统变量
+setx -m "JAVA_HOME" "U:\android-studio\jre" 追加临时系统变量
 setx  HTTP_PROXY socks5://127.0.0.1:7890
 setx  HTTPS_PROXY socks5://127.0.0.1:7890
 setx PATH %PATH%;D:\android-sdk\platform-tools
@@ -420,273 +420,6 @@ Android Compile
 godot.windows.tools.64.exe --editor --path D:/github/godot-project-test
 scons -j15 platform=windows use_mingw=yes
 scons -j15 platform=android use_mingw=yes target=release android_arch=arm64v8
-
-
-M1/M2/M3/M4 Mac OS 修改统一内存VRAM分配
-iogpu.wired_limit_mb 只有在 Sonoma 上才有效。所以如果你用的是旧版本的 Mac OS，试试 debug.iogpu.wired_limit 吧
-Mac Studio M3 Ultra 512G
-sudo sysctl iogpu.wired_limit_mb=488000// 舒适分配
-sudo sysctl iogpu.wired_limit_mb=500000// 工作分配
-sudo sysctl iogpu.wired_limit_mb=516100// 极限分配
-Mac Studio M1 Max 64G
-sudo sysctl iogpu.wired_limit_mb=57344//极限分配
-# 查看当前上限
-sysctl iogpu.wired_limit_mb
-# 临时把 GPU 锁定上限调至 128 GB
-sudo sysctl -w iogpu.wired_limit_mb=131072
-以下一行命令，可清理闲置内存、提高上限并验证：
-sudo purge && \
-sudo sysctl -w iogpu.wired_limit_mb=131072 && \
-sysctl iogpu.wired_limit_mb
-sudo purge
-清空 macOS 的闲置缓存，为新设置腾空间。
-sudo sysctl -w …
-将 GPU 锁定内存上限从默认值（≈120 GB）提升到 128 GB。
-sysctl iogpu.wired_limit_mb
-确认更改结果。
-（抱歉，我花了很多时间寻找这个特定问题的解决方案，我想我找到了最简单的解决方案）
-对我（Sonoma）有用的是创建 sysctl.conf，并向其中添加适当的参数：
-sudo nano /etc/sysctl.conf
-里面有：
-# change default CPU/GPU RAM split
-iogpu.wired_limit_mb=28672
-（如前所述，该数字是 GPU 可以拥有的最大 RAM（以 MB 为单位）；选择适合您的机器的某个合理值）。
-我不确定为什么 /etc/sysctl.conf 默认不存在（好的旧 unix 习惯是放置一些带有注释掉的默认值的模板），但据我所知 sysctl 并未被弃用，因此它应该继续工作。
-代码实现
-// this tool allows you to change the VRAM/RAM split on Unified Memory on Apple Silicon to whatever you want, allowing for more VRAM for inference
-// c++ -std=c++17 -framework CoreFoundation -o vram_patcher vram_patcher.cpp
-// credits to @asentientbot for helping me with some stuff because I never owned a Mac before
-// please read the code, if you don't understand what it does don't use it
-// tested on macos ventura beta 3, pattern might be different on other versions
-// usage: ./vram_patcher <desired percentage of VRAM>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <sys/sysctl.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/mount.h>
-#include <CoreFoundation/CoreFoundation.h>
-// A helper function to get the sysctl value for a given name
-std::string get_sysctl(const std::string& name) {
-    size_t len = 0;
-    // Get the size of the value
-    if (sysctlbyname(name.c_str(), nullptr, &len, nullptr, 0) == -1) {
-        std::cerr << "Failed to get sysctl size for " << name << std::endl;
-        return "";
-    }
-    // Allocate a buffer for the value
-    char* buf = new char[len];
-    // Get the value
-    if (sysctlbyname(name.c_str(), buf, &len, nullptr, 0) == -1) {
-        std::cerr << "Failed to get sysctl value for " << name << std::endl;
-        delete[] buf;
-        return "";
-    }
-    // Convert the value to a string
-    std::string value(buf, len);
-    delete[] buf;
-    return value;
-}
-// A helper function to convert a CFString to a std::string
-std::string CFStringToStdString(CFStringRef cfstr) {
-  if (cfstr == nullptr) return "";
-  CFIndex length = CFStringGetLength(cfstr);
-  CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
-  char* buffer = new char[maxSize];
-  if (CFStringGetCString(cfstr, buffer, maxSize, kCFStringEncodingUTF8)) {
-    std::string result(buffer);
-    delete[] buffer;
-    return result;
-  } else {
-    delete[] buffer;
-    return "";
-  }
-}
-// A function to get the name of a disk from a path
-std::string get_volume_name(const std::string& path) {
-  // Create a CFURL from the path
-  CFURLRef url = CFURLCreateFromFileSystemRepresentation(nullptr, (const UInt8*)path.c_str(), path.length(), false);
-  if (url == nullptr) return "";
-  // Get the volume URL from the path URL
-  CFURLRef volumeURL = CFURLCreateCopyDeletingLastPathComponent(nullptr, url);
-  CFRelease(url);
-  if (volumeURL == nullptr) return "";
-  // Get the volume name from the volume URL
-  CFStringRef volumeName = nullptr;
-  if (CFURLCopyResourcePropertyForKey(volumeURL, kCFURLVolumeNameKey, &volumeName, nullptr)) {
-    CFRelease(volumeURL);
-    if (volumeName == nullptr) return "";
-    // Convert the volume name to a std::string
-    std::string result = CFStringToStdString(volumeName);
-    CFRelease(volumeName);
-    return result;
-  } else {
-    CFRelease(volumeURL);
-    return "";
-  }
-}
-void change_float_constant(std::vector<uint8_t>& code, float new_value) {
-  // Check that the code vector has enough bytes for the two instructions
-  if (code.size() < 8) {
-    throw std::invalid_argument("code vector is too small");
-  }
-  // Convert the new float value to a 32-bit unsigned integer representation
-  uint32_t new_bits = *reinterpret_cast<uint32_t*>(&new_value);
-  // Extract the lower and upper 16 bits of the new value
-  uint16_t low_bits = new_bits & 0xffff;
-  uint16_t high_bits = new_bits >> 16;
-  // Encode the new value as two mov instructions
-  // The first instruction is movz w8, #low_bits
-  // The second instruction is movk w8, #high_bits, lsl #16
-  // The opcode format is:
-  // | 31 30 29 28 | 27 26 25 24 | 23 22 21 20 | 19 18 17 16 | 15 14 13 12 | 11 10 9 8 | 7 6 5 4 | 3 2 1 0 |
-  // | sf  0  0  1 | opc  1  0  0 | 0  0  0  0 |    hw    |     imm16     | 0  0  0  0 |   Rd   |   0  0  0  0 |
-  // where sf = 0 for 32-bit register, opc = 00 for movz, 01 for movn, 10 for movk, hw = 00 for lsl #0, 01 for lsl #16, 10 for lsl #32, 11 for lsl #48, imm16 = 16-bit immediate value, Rd = destination register
-  // The first instruction has sf = 0, opc = 00, hw = 00, imm16 = low_bits, Rd = 8
-  uint32_t first_opcode = 0x52800000 | (low_bits << 5) | 8;
-  // The second instruction has sf = 0, opc = 10, hw = 01, imm16 = high_bits, Rd = 8
-  uint32_t second_opcode = 0x72800000 | (high_bits << 5) | (1 << 21) | 8;
-  // Convert the opcodes to little endian bytes and overwrite the code vector
-  code[0] = first_opcode & 0xff;
-  code[1] = (first_opcode >> 8) & 0xff;
-  code[2] = (first_opcode >> 16) & 0xff;
-  code[3] = (first_opcode >> 24) & 0xff;
-  code[4] = second_opcode & 0xff;
-  code[5] = (second_opcode >> 8) & 0xff;
-  code[6] = (second_opcode >> 16) & 0xff;
-  code[7] = (second_opcode >> 24) & 0xff;
-}
-int main(int argc, char** argv) {
-    // Check if the program is run as root
-    if (getuid() != 0) {
-        std::cerr << "Sorry, this program must be run as root" << std::endl;
-        return 1;
-    }
-    // Check if the program has one argument
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " vram_percentage" << std::endl;
-        return 1;
-    }
-    // Check if the argument is a valid percentage
-    int percentage = std::stoi(argv[1]);
-    if (percentage < 10 || percentage > 95) {
-        std::cerr << "Invalid percentage: " << percentage << std::endl;
-        return 1;
-    }
-    // Check if the CPU is Apple Silicon
-    std::string cpu_brand = get_sysctl("machdep.cpu.brand_string");
-    if (cpu_brand.find("Apple") == std::string::npos) {
-        std::cerr << "Sorry, this program only works on Apple Silicon" << std::endl;
-        return 1;
-    }
-    // Define the paths for the original and patched kernel collections
-    std::string original_kc = "/private/var/db/KernelExtensionManagement/KernelCollections/BootKernelCollection.kc";
-    std::string patched_kc = "/tmp/BootKernelCollection.kc";
-    std::string final_kc = "/Library/KernelCollections/vram_patch.kc";
-    std::string script_kc = "/Library/KernelCollections/complete_patch.sh";
-    // Copy the original kernel collection to a temporary directory
-    std::ifstream src(original_kc, std::ios::binary);
-    std::ofstream dst(patched_kc, std::ios::binary);
-    if (!src || !dst) {
-        std::cerr << "Failed to copy the kernel collection" << std::endl;
-        return 1;
-    }
-    dst << src.rdbuf();
-    src.close();
-    dst.close();
-    // Read the patched kernel collection into a vector of bytes
-    std::ifstream in(patched_kc, std::ios::binary);
-    if (!in) {
-        std::cerr << "Failed to read the patched kernel collection" << std::endl;
-        return 1;
-    }
-    std::vector<uint8_t> data((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-    in.close();
-    // Define the byte sequence to search for
-    std::vector<uint8_t> target = {0x08, 0x01, 0xC0, 0xD2, 0x3F, 0x00, 0x08, 0xEB, 0xA8, 0xAA, 0x8A, 0x52, 0xA8, 0x40, 0xA8, 0x72, 0x00, 0x01, 0x27, 0x1E, 0x01, 0x30, 0x27, 0x1E, 0x28, 0x8C, 0x20, 0x1E};
-    // Define the byte sequence to replace with
-    std::vector<uint8_t> replacement = {0x68, 0x73, 0x89, 0x52, 0xA8, 0x94, 0xA8, 0x72, 0x08, 0x01, 0x27, 0x1E, 0x1F, 0x20, 0x03, 0xD5, 0x1F, 0x20, 0x03, 0xD5, 0x1F, 0x20, 0x03, 0xD5, 0x1F, 0x20, 0x03, 0xD5};
-    // Subtract the percentage from 100
-    percentage = 100 - percentage;
-    // Change the floating point constant in the replacement byte sequence
-    change_float_constant(replacement, percentage);
-    // Find the first occurrence of the target byte sequence in the data vector
-    auto it = std::search(data.begin(), data.end(), target.begin(), target.end());
-    // If the target byte sequence is found, replace it with the replacement byte sequence
-    if (it != data.end()) {
-        std::copy(replacement.begin(), replacement.end(), it);
-    } else {
-        std::cerr << "Failed to find the target byte sequence in the kernel collection" << std::endl;
-        return 1;
-    }
-    // Write the modified data vector to the patched kernel collection
-    std::ofstream out(patched_kc, std::ios::binary);
-    if (!out) {
-        std::cerr << "Failed to write the patched kernel collection" << std::endl;
-        return 1;
-    }
-    out.write(reinterpret_cast<char*>(data.data()), data.size());
-    out.close();
-    // Copy the patched kernel collection to the final destination
-    std::ifstream src2(patched_kc, std::ios::binary);
-    std::ofstream dst2(final_kc, std::ios::binary);
-    if (!src2 || !dst2) {
-        std::cerr << "Failed to copy the patched kernel collection" << std::endl;
-        return 1;
-    }
-    dst2 << src2.rdbuf();
-    src2.close();
-    dst2.close();
-    // Change the ownership of the final kernel collection to root:wheel
-    if (chown(final_kc.c_str(), 0, 0) == -1) {
-        std::cerr << "Failed to change the ownership of the final kernel collection" << std::endl;
-        return 1;
-    }    
-    // Get the volume name for the /System path
-    std::string volume_name = get_volume_name("/System");
-    if (volume_name.empty()) {
-        std::cerr << "Failed to get the volume name for /System" << std::endl;
-        return 1;
-    }
-    // Create a shell script to configure the boot with the final kernel collection
-    std::ofstream script(script_kc);
-    if (!script) {
-        std::cerr << "Failed to create the shell script" << std::endl;
-        return 1;
-    }
-    script << "#!/bin/bash\n";
-    script << "# Disable System Integrity Protection\n";
-    script << "csrutil disable\n";
-    script << "# Disable Apple Mobile File Integrity\n";
-    script << "nvram boot-args=\"ipc_control_port_options=0 amfi_get_out_of_my_way=1\"\n";
-    script << "# Get the absolute path of this script\n";
-    script << "SCRIPT=$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)/$(basename \"${BASH_SOURCE[0]}\")\n";
-    script << "# Append the kernel collection name to the script path\n";
-    script << "KC=\"${SCRIPT%/*}/vram_patch.kc\"\n"; // This line replaces the original one
-    script << "# Get the volume name from the script path\n";
-    script << "VOLUME=\"${SCRIPT%%/Library*}\"\n";
-    script << "# Run the kmutil command with the absolute paths\n";
-    script << "kmutil configure-boot -C -c \"$KC\" -v \"$VOLUME\"\n";
-    script << "sync\n";
-    script << "echo Finished. You may reboot your system now.\n";
-    script.close();
-    // Change the ownership and permissions of the shell script to root:wheel and 755
-    if (chown(script_kc.c_str(), 0, 0) == -1) {
-        std::cerr << "Failed to change the ownership of the shell script" << std::endl;
-        return 1;
-    }
-    if (chmod(script_kc.c_str(), 0755) == -1) {
-        std::cerr << "Failed to change the permissions of the shell script" << std::endl;
-        return 1;
-    }
-    // Output the instructions to run the shell script in RecoveryOS
-    std::cout << "The shell script to configure the boot with the patched kernel collection has been created at " << script_kc << std::endl;
-    std::cout << "Now reboot to RecoveryOS and run: \"/Volumes/" << volume_name << "/Library/KernelCollections/complete_patch.sh\"" << std::endl;
-    std::cout << "If your boot fails after running the script or after an update, you need to go to Utilities->Startup Security Tool in RecoveryOS and pick Full Security" << std::endl;
-    return 0;
-}
 
 
 ncnn 多平台编译
@@ -1699,6 +1432,21 @@ fastboot reboot recovery
 格式化Data分区 / Wipe Data
 至此，大功告成。
 
+windows 10上fastboot无法识别设备问题
+手机进入fastboot mode，如果出现执行fastboot devices命令没有设备信息显示的情况，这种情况基本和手机软件没有关系，基本都是PC环境所导致，一般是fastboot驱动安装问题（和ADB驱动程序不是一个东西），也有由于fastboot.exe工具版本太旧导致无法检测到设备的情况。
+原因是adb和fastboot不是同一个设备，安装了google usb driver后adb能识别，fastboot不能，需要设备在fastboot模式下，单独安装驱动
+1. 手机进入fastboot模式后，连接USB，可以查看设备管理器中的信息，可以看到其他设备中会有一个设备没有被正常识别，我们需要对这个设备进行驱动更新
+2. 在此设备上右击，在弹出的菜单中选择更新驱动程序软件
+3. 在弹出的对话框中选择浏览计算机以查找驱动程序软件
+4. 在新的菜单中选择从计算机的设备驱动程序列表中选择
+5. 硬件类型选择 Android Phone
+6. 厂商我们这里选择Google, Inc. 型号选择Android Bootloader Interface
+7. 下一步确认后，会弹出不推荐安装窗口，选择是
+8. 然后会弹出如下驱动更新成功的提示
+首先，找到我的电脑>属性>设备管理器右键“其他设备”
+找到检测到的设备，更新驱动程序->浏览我的计算机以查找驱动程序
+让我从计算机上的可用驱动程序列表选取->下一步->从磁盘安装
+
  安卓刷机模式详解：Fastboot、Fastbootd、9008与MTK深刷
 一、刷机模式对比
 1. Fastboot模式
@@ -2676,6 +2424,10 @@ ollama list
 ollama create <model_name> -f <model_name>.mf
 ollama run <model_name>
 ollama rm <model_name>
+etc.
+FROM ./Qwen3-30B-A3B-Q4_K_M.gguf #.mf
+ollama create Qwen3-30B-A3B-Q4_K_M -f Qwen3-30B-A3B-Q4_K_M.mf #.bat
+
 
 msys64
 修改 D:\msys64\etc\pacman.d 目录下的所有 mirrorlist.* 文件，将原来的注释掉，添加如下
@@ -4016,6 +3768,65 @@ GitHub Trend 页面总结了每天/每周/每月周期的热门 Repositories 和
 网址：https://github.com/trending，
 GitHub Topic 展示了最新和最流行的讨论主题，在这里你不仅能够看到开发项目，还能看到更多非开发技术的讨论主题。
 网址：https://github.com/topics
+10、搜索结果过滤
+在 GitHub 上搜索特定的仓库（repository）时，如果你想要移除包含特定库名的搜索结果，你可以使用 GitHub 的搜索语法来细化你的搜索条件。GitHub 提供了强大的搜索功能，允许你使用关键字来过滤和定位你感兴趣的内容
+使用 - 排除特定库名
+在搜索框中，你可以使用减号 (-) 来排除包含特定文本的仓库。例如，如果你想要搜索所有不包含 "example-library" 的仓库，你可以在搜索框中输入：
+some-keyword -example-library
+这里的 some-keyword 可以是你想要搜索的任何关键词，而 -example-library 会排除所有名称中包含 "example-library" 的仓库。
+使用 NOT 关键字
+GitHub 还支持使用 NOT 关键字来排除特定文本。例如：
+some-keyword NOT example-library
+
+
+‌GitHub高级搜索速查表
+1. 基础搜索‌
+运算符	描述	示例
+in:	限定搜索范围（name/description/readme/file等）	in:name,description react
+language:	按语言过滤	language:python
+is:	按状态过滤（open/closed/ archived）	is:open
+size:	按仓库大小过滤（>1000/<500）	size:>1000
+‌2. 排除与包含‌
+运算符	描述	示例
+- 或 NOT	排除关键词	-example 或 NOT example
+: 或 :	包含关键词（默认）	react
+‌3. 时间过滤‌
+运算符	描述	示例
+created:	按创建时间过滤	created:>2023-01-01
+pushed:	按最后提交时间过滤	pushed:>2023-01-01
+updated:	按更新时间过滤	updated:>2023-01-01
+‌4. 数值过滤‌
+运算符	描述	示例
+stars:	按星标数过滤	stars:>1000
+forks:	按分支数过滤	forks:>100
+followers:	按关注者数过滤	followers:>1000
+‌5. 文件与内容过滤‌
+运算符	描述	示例
+in:file	搜索文件内容	keyword in:file
+path:	按文件路径过滤	path:src/
+filename:	按文件名过滤	filename:*.js
+‌6. 用户与组织过滤‌
+运算符	描述	示例
+user:	按用户搜索	user:octocat
+org:	按组织搜索	org:github
+topic:	按话题搜索	topic:web-development
+‌7. 排序与范围‌
+运算符	描述	示例
+sort:	按排序方式过滤（stars/forks/updated）	sort:stars
+archived:	按是否归档过滤	archived:true
+‌8. 组合搜索示例‌
+‌搜索Python语言且星标数大于1000的仓库‌：
+language:python stars:>1000
+‌排除名为"example"的仓库，搜索React相关内容‌：
+-example react
+‌按创建时间搜索2023年创建的仓库‌：
+created:>2023-01-01 created:<2024-01-01
+‌搜索用户"octocat"创建的仓库，且包含"README.md"文件‌：
+user:octocat in:file README.md
+‌使用技巧‌
+‌组合运算符‌：通过空格分隔多个条件，如language:python stars:>1000。
+‌模糊搜索‌：使用*通配符，如user:octocat*。
+‌精确匹配‌：用引号包裹关键词，如"React"。
 
 
 Windows下静态编译Skia
@@ -8580,6 +8391,11 @@ snprintf重定义
 #endif
 #endif
 
+sol2 no member named 'construct' in 'optional<type-parameter-0-0 &>'
+// this->construct(std::forward<Args>(args)...);
+new (static_cast<void*>(this)) optional(std::in_place, std::forward<Args>(args)...);
+return **this;
+
 #pragma comment(lib, "comctl32.lib")
 #ifdef _UNICODE
 #if defined _M_IX86
@@ -9330,6 +9146,9 @@ void srand48(unsigned int i)
 #define F_SQRT2    1.41421356237309504880f
 #define M_SQRT1_2  0.707106781186547524401
 #define F_SQRT1_2  0.707106781186547524401f
+#endif
+#ifndef M_SQRT2
+#define M_SQRT2 1.41421356237309504880
 #endif
 
 non-const lvalue reference to type 'xxx' cannot bind to a  temporary of type 'xxx'
@@ -12654,17 +12473,6 @@ smali中的函数和成员变量也分为两种，分别为 direct 和 virtual
 　　move-result-object v2
 　　 v2保存的就是调用t方法返回的String字符串
 
-SOL2 mingw编译error: no member named 'construct' in 'optional<T &>'
-修复方案
-1、
-                        *this = nullopt;
--			this->construct(std::forward<Args>(args)...);
-+			new (static_cast<void*>(this)) optional(std::in_place, std::forward<Args>(args)...);
-2、
-                        *this = nullopt;
--			this->construct(std::forward<Args>(args)...);
-+			new (static_cast<void*>(this)) optional(std::in_place, std::forward<Args>(args)...);
-+			return **this;
 
 <bits/stdc++.h>
 // C++ includes used for precompiling -*- C++ -*-
@@ -12804,4 +12612,4 @@ https://jiaobenwang.com/
 http://bbs.523play.com/
 https://fm.jzyu.com/ymzq?down_price=0
 https://www.gamecbg.com/forum.php?mod=forumdisplay&fid=36&filter=author&orderby=dateline
-https://search.bilibili.com/all?keyword=frida&from_source=video_tag#bilibili Tag搜索v
+https://search.bilibili.com/all?keyword=frida&from_source=video_tag#bilibili Tag搜索
