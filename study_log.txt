@@ -72,6 +72,69 @@ git lfs install
 git clone https://www.modelscope.cn/swift/Qwen3-30B-A3B-AWQ.git
 GIT_LFS_SKIP_SMUDGE=1 git clone https://www.modelscope.cn/swift/Qwen3-30B-A3B-AWQ.git #跳过 lfs 大文件下载
 
+快速生成空白大文件
+Windows# fsutil file createnew D:/ BigFile.txt 107374182400 //100G
+Linux# dd if=/dev/zero of=/path/to/file bs=100M count=1024 //100G
+快速生成非空白大文件
+//将汉字复制1024次写入1.txt 然后将1.txt文件内容 循环复制1024次写入到1.doc文件内
+Windows#
+// powershell
+"一个汉字" * 1024 | Out-File -Encoding UTF8 1.txt 
+// powershell 1
+# 清空目标文件（若需保留原有内容可删除此行）
+if (Test-Path "1.doc") { Clear-Content "1.doc" }
+# 循环1024次，每次读取1.txt内容并追加到1.doc
+1..1024 | ForEach-Object {
+    Get-Content "1.txt" -Encoding UTF8 | Add-Content "1.doc" -Encoding UTF8
+}
+// powershell 2
+# 一次性读取文件内容
+$content = Get-Content "1.txt" -Raw -Encoding UTF8
+# 创建目标文件并写入重复内容
+-join ($content * 1024) | Out-File "1.doc" -Encoding UTF8
+//cmd
+@echo off
+setlocal enabledelayedexpansion
+set "str=一个汉字"
+set "result="
+for /l %%i in (1,1,1024) do (
+  set "result=!result!!str!"
+)
+echo !result! > 1.txt
+endlocal
+//cmd
+@echo off
+for /l %%n in (1, 1, 1024) do (
+        type 1.txt >> 1.doc
+)
+Linux#
+//bash 1
+# Stage 1: 生成1.txt（无换行版本）
+printf '一个汉字%.0s' {1..1024} > 1.txt
+# Stage 2: 复制到1.doc（内存操作）
+content=$(<1.txt)
+printf "%s" "${content}"{,,,,,,,,,,,,,,,,,,,,,,,,,,} > 1.doc  # 手动扩展1024次（实际需写满1024个逗号）
+//bash 2
+#!/bin/bash
+# 第一阶段：生成1.txt
+# ------------------------------
+# 使用快速生成方式（无循环）
+base_str="一个汉字"
+printf "%s" "${base_str}"%.0s{1..1024} > 1.txt
+# 第二阶段：生成1.doc
+# ------------------------------
+# 一次性读取文件内容（保留原始换行符）
+content=$(<1.txt)
+# 通过dd工具高效写入（适合大文件）
+yes "$content" | head -n 1024 | tr -d '\n' > 1.doc
+//bash 测试
+# 检查最终文件大小是否符合预期（汉字占3字节）
+expected_size=$(( 3*4*1024*1024 ))  # 每个"一个汉字"4个汉字=12字节
+actual_size=$(wc -c < 1.doc)
+[ $actual_size -eq $expected_size ] && echo "SUCCESS" || echo "FAILED"
+BSD/Mac# 
+printf '一个汉字%.0s' $(seq 1024) > 1.txt //将 {1..N} 改为 seq N
+
 
 /build.gradle.kts
 maven { url = uri("https://maven.aliyun.com/repository/google") }
