@@ -525,6 +525,255 @@ boot.img : 恢复镜像
 lineage-*.zip : LineageOS 安装包
 
 
+oneplus6-编译-LineageOS-19.1-android12
+lineage-19.1/oneplus6-build.md[https://gitlab.com/oneplus6_enchilada/wiki/-/tree/dev/lineage-19.1]
+修复内核崩溃
+经过此两修改后, 编译出的OTA包 刷入手机,
+手机重启正常越过logo 进入android, 但卡在LineageOS-19的弧形进度界面,
+没有此两修改时, 根本进不到android, 只到开机logo就黑屏 亮呼吸灯 , 串口处于900E(高通ramdump模式),
+因此此两修改有用,但问题还没完毕
+1. 根据lineageOS-19.1官方OTA包和我ota包的vendor内容对比,补充缺少的文件
+修改记录:TheMuppets-v/proprietary_vendor_oneplus.git/718403
+参考 ota-compare-my-to-official/file_ls_not_in_my_otaZip.txt
+对 TheMuppets/proprietary_vendor_oneplus.git : vendor/oneplus/sdm845-common/sdm845-common-vendor.mk 的 PRODUCT_COPY_FILES 新增以下行:
+PRODUCT_COPY_FILES += \
+#...
+#新增以下行: vendor/oneplus/sdm845-common//proprietary/product/priv-app/HotwordEnrollmentOKGoogleWCD9340_SDM845/HotwordEnrollmentOKGoogleWCD9340_SDM845.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/product/priv-app/HotwordEnrollmentOKGoogleWCD9340_SDM845/HotwordEnrollmentOKGoogleWCD9340_SDM845.apk \
+vendor/oneplus/sdm845-common//proprietary/product/priv-app/HotwordEnrollmentXGoogleWCD9340_SDM845/HotwordEnrollmentXGoogleWCD9340_SDM845.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/product/priv-app/HotwordEnrollmentXGoogleWCD9340_SDM845/HotwordEnrollmentXGoogleWCD9340_SDM845.apk \
+vendor/oneplus/sdm845-common//proprietary/system/frameworkc/qcnvitems.jar:$(TARGET_COPY_OUT_VENDOR)/proprietary/system/frameworkc/qcnvitems.jar \
+vendor/oneplus/sdm845-common//proprietary/system/framework/tcmclient.jar:$(TARGET_COPY_OUT_VENDOR)/proprietary/system/framework/tcmclient.jar \
+vendor/oneplus/sdm845-common//proprietary/system/framework/WfdCommon.jar:$(TARGET_COPY_OUT_VENDOR)/proprietary/system/framework/WfdCommon.jar \
+vendor/oneplus/sdm845-common//proprietary/system_ext/app/NxpNfcNci/NxpNfcNci.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/app/NxpNfcNci/NxpNfcNci.apk \
+vendor/oneplus/sdm845-common//proprietary/system_ext/app/QtiTelephonyService/QtiTelephonyService.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/app/QtiTelephonyService/QtiTelephonyService.apk \
+vendor/oneplus/sdm845-common//proprietary/system_ext/app/SoterService/SoterService.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/app/SoterService/SoterService.apk \
+vendor/oneplus/sdm845-common//proprietary/system_ext/framework/com.android.hotwordenrollment.common.util.jar:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/framework/com.android.hotwordenrollment.common.util.jar \
+vendor/oneplus/sdm845-common//proprietary/system_ext/framework/com.nxp.nfc.jar:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/framework/com.nxp.nfc.jar \
+vendor/oneplus/sdm845-common//proprietary/system_ext/framework/com.qti.dpmframework.jar:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/framework/com.qti.dpmframework.jar \
+vendor/oneplus/sdm845-common//proprietary/system_ext/framework/dpmapi.jar:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/framework/dpmapi.jar \
+vendor/oneplus/sdm845-common//proprietary/system_ext/framework/qcrilhook.jar:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/framework/qcrilhook.jar \
+vendor/oneplus/sdm845-common//proprietary/system_ext/framework/vendor.qti.hardware.alarm-V1.0-java.jar:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/framework/vendor.qti.hardware.alarm-V1.0-java.jar \
+vendor/oneplus/sdm845-common//proprietary/system_ext/priv-app/IFAAService/IFAAService.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/priv-app/IFAAService/IFAAService.apk \
+vendor/oneplus/sdm845-common//proprietary/system_ext/priv-app/ims/ims.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/priv-app/ims/ims.apk \
+vendor/oneplus/sdm845-common//proprietary/system_ext/priv-app/qcrilmsgtunnel/qcrilmsgtunnel.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/priv-app/qcrilmsgtunnel/qcrilmsgtunnel.apk \
+vendor/oneplus/sdm845-common//proprietary/system_ext/priv-app/WfdService/WfdService.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/system_ext/priv-app/WfdService/WfdService.apk \
+vendor/oneplus/sdm845-common//proprietary/vendor/app/CneApp/CneApp.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/app/CneApp/CneApp.apk \
+vendor/oneplus/sdm845-common//proprietary/vendor/app/IWlanService/IWlanService.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/app/IWlanService/IWlanService.apk \
+vendor/oneplus/sdm845-common//proprietary/vendor/app/TimeService/TimeService.apk:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/app/TimeService/TimeService.apk \
+vendor/oneplus/sdm845-common//proprietary/vendor/etc/vintf/manifest/android.hardware.gnss@2.1-service-qti.xml:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/etc/vintf/manifest/android.hardware.gnss@2.1-service-qti.xml \
+vendor/oneplus/sdm845-common//proprietary/vendor/etc/vintf/manifest/android.hardware.neuralnetworks@1.3-service-qti.xml:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/etc/vintf/manifest/android.hardware.neuralnetworks@1.3-service-qti.xml \
+vendor/oneplus/sdm845-common//proprietary/vendor/etc/vintf/manifest/manifest_android.hardware.drm@1.3-service.widevine.xml:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/etc/vintf/manifest/manifest_android.hardware.drm@1.3-service.widevine.xml \
+vendor/oneplus/sdm845-common//proprietary/vendor/etc/vintf/manifest/vendor.qti.gnss@4.0-service.xml:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/etc/vintf/manifest/vendor.qti.gnss@4.0-service.xml \
+vendor/oneplus/sdm845-common//proprietary/vendor/lib/libfastcvopt.so:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/lib/libfastcvopt.so \
+vendor/oneplus/sdm845-common//proprietary/vendor/lib/libthermalclient.so:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/lib/libthermalclient.so \
+vendor/oneplus/sdm845-common//proprietary/vendor/lib64/libfastcvopt.so:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/lib64/libfastcvopt.so \
+vendor/oneplus/sdm845-common//proprietary/vendor/lib64/libthermalclient.so:$(TARGET_COPY_OUT_VENDOR)/proprietary/vendor/lib64/libthermalclient.so
+2. 解决编译错误Prebuilt apk found in PRODUCT_COPY_FILES BUILD_PREBUILT instead
+修改记录:LineageOS-v/android_build.git/83a47c
+mka showcommands bacon 时报错 Prebuilt apk found in PRODUCT_COPY_FILES BUILD_PREBUILT instead 解决
+LineageOS/android_build.git : build/make/core/Makefile
+函数check-product-copy-files 中 : $(error 改为 $(waring
+define check-product-copy-files
+$(if $(filter-out $(TARGET_COPY_OUT_SYSTEM_OTHER)/%,$(2)), \
+-  $(if $(filter %.apk, $(2)),$(error \
++  $(if $(filter %.apk, $(2)),$(waring \
+     Prebuilt apk found in PRODUCT_COPY_FILES: $(1), use BUILD_PREBUILT instead!))) \
+参考1: https://blog.csdn.net/qq_44844314/article/details/130132581
+参考2: https://blog.csdn.net/kc58236582/article/details/53364239
+(不奏效,待排查)记录android崩溃日志,增加logcat命令脚本作为服务
+修改点
+LineageOS/android_system_core.git : /app4/lineage19_oneplus6/system/core
+/app4/lineage19_oneplus6/system/core/libcutils/fs_config.cpp
+/app4/lineage19_oneplus6/system/core/rootdir/init.rc
+TheMuppets/proprietary_vendor_oneplus.git /sdm845-common: /app4/lineage19_oneplus6/vendor/oneplus/sdm845-common
+/app4/lineage19_oneplus6/vendor/oneplus/sdm845-common/sdm845-common-vendor.mk
+/app4/lineage19_oneplus6/vendor/oneplus/sdm845-common/myLogScript.sh
+参考1: 新增android日志服务: https://blog.csdn.net/xuanyulevel6/article/details/140018074
+android12启动卡死在android门口(Lineage弧形图标) 修改x.cr排查死在哪
+现状: oneplus6手机刷入我编译的LineageOS19.1(android12) ,内核正常启动, 卡死在android门口(Lineage弧形图标)
+排查方案: 修改x.rc排查死在哪
+步骤1.利用twrp的adb shell修改x.rc
+grep yyy /system_root/system/etc/init/hw/init.rc
+    write /system/yyy02-on-init 1
+    write /system/yyy04-on-early-fs 1
+    write /mnt/user/0/yyy03-on-post-fs 1
+    write /system/yyy05-on-post-fs 1
+    write /system/bin/yyy06-on-late-fs 1
+    write /system/bin/yyy07-on-post-fs-data 1
+    write /data/yyy08-on-post-fs-data 1
+    write /data/system/yyy09-on-post-fs-data 1
+    write /data/yyy10-on-post-fs-data 1
+    mkdir /data/apex/yyy11-mkdir-on-post-fs-data
+    mkdir /data/yyy12-mkdir-on-post-fs-data
+    mkdir /data/yyy13-on-post-fs-data
+    write /data/yyy16-on-boot 1
+    write /system/yyy17-on-boot 1
+    write /system/yyy15-on-charger 1
+步骤2. 正常启动手机 引发LineageOS19.1卡死在弧形图标
+步骤3. 进twrp观看x.rc修改点执行效果
+fastboot boot twrp-3.7.0_11-0-enchilada.img | twrp-3.5.2_9-0-enchilada.img
+(twrp启动后可能要等一会儿才能连的上adb shell)
+twrp界面操作: Mount --> data 、 system
+adb shell :
+mount | grep system
+/dev/block/sda13 on /system_root type ext4 (ro,seclabel,relatime)
+/dev/block/sda13 on /system type ext4 (ro,seclabel,relatime)
+(被执行到的修改点)find / -name yyy* 2>/dev/null
+/data/yyy13-on-post-fs-data
+/data/yyy16-on-boot
+/data/yyy12-mkdir-on-post-fs-data
+/data/yyy10-on-post-fs-data
+/data/apex/yyy11-mkdir-on-post-fs-data
+/data/yyy08-on-post-fs-data
+对比 x.rc ,发现有不少修改点没有被执行到
+oneplus6-build
+#解决 repo sync 时 可能的报错
+sudo apt install -y git-lfs
+#git-lfs filter-process --skip: 1: git-lfs: not found
+#fatal: 远端意外挂断了
+#error.GitError: Cannot checkout LineageOS/android_external_chromium-webview_prebuilt_arm: Cannot initialize work tree for LineageOS/android_external_chromium-webview_prebuilt_arm
+#error: Cannot checkout LineageOS/android_external_chromium-webview_prebuilt_arm
+curl https://mirrors.tuna.tsinghua.edu.cn/git/git-repo -o /app/bin/repo
+chmod a+x /app/bin/repo
+export PATH_BASE=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/app/bin/
+export PATH=$PATH_BASE
+D=/app4/lineage19_oneplus6
+mkdir -p $D && cd $D
+GitBranch=lineage-19.1
+DevName=enchilada #oneplus6==enchilada
+Github=githubfast
+#oneplus6 第三方厂商驱动(vendor) 、 linux4.9内核
+#https://github.com/TheMuppets/proprietary_vendor_oneplus.git /enchilada     : vendor/oneplus/enchilada
+#https://github.com/LineageOS/android_device_oneplus_enchilada.git           : device/oneplus/enchilada
+#https://github.com/LineageOS/android_device_oneplus_sdm845-common.git       : device/oneplus/sdm845-common
+#https://github.com/LineageOS/android_kernel_oneplus_sdm845.git              : kernel/oneplus/sdm845
+#https://github.com/LineageOS/android_hardware_oneplus.git                   : hardware/oneplus
+#命名样式? github.com/LineageOS/android_x_y_z.git                             : x/y/z
+grep devicesettings android/snippets/lineage.xml  # snippets/lineage.xml 中 已经定义  android_packages_resources_devicesettings ,不再需要 单独clone
+#  <project path="packages/resources/devicesettings" name="LineageOS/android_packages_resources_devicesettings" />
+proprietary_vendor_oneplus=$D/TheMuppets----proprietary_vendor_oneplus
+git clone --depth=30 https://$Github.com/TheMuppets/proprietary_vendor_oneplus.git --branch $GitBranch $proprietary_vendor_oneplus
+#大仓库,只克隆 该分支lineage-19.1 为起点的 1个提交
+mkdir -p $D/vendor/oneplus
+ln -s $proprietary_vendor_oneplus/$DevName  $D/vendor/oneplus/$DevName
+ln -s $proprietary_vendor_oneplus/sdm845-common $D/vendor/oneplus/sdm845-common
+git clone --branch $GitBranch  https://$Github.com/LineageOS/android_device_oneplus_enchilada.git  $D/device/oneplus/$DevName
+git clone --branch $GitBranch  https://$Github.com/LineageOS/android_device_oneplus_sdm845-common.git       $D/device/oneplus/sdm845-common
+#$D/device/oneplus/?sdm845-common?common?
+git clone --branch $GitBranch  https://$Github.com/LineageOS/android_kernel_oneplus_sdm845.git   $D/kernel/oneplus/sdm845
+#https://github.com/LineageOS/android_hardware_oneplus.git  最低版本为 lineage-18.1
+git clone --branch $GitBranch  https://github.com/LineageOS/android_hardware_oneplus.git  $D/hardware/oneplus
+#手工将以上5个仓库 x/.git/config 中 '[remote "origin"]'/url 中的 githubfast 改回 github
+#参照 "报错解决记录/0.找不到`webview.apk`" 解决该报错
+#初始化仓库群.
+REPO_URL='https://mirrors.tuna.tsinghua.edu.cn/git/git-repo' repo init   --manifest-url https://mirrors.tuna.tsinghua.edu.cn/git/lineageOS/LineageOS/android.git --manifest-branch $GitBranch
+grep tsing  $D/.repo/repo/.git/config  #REPO_URL变量只对repo命令起作用
+#	url = https://mirrors.tuna.tsinghua.edu.cn/git/git-repo
+#$D/repo/manifests/default.xml
+#<remote  name="aosp" fetch="https://android.googlesource.com"  fetch替换为 "https://mirrors.tuna.tsinghua.edu.cn/git/AOSP"
+_xmlP="$D/.repo/manifests/default.xml"
+_xmlS1='fetch="https://android.googlesource.com"'
+_xmlS2='fetch="https://mirrors.tuna.tsinghua.edu.cn/git/AOSP"'
+grep -Hn "$_xmlS1" $_xmlP
+( p="$_xmlP"  \
+s1="$_xmlS1"   \
+s2="$_xmlS2" \
+python3 -c 'import os,pathlib; d=os.environ; p=d["p"]; s1=d["s1"]; s2=d["s2"];  f=pathlib.Path(p); f.write_text(f.read_text().replace(s1,s2))' ;)
+grep -Hn "$_xmlS2" $_xmlP
+#/app4/lineage19_oneplus6/.repo/manifests/default.xml:12:           fetch="https://mirrors.tuna.tsinghua.edu.cn/git/AOSP"
+repo sync --current-branch --no-tags --prune
+#编译步骤正文开始
+source build/envsetup.sh
+#export V=1
+export LC_ALL=C
+export ALLOW_MISSING_DEPENDENCIES=true
+lunch lineage_$DevName-userdebug && mka showcommands bacon  # lineage_enchilada-userdebug | lineage_enchilada-eng
+#编译步骤正文结束
+备注1 : mka bacon 的排错形式是 m V=1 -j 1 bacon
+oneplus6-OTA-flash
+oneplus6-OTA线刷包 刷机
+ls -lh $D/out/target/product/enchilada/lineage-19.1-20241105-UNOFFICIAL-enchilada.zip
+#-rwxrwxrwx   767M   /app4/lineage19_oneplus6/out/target/product/enchilada/lineage-19.1-20241105-UNOFFICIAL-enchilada.zip
+adb reboot bootloader
+fastboot boot twrp-3.5.2_9-0-enchilada.img
+adb sideload /app4/lineage19_oneplus6/out/target/product/enchilada/lineage-19.1-20241105-UNOFFICIAL-enchilada.zip
+重启, 走过logo、没进android、呼吸灯常亮并崩溃
+且 强制关机再开机 并进按音量加(音量减?) 进入fastboot 执行 fastboot boot twrp-3.5.2_9-0-enchilada.img 也一样 走过logo、没进android、呼吸灯常亮并崩溃
+报错解决记录
+0.找不到webview.apk
+报错
+m V=1 -j 1 bacon
+#报错如下:
+#... cp external/chromium-webview/prebuilt/arm64/webview.apk out/target/product/enchilada/obj/APPS/webview_intermediates/package.apk  ...
+# FAILED: out/target/product/enchilada/obj/APPS/webview_intermediates/package.apk
+# zip2zip.go:82: zip: not a valid zip file
+解决
+#理论上应该 git clone --branch android12L  https://android.googlesource.com/platform/external/chromium-webview  , 但是由于该仓库巨大34GB且科学上网太慢, 所以只clone以下小仓库 且 不管分支
+git clone https://github.com/LineageOS/android_external_chromium-webview.git  /tmp/
+# https://mirrors.tuna.tsinghua.edu.cn/git/lineageOS/LineageOS/android_external_chromium-webview
+#/tmp/android_external_chromium-webview/.git/config
+webview_arm64_F=/tmp/android_external_chromium-webview/prebuilt/arm64/webview.apk  # ls -lh  $webview_arm64_F #91MB
+md5sum $webview_arm64_F
+# 717afb18c5a27c4d610f3edfb767689f  prebuilt/arm64/webview.apk
+cp $webview_arm64_F  $D/external/chromium-webview/prebuilt/arm64/webview.apk
+1. LineageOS-19.1(android12)中 不要手工cloneandroid_packages_resources_devicesettings.git, 否则导致报错 'git: unsupported checkout state'
+在LineageOS-19.1(android12)中 估计已经在 manifest.xml(即android/default.xml) 中描述了 android_packages_resources_devicesettings.git, 因此 若手工clone该仓库,反而会报错
+报错
+git clone --branch $GitBranch  https://$Github.com/LineageOS/android_packages_resources_devicesettings.git   $D/packages/resources/devicesettings
+repo sync --current-branch --no-tags --prune
+#error.GitError: Cannot checkout LineageOS/android_packages_resources_devicesettings: /app4/lineage19_oneplus6/packages/resources/devicesettings/.#git: unsupported checkout state
+#error: Cannot checkout LineageOS/android_packages_resources_devicesettings
+解决
+rm -fr $D/packages/resources/devicesettings
+cd $D
+repo sync LineageOS/android_packages_resources_devicesettings   --force-sync
+2. android_device_oneplus_enchilada : device/oneplus/enchilada/.git: unsupported checkout state
+报错
+lunch lineage_$DevName-userdebug
+# error.GitError: Cannot checkout LineageOS/android_device_oneplus_enchilada: /app4/lineage19_oneplus6/device/oneplus/enchilada/.git: unsupported checkout state
+# error: Cannot checkout LineageOS/android_device_oneplus_enchilada
+# error: Unable to fully sync the tree
+# error: Checking out local projects failed.
+# Failing repos:
+# device/oneplus/enchilada
+解决
+repo sync --current-branch  LineageOS/android_device_oneplus_enchilada   --force-sync
+3. 'repo init --depth=x' 导致 'mka bacon' 报错'android_common does not provide a dex boot jar'
+报错
+repo init --depth=x # '--depth=x'  会导致 'mka bacon' 报错如下
+# error: frameworks/base/boot/Android.bp:44:1: module "platform-bootclasspath" variant "android_common" does not provide a dex boot jar
+解决
+去掉repo init --depth=x 中的--depth=x
+4. 'mka bacon' 报错 'namespace hardware/oneplus does not exist'
+报错
+m V=1  -j 1  bacon
+# error: device/oneplus/sdm845-common/Android.bp:1:1: module "soong_namespace": namespace hardware/oneplus does not exist
+解决
+猜测 hardware/oneplus 应该是 对应 组织github.com/LineageOS下仓库形如*hardware_oneplus*,
+搜索github.com/LineageOS/hardware_oneplus 得到 LineageOS/android_hardware_oneplus.git
+从而解决办法为
+git clone --branch lineage-19.1  https://github.com/LineageOS/android_hardware_oneplus.git  $D/hardware/oneplus
+5. module "platform-bootclasspath" variant "android_common": module WfdCommon does not provide a dex boot jar
+WfdCommon==Wi-Fi Display Common
+报错
+m -j 1 bacon #报错
+#module "platform-bootclasspath" variant "android_common": module WfdCommon does not provide a dex boot jar
+排查过程
+find $D -type f -size -1024k -not  -path  "*/.repo/*"    | xargs -I@ bash -c " grep -Hn 'does not provide a dex boot jar' '@'  && echo '@' "
+#/app4/lineage19_oneplus6/build/soong/java/dexpreopt_bootjars.go:492:			ctx.ModuleErrorf("module %s does not provide a dex boot jar", name)
+google搜索WfdCommon 得到 4、出现错误："internal error: failed to find dex jar path for module "WfdCommon" 仿照其修改如下
+grep -Hn -A 1 -B 1 WfdCommon $D/device/oneplus/sdm845-common/*.mk
+#/app4/lineage19_oneplus6/device/oneplus/sdm845-common/common.mk:463:  PRODUCT_BOOT_JARS += \
+#                                                               :464:      WfdCommon
+解决
+删除 /app4/lineage19_oneplus6/device/oneplus/sdm845-common/common.mk 中的 PRODUCT_BOOT_JARS += WfdCommon
+6. multiple definition of `yylloc'
+报错
+m V=1 -j 1 bacon #'mka bacon' 的排错形式
+# /usr/bin/ld: scripts/dtc/dtc-parser.tab.o:(.bss+0x10): multiple definition of `yylloc'; scripts/dtc/dtc-lexer.lex.o:(.bss+0x0): first defined here
+解决
+echo 'HOSTCFLAGS += -fcommon' >> $D/kernel/oneplus/sdm845/Makefile
+
+
 LineageOS-21 编译大战！—— 一个萌新的心路历程 ☆
 kira~☆ 本文将同步闪耀于 CSDN & 看雪论坛，请多指教！
 0x01 碎碎念 Time~
@@ -677,7 +926,7 @@ repo sync platform/dalvik
 rm -rf .repo
 然后回到 Step 4，重新配置仓库 (repo init)。这次... 也许该考虑放弃国内镜像，直接拥抱官方源了 (虽然可能要经历漫长的等待... 大约 200GB 的数据量呢)。
 repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --git-lfs
-之后，就是... 泡杯茶，看几集番，或者睡一觉吧... 等待法阵完成它的工作... 直到所有星辰归位... 
+之后，就是... 泡杯茶，看几集番，或者睡一觉吧... 等待法阵完成它的工作... 直到所有星辰归位...
 Step 7: 召唤特定设备的神秘力量 (准备 Vendor Blobs 等)
 请务必查清你家设备的代号！可以去官方文档或者XDA这样的论坛找找看。
 在 .repo 目录下创建一个叫做 local_manifests 的小文件夹。在里面新建一个文件，名字可以叫 <你的手机厂商>_manifest.xml (比如 lge_manifest.xml)。然后，参考下面的模板抄写咒语：
@@ -766,7 +1015,7 @@ sudo apt-get install bc bison build-essential ccache curl flex g++-multilib gcc-
 JDK&python
 18的话用OpenJDK 11，直接安装就好，安装好了之后运行 java --version 检查有没有安装成功
 sudo apt update
-sudo apt install openjdk-11-jdk	
+sudo apt install openjdk-11-jdk
 python可以直接将系统的python3软连接成python就可以了
 sudo ln -s /usr/bin/python3 /usr/bin/python
 创建项目目录
@@ -775,7 +1024,7 @@ mkdir -p ~/bin
 mkdir -p ~/android/lineage
 安装repo并设置环境变量
 进入 ~/bin 目录中
-cd ~/bin 
+cd ~/bin
 curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
 chmod a+x ~/bin/repo
 然后将repo目录添加到环境变量中
@@ -873,7 +1122,7 @@ sudo swapoff /swapfile
 sudo rm /swapfile
 sudo dd if=/dev/zero of=/swapfile bs=1M count=32768 status=progress  # 设置32G大小
 sudo chmod 600 /swapfile
-sudo mkswap /swapfile	
+sudo mkswap /swapfile
 sudo swapon /swapfile
 为了每次系统重启后自动挂载交换分区，需要执行下面的命令
 sudo vim /etc/fstab
@@ -883,7 +1132,7 @@ sudo vim /etc/fstab
 注意，作者这里编译的是user版本的镜像，如果不考虑什么版本，在运行 source build/envsetup.sh 之后可以直接运行 brunch flame 命令，这样他会自己直接去编译userdebug版本的镜像。
 cd ~/android/lineage
 source build/envsetup.sh
-lunch lineage_flame-user           # 编译user版本镜像  
+lunch lineage_flame-user           # 编译user版本镜像
 m																	 # 全速编译
 全速编译完成之后，再执行 make otapackage 命令生成OTA的包，生成的OTA的包和在前面的网站下载的包的格式一摸一样，这个作为作者的系统刷机包
 make otapackage
@@ -891,7 +1140,7 @@ make otapackage
 你可以使用其他的方式去完成刷机，作者比较喜欢下面的方式去完成刷机。
 编译完成之后，需要把OTA中的boot.img提取出来，然后boot.img和OTA两个内容作为刷机材料
 你的设备在刷机之前需要先刷对应安卓版本的谷歌官方的系统，然后才可以按照下面的步骤去刷
-adb reboot bootloader 
+adb reboot bootloader
 fastboot flash boot boot.img
 按音量下键进入到recovery模式中，在recovery模式中先Factory reset -> Format data/factory reset清掉当前的数据
 然后返回，进入到Apply update -> Apply from ADB 中执行下面的命令完成刷机，这个过程比较长，等刷完之后可以重启手机，开机之后就会发现已经来到了lineageOS中了
@@ -1340,6 +1589,376 @@ lineage_wayne-ota-eng.cyrus.zip 是一个 OTA 更新包，可能用于增量更�
 详细的刷机教程可以参考这篇文章【LineageOS刷机教程】[https://cyrus-studio.github.io/blog/]。
 
 
+为 OnePlus 6 构建 LineageOS 22.2 并在使用 KernelSU 的情况下锁定 Bootloader
+本文最后修改于 2025 年 5 月 14 日，某些内容随着时间的推移可能不再适用。
+本文假设操作者拥有足够的知识编译一个 ROM，并且使用的网络能够连接到 GitHub 等服务。
+准备工作
+一台 OnePlus 6 （代号 enchilada）；
+一台搭载 Ubuntu 24.02 LTS 的具备超过 400GB 硬盘的主机；
+能够访问 GitHub 的网络连接，我们需要下载超过 100GB 的文件。
+参考链接
+[链接1]LineageOS 适用于 OnePlus 6 的自行构建指南[https://wiki.lineageos.org/devices/enchilada/build/]
+[链接2]LineageOS 的自签名指南[https://wiki.lineageos.org/signing_builds]
+[链接3]XDA 上的使用自签名的 LOS 重新锁定 OnePlus 6T 上的引导加载程序[https://xdaforums.com/t/4113743/]
+[链接4]XDA 上的使用 LOS 18.1 自签名版本重新锁定 OnePlus 8T 上的引导加载程序[https://xdaforums.com/t/4259409/]
+[链接5]XDA 上的使用 LOS 19.1 自签名版本重新锁定 Google Pixel 5 上的引导加载程序[https://xdaforums.com/t/4500903/]
+[链接6]XDA 上 @DevelLevel 的经验[https://xdaforums.com/t/4113743/post-88081535]
+开始动手！
+1. 下载 LineageOS 的源码
+根据[链接1]的步骤一直操作，直到命令 repo sync 运行完成为止。
+2. 集成 MindTheGapps（可选）
+这一步不是必须的，但如果想使用 GApps，则必须在源码中集成，直接安装可刷入的 GApps 包会导致锁定 Bootloader 后无法启动。
+至于为什么使用 MindTheGapps，是因为只有这个一直更新，并且能够方便的集成到 AOSP。
+编辑 ~/android/lineage/.repo/manifests/default.xml 文件，加入以下内容：
+<remote name="MindTheGapps" fetch="https://gitlab.com/MindTheGapps/" />
+<project path="vendor/gapps" name="vendor_gapps" remote="MindTheGapps" revision="vic" />
+其中，vic 分支是适用于 Android 15 的 GApps，如果需要其他版本的 GApps，则需要修改为对应分支。分支名称可以在 MindTheGapps 的 GitLab [https://gitlab.com/MindTheGapps/vendor_gapps]仓库找到。
+文件修改完成后，使用 repo sync 同步代码。代码同步完成后，将以下内容添加到 ~/android/lineage/device/oneplus/enchilada/device.mk 文件的末尾：
+include vendor/gapps/arm64/arm64-vendor.mk
+3. 下载 OnePlus 6 的内核等特定设备文件
+这个步骤可以参考 LineageOS 的教程[https://wiki.lineageos.org/extracting_blobs_from_zips.html]，也可以选择 TheMuppets 整理好的文件。为了方便，我们选择后者。
+运行以下命令从 GitHub 下载文件：
+cd ~/android/lineage/
+git clone -b lineage-22.2 --depth=1 https://github.com/TheMuppets/proprietary_vendor_oneplus_enchilada.git vendor/oneplus/enchilada
+git clone -b lineage-22.2 --depth=1 https://github.com/TheMuppets/proprietary_vendor_oneplus_sdm845-common.git vendor/oneplus/sdm845-common
+4. 生成签名密钥
+要锁定 Bootloader，设备必须支持自定义信任根，而自定义信任根的证书必须由用户——也就是我们自己——生成并刷入手机。所以，我们首先需要生成用于签名的密钥。
+密钥只需要生成一次，之后可以一直使用。
+根据[链接2]的步骤操作，以下所有命令中 subject 命令代表个人信息，按照自己的需求更改。
+首先设置证书信息：
+cd ~/android/lineage
+subject='/C=CN/ST=Beijing/L=Beijing/O=Individual/OU=Personal/CN=DreamVoid/emailAddress=i@dreamvoid.me'
+mkdir ~/.android-certs
+for cert in bluetooth cyngn-app media networkstack nfc platform releasekey sdk_sandbox shared testcert testkey verity; do \
+    ./development/tools/make_key ~/.android-certs/$cert "$subject"; \
+done
+将 RSA 位数从 2048 改为 4096：
+cp ./development/tools/make_key ~/.android-certs/
+sed -i 's|2048|4096|g' ~/.android-certs/make_key
+生成密钥：
+for apex in com.android.adbd com.android.adservices com.android.adservices.api com.android.appsearch com.android.appsearch.apk com.android.art com.android.bluetooth com.android.btservices com.android.cellbroadcast com.android.compos com.android.configinfrastructure com.android.connectivity.resources com.android.conscrypt com.android.devicelock com.android.extservices com.android.graphics.pdf com.android.hardware.authsecret com.android.hardware.biometrics.face.virtual com.android.hardware.biometrics.fingerprint.virtual com.android.hardware.boot com.android.hardware.cas com.android.hardware.neuralnetworks com.android.hardware.rebootescrow com.android.hardware.wifi com.android.healthfitness com.android.hotspot2.osulogin com.android.i18n com.android.ipsec com.android.media com.android.media.swcodec com.android.mediaprovider com.android.nearby.halfsheet com.android.networkstack.tethering com.android.neuralnetworks com.android.nfcservices com.android.ondevicepersonalization com.android.os.statsd com.android.permission com.android.profiling com.android.resolv com.android.rkpd com.android.runtime com.android.safetycenter.resources com.android.scheduling com.android.sdkext com.android.support.apexer com.android.telephony com.android.telephonymodules com.android.tethering com.android.tzdata com.android.uwb com.android.uwb.resources com.android.virt com.android.vndk.current com.android.vndk.current.on_vendor com.android.wifi com.android.wifi.dialog com.android.wifi.resources com.google.pixel.camera.hal com.google.pixel.vibrator.hal com.qorvo.uwb; do \
+    subject='/C=CN/ST=Beijing/L=Beijing/O=Individual/OU=Personal/CN='$apex'/emailAddress=i@dreamvoid.me'; \
+    ~/.android-certs/make_key ~/.android-certs/$apex "$subject"; \
+    openssl pkcs8 -in ~/.android-certs/$apex.pk8 -inform DER -nocrypt -out ~/.android-certs/$apex.pem; \
+done
+将 .pk8 格式的私钥转换为 .key 格式：
+cd ~/.android-certs
+openssl pkcs8 -in releasekey.pk8 -inform DER -out releasekey.key -nocrypt
+5. 进行一次 LineageOS 的 userdebug 版本的签名构建
+我们直接根据 LineageOS 的教程[https://wiki.lineageos.org/signing_builds#generating-an-install-package]操作即可。
+现在，我们可以在 ~/android/lineage 中找到 signed-ota_update.zip，这就是我们自签名的刷机包。现在就可以试试这个包，也可以直接继续接下来的步骤。
+6. 修改 LineageOS 中的代码
+本节提到的目录和文件除使用绝对路径或另有说明外，均基于 LineageOS 根目录，即 ~/android/lineage。
+修改任何代码之前，先创建我们需要的工作目录：
+mkdir ~/android/enchilada
+mkdir ~/android/enchilada/patches
+mkdir ~/android/enchilada/pkmd
+(1) 修改 enchilada 的 BroadConfig.mk
+LineageOS 22.2 构建时 Soong 默认不信任工作目录之外的文件，这就导致我们的签名密钥无法直接使用，所以我们把密钥目录挂载到工作目录内：
+mkdir ~/android/lineage/device/oneplus/enchilada/android-keys
+mount --bind ~/.android-certs ~/android/lineage/device/oneplus/enchilada/android-keys
+在 device/oneplus/enchilada/BroadConfig.mk 文件中，添加以下行（来自此处[https://github.com/Wunderment/build_devices/blob/master/enchilada_20/build/board-config-additions.txt]）：
+# Enable RADIO files so we can add the firmware IMGs to the OTA.
+ADD_RADIO_FILES := true
+# Set the AVB key and hash algorithm.
+BOARD_AVB_KEY_PATH := $(DEVICE_PATH)/android-keys/releasekey.key
+BOARD_AVB_ALGORITHM := SHA256_RSA2048
+# Include the rest of the prebuilt partitions.
+# The following three images are exclude as lineage recovery doesn't seem to be able to flash them: india.img, reserve.img
+AB_OTA_PARTITIONS += abl aop bluetooth cmnlib cmnlib64 devcfg dsp fw_4j1ed fw_4u1ea hyp keymaster LOGO modem oem_stanvbk qupfw storsec tz xbl xbl_config
+上述修改内容中提到的 $(DEVICE_PATH)/android-keys 代表挂载之后的密钥目录，任何在 ~/.android-certs 进行的修改都会同步到此目录中。每次重新启动系统时都需要挂载一次。
+(2) 修改 sdm845-common 的 BoardConfigCommon.mk（可选）
+修改这个的作用是启用 LineageOS 默认禁用的分区验证，我们已经集成了 KernelSU 和 GApps，所以我们可以开启分区验证。
+在 device/oneplus/sdm845-common/BoardConfigCommon.mk 文件中，找到并注释以下行：
+#BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --set_hashtree_disabled_flag
+#BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --set_verification_disabled_flag
+原始文件没有前导 # 号，我们加上 # 号代表注释这两行。
+(3) 修改 AOSP 的 Makefile
+下载这个文件[https://github.com/Wunderment/build_tasks/blob/master/source/core_Makefile-22.2.patch]到 ~/android/enchilada/patches 中。
+前往 build/core 目录应用这个文件：
+cd ~/android/lineage/build/core
+patch Makefile ~/android/enchilada/patches/core_Makefile-22.2.patch
+(4) 将 vendor 镜像加入签名列表
+提取 OxygenOS 11 的最新版本的 payload.bin 文件并解压出 img 镜像，找到 oem_stanvbk.img 文件，将其复制到 vendor/oneplus/enchilada/radio 目录。
+找到 vendor/oneplus/enchilada/Android.mk 文件，将以下内容添加到 endif 行之前，其他行之后（请无视文件顶部的DO NOT MODIFY，没什么好担心的）：
+$(call add-radio-file,radio/oem_stanvbk.img)
+7. 安装 KernelSU-Next（可选）
+这一步不是必须的，但如果想在锁定 Bootloader 后使用 root 权限，则此时安装 KernelSU-Next 是最好的选择。
+前往内核目录：
+cd ~/android/lineage/kernel/oneplus/sdm845
+安装 KernelSU-Next 最新发行版：
+curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -
+8. 构建 LineageOS 的 user 版本
+要构建 user 版本而不是 userdebug 版本，首先需要修改默认的构建配置。
+构建配置默认存放在 Lineage 根目录中的 build 文件夹内，我们首先复制一份默认配置：
+cd ~/android/lineage/build
+cp buildspec.mk.default buildspec.mk
+之后，修改 buildspec.mk 文件，找到 TARGET_BUILD_VARIANT:=user 删除前面的 # 号。
+现在，按照正常流程构建 LineageOS：
+cd ~/android/lineage
+source build/envsetup.sh
+breakfast enchilada user
+croot
+mka target-files-package otatools
+构建完成后，签名：
+croot
+sign_target_files_apks -o -d ~/.android-certs \
+    --extra_apks AdServicesApk.apk=$HOME/.android-certs/releasekey \
+    --extra_apks FederatedCompute.apk=$HOME/.android-certs/releasekey \
+    --extra_apks HalfSheetUX.apk=$HOME/.android-certs/releasekey \
+    --extra_apks HealthConnectBackupRestore.apk=$HOME/.android-certs/releasekey \
+    --extra_apks HealthConnectController.apk=$HOME/.android-certs/releasekey \
+    --extra_apks OsuLogin.apk=$HOME/.android-certs/releasekey \
+    --extra_apks SafetyCenterResources.apk=$HOME/.android-certs/releasekey \
+    --extra_apks ServiceConnectivityResources.apk=$HOME/.android-certs/releasekey \
+    --extra_apks ServiceUwbResources.apk=$HOME/.android-certs/releasekey \
+    --extra_apks ServiceWifiResources.apk=$HOME/.android-certs/releasekey \
+    --extra_apks WifiDialog.apk=$HOME/.android-certs/releasekey \
+    --extra_apks com.android.adbd.apex=$HOME/.android-certs/com.android.adbd \
+    --extra_apks com.android.adservices.apex=$HOME/.android-certs/com.android.adservices \
+    --extra_apks com.android.adservices.api.apex=$HOME/.android-certs/com.android.adservices.api \
+    --extra_apks com.android.appsearch.apex=$HOME/.android-certs/com.android.appsearch \
+    --extra_apks com.android.appsearch.apk.apex=$HOME/.android-certs/com.android.appsearch.apk \
+    --extra_apks com.android.art.apex=$HOME/.android-certs/com.android.art \
+    --extra_apks com.android.bluetooth.apex=$HOME/.android-certs/com.android.bluetooth \
+    --extra_apks com.android.btservices.apex=$HOME/.android-certs/com.android.btservices \
+    --extra_apks com.android.cellbroadcast.apex=$HOME/.android-certs/com.android.cellbroadcast \
+    --extra_apks com.android.compos.apex=$HOME/.android-certs/com.android.compos \
+    --extra_apks com.android.configinfrastructure.apex=$HOME/.android-certs/com.android.configinfrastructure \
+    --extra_apks com.android.connectivity.resources.apex=$HOME/.android-certs/com.android.connectivity.resources \
+    --extra_apks com.android.conscrypt.apex=$HOME/.android-certs/com.android.conscrypt \
+    --extra_apks com.android.devicelock.apex=$HOME/.android-certs/com.android.devicelock \
+    --extra_apks com.android.extservices.apex=$HOME/.android-certs/com.android.extservices \
+    --extra_apks com.android.graphics.pdf.apex=$HOME/.android-certs/com.android.graphics.pdf \
+    --extra_apks com.android.hardware.authsecret.apex=$HOME/.android-certs/com.android.hardware.authsecret \
+    --extra_apks com.android.hardware.biometrics.face.virtual.apex=$HOME/.android-certs/com.android.hardware.biometrics.face.virtual \
+    --extra_apks com.android.hardware.biometrics.fingerprint.virtual.apex=$HOME/.android-certs/com.android.hardware.biometrics.fingerprint.virtual \
+    --extra_apks com.android.hardware.boot.apex=$HOME/.android-certs/com.android.hardware.boot \
+    --extra_apks com.android.hardware.cas.apex=$HOME/.android-certs/com.android.hardware.cas \
+    --extra_apks com.android.hardware.neuralnetworks.apex=$HOME/.android-certs/com.android.hardware.neuralnetworks \
+    --extra_apks com.android.hardware.rebootescrow.apex=$HOME/.android-certs/com.android.hardware.rebootescrow \
+    --extra_apks com.android.hardware.wifi.apex=$HOME/.android-certs/com.android.hardware.wifi \
+    --extra_apks com.android.healthfitness.apex=$HOME/.android-certs/com.android.healthfitness \
+    --extra_apks com.android.hotspot2.osulogin.apex=$HOME/.android-certs/com.android.hotspot2.osulogin \
+    --extra_apks com.android.i18n.apex=$HOME/.android-certs/com.android.i18n \
+    --extra_apks com.android.ipsec.apex=$HOME/.android-certs/com.android.ipsec \
+    --extra_apks com.android.media.apex=$HOME/.android-certs/com.android.media \
+    --extra_apks com.android.media.swcodec.apex=$HOME/.android-certs/com.android.media.swcodec \
+    --extra_apks com.android.mediaprovider.apex=$HOME/.android-certs/com.android.mediaprovider \
+    --extra_apks com.android.nearby.halfsheet.apex=$HOME/.android-certs/com.android.nearby.halfsheet \
+    --extra_apks com.android.networkstack.tethering.apex=$HOME/.android-certs/com.android.networkstack.tethering \
+    --extra_apks com.android.neuralnetworks.apex=$HOME/.android-certs/com.android.neuralnetworks \
+    --extra_apks com.android.nfcservices.apex=$HOME/.android-certs/com.android.nfcservices \
+    --extra_apks com.android.ondevicepersonalization.apex=$HOME/.android-certs/com.android.ondevicepersonalization \
+    --extra_apks com.android.os.statsd.apex=$HOME/.android-certs/com.android.os.statsd \
+    --extra_apks com.android.permission.apex=$HOME/.android-certs/com.android.permission \
+    --extra_apks com.android.profiling.apex=$HOME/.android-certs/com.android.profiling \
+    --extra_apks com.android.resolv.apex=$HOME/.android-certs/com.android.resolv \
+    --extra_apks com.android.rkpd.apex=$HOME/.android-certs/com.android.rkpd \
+    --extra_apks com.android.runtime.apex=$HOME/.android-certs/com.android.runtime \
+    --extra_apks com.android.safetycenter.resources.apex=$HOME/.android-certs/com.android.safetycenter.resources \
+    --extra_apks com.android.scheduling.apex=$HOME/.android-certs/com.android.scheduling \
+    --extra_apks com.android.sdkext.apex=$HOME/.android-certs/com.android.sdkext \
+    --extra_apks com.android.support.apexer.apex=$HOME/.android-certs/com.android.support.apexer \
+    --extra_apks com.android.telephony.apex=$HOME/.android-certs/com.android.telephony \
+    --extra_apks com.android.telephonymodules.apex=$HOME/.android-certs/com.android.telephonymodules \
+    --extra_apks com.android.tethering.apex=$HOME/.android-certs/com.android.tethering \
+    --extra_apks com.android.tzdata.apex=$HOME/.android-certs/com.android.tzdata \
+    --extra_apks com.android.uwb.apex=$HOME/.android-certs/com.android.uwb \
+    --extra_apks com.android.uwb.resources.apex=$HOME/.android-certs/com.android.uwb.resources \
+    --extra_apks com.android.virt.apex=$HOME/.android-certs/com.android.virt \
+    --extra_apks com.android.vndk.current.apex=$HOME/.android-certs/com.android.vndk.current \
+    --extra_apks com.android.vndk.current.on_vendor.apex=$HOME/.android-certs/com.android.vndk.current.on_vendor \
+    --extra_apks com.android.wifi.apex=$HOME/.android-certs/com.android.wifi \
+    --extra_apks com.android.wifi.dialog.apex=$HOME/.android-certs/com.android.wifi.dialog \
+    --extra_apks com.android.wifi.resources.apex=$HOME/.android-certs/com.android.wifi.resources \
+    --extra_apks com.google.pixel.camera.hal.apex=$HOME/.android-certs/com.google.pixel.camera.hal \
+    --extra_apks com.google.pixel.vibrator.hal.apex=$HOME/.android-certs/com.google.pixel.vibrator.hal \
+    --extra_apks com.qorvo.uwb.apex=$HOME/.android-certs/com.qorvo.uwb \
+    --extra_apex_payload_key com.android.adbd.apex=$HOME/.android-certs/com.android.adbd.pem \
+    --extra_apex_payload_key com.android.adservices.apex=$HOME/.android-certs/com.android.adservices.pem \
+    --extra_apex_payload_key com.android.adservices.api.apex=$HOME/.android-certs/com.android.adservices.api.pem \
+    --extra_apex_payload_key com.android.appsearch.apex=$HOME/.android-certs/com.android.appsearch.pem \
+    --extra_apex_payload_key com.android.appsearch.apk.apex=$HOME/.android-certs/com.android.appsearch.apk.pem \
+    --extra_apex_payload_key com.android.art.apex=$HOME/.android-certs/com.android.art.pem \
+    --extra_apex_payload_key com.android.bluetooth.apex=$HOME/.android-certs/com.android.bluetooth.pem \
+    --extra_apex_payload_key com.android.btservices.apex=$HOME/.android-certs/com.android.btservices.pem \
+    --extra_apex_payload_key com.android.cellbroadcast.apex=$HOME/.android-certs/com.android.cellbroadcast.pem \
+    --extra_apex_payload_key com.android.compos.apex=$HOME/.android-certs/com.android.compos.pem \
+    --extra_apex_payload_key com.android.configinfrastructure.apex=$HOME/.android-certs/com.android.configinfrastructure.pem \
+    --extra_apex_payload_key com.android.connectivity.resources.apex=$HOME/.android-certs/com.android.connectivity.resources.pem \
+    --extra_apex_payload_key com.android.conscrypt.apex=$HOME/.android-certs/com.android.conscrypt.pem \
+    --extra_apex_payload_key com.android.devicelock.apex=$HOME/.android-certs/com.android.devicelock.pem \
+    --extra_apex_payload_key com.android.extservices.apex=$HOME/.android-certs/com.android.extservices.pem \
+    --extra_apex_payload_key com.android.graphics.pdf.apex=$HOME/.android-certs/com.android.graphics.pdf.pem \
+    --extra_apex_payload_key com.android.hardware.authsecret.apex=$HOME/.android-certs/com.android.hardware.authsecret.pem \
+    --extra_apex_payload_key com.android.hardware.biometrics.face.virtual.apex=$HOME/.android-certs/com.android.hardware.biometrics.face.virtual.pem \
+    --extra_apex_payload_key com.android.hardware.biometrics.fingerprint.virtual.apex=$HOME/.android-certs/com.android.hardware.biometrics.fingerprint.virtual.pem \
+    --extra_apex_payload_key com.android.hardware.boot.apex=$HOME/.android-certs/com.android.hardware.boot.pem \
+    --extra_apex_payload_key com.android.hardware.cas.apex=$HOME/.android-certs/com.android.hardware.cas.pem \
+    --extra_apex_payload_key com.android.hardware.neuralnetworks.apex=$HOME/.android-certs/com.android.hardware.neuralnetworks.pem \
+    --extra_apex_payload_key com.android.hardware.rebootescrow.apex=$HOME/.android-certs/com.android.hardware.rebootescrow.pem \
+    --extra_apex_payload_key com.android.hardware.wifi.apex=$HOME/.android-certs/com.android.hardware.wifi.pem \
+    --extra_apex_payload_key com.android.healthfitness.apex=$HOME/.android-certs/com.android.healthfitness.pem \
+    --extra_apex_payload_key com.android.hotspot2.osulogin.apex=$HOME/.android-certs/com.android.hotspot2.osulogin.pem \
+    --extra_apex_payload_key com.android.i18n.apex=$HOME/.android-certs/com.android.i18n.pem \
+    --extra_apex_payload_key com.android.ipsec.apex=$HOME/.android-certs/com.android.ipsec.pem \
+    --extra_apex_payload_key com.android.media.apex=$HOME/.android-certs/com.android.media.pem \
+    --extra_apex_payload_key com.android.media.swcodec.apex=$HOME/.android-certs/com.android.media.swcodec.pem \
+    --extra_apex_payload_key com.android.mediaprovider.apex=$HOME/.android-certs/com.android.mediaprovider.pem \
+    --extra_apex_payload_key com.android.nearby.halfsheet.apex=$HOME/.android-certs/com.android.nearby.halfsheet.pem \
+    --extra_apex_payload_key com.android.networkstack.tethering.apex=$HOME/.android-certs/com.android.networkstack.tethering.pem \
+    --extra_apex_payload_key com.android.neuralnetworks.apex=$HOME/.android-certs/com.android.neuralnetworks.pem \
+    --extra_apex_payload_key com.android.nfcservices.apex=$HOME/.android-certs/com.android.nfcservices.pem \
+    --extra_apex_payload_key com.android.ondevicepersonalization.apex=$HOME/.android-certs/com.android.ondevicepersonalization.pem \
+    --extra_apex_payload_key com.android.os.statsd.apex=$HOME/.android-certs/com.android.os.statsd.pem \
+    --extra_apex_payload_key com.android.permission.apex=$HOME/.android-certs/com.android.permission.pem \
+    --extra_apex_payload_key com.android.profiling.apex=$HOME/.android-certs/com.android.profiling.pem \
+    --extra_apex_payload_key com.android.resolv.apex=$HOME/.android-certs/com.android.resolv.pem \
+    --extra_apex_payload_key com.android.rkpd.apex=$HOME/.android-certs/com.android.rkpd.pem \
+    --extra_apex_payload_key com.android.runtime.apex=$HOME/.android-certs/com.android.runtime.pem \
+    --extra_apex_payload_key com.android.safetycenter.resources.apex=$HOME/.android-certs/com.android.safetycenter.resources.pem \
+    --extra_apex_payload_key com.android.scheduling.apex=$HOME/.android-certs/com.android.scheduling.pem \
+    --extra_apex_payload_key com.android.sdkext.apex=$HOME/.android-certs/com.android.sdkext.pem \
+    --extra_apex_payload_key com.android.support.apexer.apex=$HOME/.android-certs/com.android.support.apexer.pem \
+    --extra_apex_payload_key com.android.telephony.apex=$HOME/.android-certs/com.android.telephony.pem \
+    --extra_apex_payload_key com.android.telephonymodules.apex=$HOME/.android-certs/com.android.telephonymodules.pem \
+    --extra_apex_payload_key com.android.tethering.apex=$HOME/.android-certs/com.android.tethering.pem \
+    --extra_apex_payload_key com.android.tzdata.apex=$HOME/.android-certs/com.android.tzdata.pem \
+    --extra_apex_payload_key com.android.uwb.apex=$HOME/.android-certs/com.android.uwb.pem \
+    --extra_apex_payload_key com.android.uwb.resources.apex=$HOME/.android-certs/com.android.uwb.resources.pem \
+    --extra_apex_payload_key com.android.virt.apex=$HOME/.android-certs/com.android.virt.pem \
+    --extra_apex_payload_key com.android.vndk.current.apex=$HOME/.android-certs/com.android.vndk.current.pem \
+    --extra_apex_payload_key com.android.vndk.current.on_vendor.apex=$HOME/.android-certs/com.android.vndk.current.on_vendor.pem \
+    --extra_apex_payload_key com.android.wifi.apex=$HOME/.android-certs/com.android.wifi.pem \
+    --extra_apex_payload_key com.android.wifi.dialog.apex=$HOME/.android-certs/com.android.wifi.dialog.pem \
+    --extra_apex_payload_key com.android.wifi.resources.apex=$HOME/.android-certs/com.android.wifi.resources.pem \
+    --extra_apex_payload_key com.google.pixel.camera.hal.apex=$HOME/.android-certs/com.google.pixel.camera.hal.pem \
+    --extra_apex_payload_key com.google.pixel.vibrator.hal.apex=$HOME/.android-certs/com.google.pixel.vibrator.hal.pem \
+    --extra_apex_payload_key com.qorvo.uwb.apex=$HOME/.android-certs/com.qorvo.uwb.pem \
+    $OUT/obj/PACKAGING/target_files_intermediates/*-target_files*.zip \
+    signed-target_files.zip
+签名完成后，打包：
+ota_from_target_files -k ~/.android-certs/releasekey \
+    --block --backup=true \
+    signed-target_files.zip \
+    signed-ota_update.zip
+现在，就可以将 signed-ota_update.zip 刷入手机，任意方法均可使用。（TWRP 永远的神）
+刷入完成后，最好先启动一次系统。如果哪里出现了问题，而未进入系统就直接锁定 Bootloader，会导致手机再也无法启动到系统，也无法解锁，从而变砖，只能通过 9008 线刷救砖。
+9. 生成并刷入 avb_custom_key
+生成 avb_custom_key：
+avbtool extract_public_key --key ~/.android-certs/releasekey.key --output ~/pkmd.bin
+可以在用户主目录找到 pkmd.bin 文件。现在将手机重启到 Bootloader 模式准备刷入此文件。
+如果事先刷过别的 key，使用以下命令清除：
+fastboot erase avb_custom_key
+之后，使用以下命令刷入我们的 Key：
+fastboot flash avb_custom_key pkmd.bin
+最后，重启一次 Bootloader，然后锁定 Bootloader：
+fastboot reboot bootloader
+fastboot oem lock
+在手机上确认锁定后，手机会自动重启，经过一次 Lineage Recovery 的 Wipe Data 后，我们就可以开始使用锁定了 Bootloader 并且带有 KernelSU-Next 和 GApps 的 LineageOS 了。
+已知问题
+经过测试，集成 KernelSU-Next 后，KSUN 管理器无法获取 root 权限，查阅 logcat 并尝试将 SELinux 设为宽容模式后得知为 SELinux 规则问题，且就算设为宽容模式也无法授予 root 给其他软件。
+经过测试，TEE 仍然不可用，密钥认证演示提示错误代码 -10003。此项尚未经过更广泛的测试（即非 LineageOS 是否也是如此）
+
+
+搭建lineageOS编译环境
+操作系统Debian12
+*需要root权限
+【核心硬件建议】：
+CPU
+核心数：至少 8 核以上。
+性能优先级：多核性能 > 单核性能（编译过程高度并行化）。
+内存（RAM）
+最低要求：16GB（勉强可用，但可能因设备代码量不同而频繁卡顿），需要扩展swap，不然进程会被kill。
+推荐配置：32GB 或更高（避免因内存不足导致编译中断）。
+存储（硬盘）
+容量：至少 500GB 可用空间（源码 + 编译产物可能占用 300GB 以上，内存不够得开swap、后续加速编译要开ccache，也得个大几十GB）。
+类型：NVMe SSD（编译过程涉及大量文件读写，SSD 速度直接影响效率）。
+操作系统
+官方支持：Debian Stable（如 本文档使用的就是Debian12）或 Ubuntu LTS（如 22.04/24.04）。
+其他系统：可尝试 Arch Linux 或 Fedora，但需自行解决依赖兼容性问题。
+尽量避免使用 Windows，WSL 2虽然可行，但性能和兼容性较差。
+云编译建议使用tmux，避免由于网络差丢失ssh连接，从而被杀进程。基础使用:
+创建会话 tmux new -s ‘这里输入你想创建的会话名称’ 示例： tmux new -s lineage_build
+若需要离开tmux窗口，先按 Ctrl+b再按d，即可退出会话
+列出tmux后台会话进程，tmux ls
+重新连接后进入tmux会话或者查看编译进度，tmux attach -t ‘这里输入你创建的会话名称’ 示例：tmux attach -t lineage_build
+配置编译环境，安装软件包、编译依赖、编译工具以及同步lineageOS源代码
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git git-lfs gnupg gperf imagemagick lib32ncurses-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libwxgtk3.2-dev libxml2 libxml2-utils lzop maven pngcrush python3 python-is-python3 rsync schedtool squashfs-tools tmux unzip wget zip zlib1g-dev openjdk-17-jdk android-sdk-platform-tools-common protobuf-compiler python3-protobuf lib32readline-dev libdw-dev libelf-dev lz4  xsltproc libncurses5 libtinfo5
+mkdir -p ~/bin
+mkdir -p ~/android/lineage
+mkdir ~/.ccache
+echo 'export USE_CCACHE=1' >> ~/.bashrc
+echo 'export CCACHE_DIR=~/.ccache' >> ~/.bashrc
+source ~/.bashrc
+ccache -M 50G  # 设置缓存大小为 50GB，可以按需求自行调整，但是就算只编译一种设备的映像文件也建议25G起步。
+ccache -o compression=true
+curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+chmod a+x ~/bin/repo
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+git lfs install
+git config --global trailer.changeid.key "Change-Id"
+cd ~/android/lineage
+repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --git-lfs 【可选参数--no-clone-bundle】  #自行修改要拉取的lineage版本
+repo sync
+编译lineageOS通用镜像【可以自行选择编译的lineageos的对应脚本】
+注意，安卓15的td编译脚本，推荐使用MisterZtr的lineageOS编译脚本。github上可以找到仓库。
+git clone https://github.com/AndyCGYan/lineage_build_unified lineage_build_unified -b lineage-21-light
+git clone https://github.com/AndyCGYan/lineage_patches_unified lineage_patches_unified -b lineage-21-light
+td即TD-based，应用TrebleDroid的全量补丁集，对旧设备、mtk处理器、三星等手机有更好的兼容性。
+light脚本应用的补丁则少得多，几乎只对一般的现代设备有用，编译出来的系统映像文件兼容性比td的要差些。
+请按自己的实际情况来选择，一般而言，除了老旧的设备和奇怪的冷门设备，一般可以使用light脚本构建的系统映像文件。
+bash lineage_build_unified/buildbot_unified.sh treble 64VN 64VS 64GN #按需要选择参数编译
+编译指定设备的lineageos，需要到github下载设备树、驱动、内核
+以oneplus 8t为例：
+手动下载设备树、内核、专有文件（或通过local_manifest.xml自动拉取）
+设备树路径：device/oneplus/kebab
+内核路径：kernel/oneplus/sm8250
+专有文件路径：vendor/oneplus/kebab 和 vendor/oneplus/sm8250-common
+硬件支持路径：hardware/oplus
+一加8T 设备树 https://github.com/LineageOS/android_device_oneplus_kebab 文件放置路径 device/oneplus/kebab
+SM8250 一加通用设备树：https://github.com/LineageOS/android_device_oneplus_sm8250 文件放置路径device/oneplus/sm8250-common
+SM8250 一加内核：https://github.com/LineageOS/android_kernel_oneplus_sm8250 文件放置路径 kernel/oneplus/sm8250
+SM8250 一加通用专有文件：https://github.com/TheMuppets/proprietary_vendor_oneplus_sm8250-common 文件放置路径 vendor/oneplus/kebab/sm8250-common
+一加8T专有文件：https://github.com/TheMuppets/proprietary_vendor_oneplus_kebab 文件放置路径 vendor/oneplus/kebab
+一加硬件支持：https://github.com/LineageOS/android_hardware_oplus 文件放置路径 hardware/oplus
+推荐通过 local_manifest.xml 自动拉取
+在源码根目录创建 .repo/local_manifests/roomservice.xml
+添加设备树、内核、专有文件的仓库定义
+以下是local_manifest.xml参考内容:
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- 一加8T 设备树 -->
+  <project name="LineageOS/android_device_oneplus_kebab" path="device/oneplus/kebab" remote="github" />
+  <!-- SM8250 通用设备树 -->
+  <project name="LineageOS/android_device_oneplus_sm8250-common" path="device/oneplus/sm8250-common" remote="github" />
+  <!-- SM8250 内核 -->
+  <project name="LineageOS/android_kernel_oneplus_sm8250" path="kernel/oneplus/sm8250" remote="github" />
+  <!-- 一加8T 专有文件 -->
+  <project name="TheMuppets/proprietary_vendor_oneplus_kebab" path="vendor/oneplus/kebab" remote="github" />
+  <!-- SM8250 通用专有文件 -->
+  <project name="TheMuppets/proprietary_vendor_oneplus_sm8250-common" path="vendor/oneplus/sm8250-common" remote="github" />
+  <!-- 一加硬件支持 -->
+  <project name="LineageOS/android_hardware_oplus" path="hardware/oplus" remote="github" />
+</manifest>
+编译lineageOS映像文件
+1】对于编译通用镜像GSI，命令行进入lineageOS源码根目录，使用脚本指令
+bash lineage_build_unified/buildbot_unified.sh treble 64VN
+即可
+输出文件在用户主目录下，build-output里面
+2】对于编译指定设备的lineageOS,命令行进入lineageOS源码根目录，依次输入下列指令
+source build/envsetup.sh
+breakfast kebab
+croot
+brunch kebab
+进入输出文件夹（假设构建完成并且没有错误）
+cd $OUT
+
 
 aosp源码编译
 1. source build/envsetup.sh #配置脚本环境
@@ -1360,11 +1979,11 @@ git config --global user.name "yourname"
 git config --global user.email "your-email-address"
 git config --global credential.helper store
 4. 安装码云repo工具，可以执行如下命令。
-curl -s https://gitee.com/oschina/repo/raw/fork_flow/repo-py3 > /usr/local/bin/repo  
+curl -s https://gitee.com/oschina/repo/raw/fork_flow/repo-py3 > /usr/local/bin/repo
 pip3 install -i https://repo.huaweicloud.com/repository/pypi/simple requests
 如果没有权限，可下载至其他目录，并将其配置到环境变量中chmod a+x /usr/local/bin/repo
 mkdir ~/bin
-curl https://gitee.com/oschina/repo/raw/fork_flow/repo-py3 -o ~/bin/repo 
+curl https://gitee.com/oschina/repo/raw/fork_flow/repo-py3 -o ~/bin/repo
 chmod a+x ~/bin/repo
 pip3 install -i https://repo.huaweicloud.com/repository/pypi/simple requests
 vim ~/.bashrc               # 编辑环境变量
@@ -1397,7 +2016,7 @@ device/board/opc/opi5plus/kernel/build_kernel.sh
 vendor/opc/opi5plus/custom_conf/window/display_manager_config.xml
 代码编译
 3.1 OpenHarmony 编译
-cd $PROJ_ROOT  
+cd $PROJ_ROOT
 #香橙派5Plus
 ./build.sh --product-name opi5plus --ccache
 #香橙派5Ultra
@@ -1424,7 +2043,7 @@ autoreconf -vi
 post_process
 =====build opi5plus successful.
 编译生成的文件
-$PROJ_ROOT/out/opi5plus/packages/phone/images/system.img 
+$PROJ_ROOT/out/opi5plus/packages/phone/images/system.img
 $PROJ_ROOT/out/opi5plus/packages/phone/images/vendor.img
 $PROJ_ROOT/out/opi5plus/packages/phone/images/userdata.img
 $PROJ_ROOT/out/opi5plus/packages/phone/images/ramdisk.img
@@ -1526,7 +2145,7 @@ chmod +x make_keys.sh
 为了避免密码解密的复杂性，生成一个未加密的私钥，防止签名过程提示输入密码。
 Enter password for 'keys/bluetooth' (blank for none; password will be visible):
 creating keys/bluetooth.pk8 with no password
-Enter password for 'keys/cyngn-app' (blank for none; password will be visible): 
+Enter password for 'keys/cyngn-app' (blank for none; password will be visible):
 creating keys/cyngn-app.pk8 with no password
 Enter password for 'keys/media' (blank for none; password will be visible):
 creating keys/media.pk8 with no password
@@ -2340,7 +2959,7 @@ OLLVM MD5
 移植 OLLVM 到 LLVM 18，C&C++代码混淆
 移植 OLLVM 到 Android NDK，Android Studio 中使用 OLLVM
 比如，给 md5 方法添加下面注解启用虚假控制流
-__attribute__((annotate("bcf"))) 
+__attribute__((annotate("bcf")))
 修改后：
 extern "C"
 JNIEXPORT jstring JNICALL
@@ -2432,7 +3051,7 @@ void SHAPrintContext(SHA1_CTX *context, char *msg)
 {
     printf("%s (%d,%d) %x %x %x %x %x\n",
            msg,
-           context->count[0], context->count[1], 
+           context->count[0], context->count[1],
            context->state[0],
            context->state[1],
            context->state[2],
@@ -2669,8 +3288,8 @@ R4 (Round 4)：最终的轮次，进一步强化数据的不可逆性。
 #define R4(v,w,x,y,z,i) \
     z += (w ^ x ^ y) + blk(i) + 0xEE62C1D6 + rol(v, 5); \
     w=rol(w, 30);
-    
-    
+
+
 标准 Base64 太好逆？试试自定义码表 + 动态规则的魔改版本
 Java 实现标准 Base64 编码和解码
 Base64 编码：
@@ -3532,7 +4151,7 @@ move-object/from16 vAA, vBBBB - 对象移动
 move-wide/from16 vAA, vBBBB - 从 vBBBB 移动 64 位数据到 vAA
 move-wide/16 vAAAA, vBBBB - 从 vBBBB 移动 64 位数据到 vAAAA
 这 256 条指令涵盖了 Dalvik 指令集中常用的加载、移动、算术运算、逻辑运算、条件跳转、方法调用等指令类别
-    
+
 
 别让 so 裸奔！移植 OLLVM 到 NDK 并集成到 Android Studio
 在 Android 应用安全中，Native 层 so 库往往是最容易被逆向分析的目标 。无论是游戏的核心逻辑，还是 App 的关键算法，一旦 so 被反编译，核心代码就可能暴露无遗。
@@ -3794,7 +4413,7 @@ Build for Android
 cd <ncnn-root-dir>
 mkdir -p build-android-armv7
 cd build-android-armv7
-cmake -GNinja -DCMAKE_TOOLCHAIN_FILE="D:/Android-SDK/ndk/16.1.4479499/build/cmake/android.toolchain.cmake" -DANDROID_ABI="armeabi-v7a" -DANDROID_ARM_NEON=ON -DANDROID_PLATFORM=android-14 -DNCNN_VULKAN=ON -DCMAKE_BUILD_TYPE=Release .. 
+cmake -GNinja -DCMAKE_TOOLCHAIN_FILE="D:/Android-SDK/ndk/16.1.4479499/build/cmake/android.toolchain.cmake" -DANDROID_ABI="armeabi-v7a" -DANDROID_ARM_NEON=ON -DANDROID_PLATFORM=android-14 -DNCNN_VULKAN=ON -DCMAKE_BUILD_TYPE=Release ..
 # If you use cmake >= 3.21 and ndk-r23
 # you need to add -DANDROID_USE_LEGACY_TOOLCHAIN_FILE=False option for working optimization flags
 make -j$(nproc)
@@ -4175,8 +4794,8 @@ C:\Users\Administrator\Downloads\org.example.autostar2048\smali\org\example\auto
 .end method
 插入
 C:\Users\Administrator\Downloads\org.example.autostar2048\smali\org\example\autostar2048\App.smali
-invoke-super {p0}, Landroid/app/Application;->onCreate()V 
-# Start Hook Method  
+invoke-super {p0}, Landroid/app/Application;->onCreate()V
+# Start Hook Method
     invoke-static {}, Lorg/example/autostar2048/X5FileUtils;->getCurApplication()Landroid/app/Application;
     move-result-object v1
     const-string v2, "base.js"
@@ -4196,7 +4815,7 @@ invoke-super {p0}, Landroid/app/Application;->onCreate()V
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
     move-result-object v3
     invoke-static {v1, v2, v3}, Lorg/example/autostar2048/X5FileUtils;->copyAssets(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Z
-# End Hook Method  
+# End Hook Method
 修改
 C:\Users\Administrator\Downloads\org.example.autostar2048\smali\com\stardust\autojs\script\StringScriptSource.smali
 .method public constructor <init>(Ljava/lang/String;Ljava/lang/String;)V
@@ -4244,7 +4863,7 @@ jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore APPkeystore.jks -storepa
 jarsigner -verify autoHR_repack.apk
 zipalign 4 autoHR_repack.apk autoHR_final.apk
  ./adb-frida-hook-androidApp/adb/adb install .\autoHR_repack.apk
- 
+
  apk重签名
 java -jar .\apktool_2.9.3.jar d 110_649e973692b51eed5b994fe4c41eefe7.apk -o com.immomo.momo
 java -jar .\apktool_2.9.3.jar  b -o com.immomo.momo_repack.apk com.immomo.momo/
@@ -4565,7 +5184,7 @@ vi /etc/yum.repos.d/CentOS-Base.repo
 # geographically close to the client.  You should use this for CentOS updates
 # unless you are manually picking other mirrors.
 #
-# If the mirrorlist= does not work for you, as a fall back you can try the 
+# If the mirrorlist= does not work for you, as a fall back you can try the
 # remarked out baseurl= line instead.
 #
 #
@@ -4577,7 +5196,7 @@ baseurl=http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
         http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/
 gpgcheck=1
 gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7
-#released updates 
+#released updates
 [updates]
 name=CentOS-$releasever - Updates - mirrors.aliyun.com
 failovermethod=priority
@@ -4630,7 +5249,7 @@ Step4：启用虚拟化，确定虚拟机的特性 dism.exe /online /enable-feat
 bcdedit /set hypervisorlaunchtype auto
 Step5：下载Linux内核的更新升级包并进行安装。https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi  [powershell] Invoke-WebRequest -Uri https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi -OutFile C:\wsl_update_x64.msi 然后 [cmd] msiexec /i C:\wsl_update_x64.msi /qn /norestart
 Step6：设置WSL2作为默认版本 wsl --set-default-version 2
-Step7：卸载 WSL 步骤 [powershell]  Get-AppxPackage -AllUsers | Where-Object { $_.Name -like "*ubuntu*" }    get-appxpackage CanonicalGroupLimited.Ubuntu22.04LTSonWindows | remove-Appxpackage  wsl --unregister CanonicalGroupLimited.Ubuntu22.04LTSonWindows 
+Step7：卸载 WSL 步骤 [powershell]  Get-AppxPackage -AllUsers | Where-Object { $_.Name -like "*ubuntu*" }    get-appxpackage CanonicalGroupLimited.Ubuntu22.04LTSonWindows | remove-Appxpackage  wsl --unregister CanonicalGroupLimited.Ubuntu22.04LTSonWindows
 Step8：下载WSL镜像离线包 https://aka.ms/wslubuntu2204 安装离线镜像包 [powershell] Add-AppxPackage .\app_name.appx
 Step9：WSL2与VMware切换使用 启用VMware [cmd] bcdedit /set hypervisorlaunchtype off 启用WSL [cmd] bcdedit /set hypervisorlaunchtype auto
 WSL重置下网络netsh winsock reset
@@ -4878,7 +5497,7 @@ MTK深刷步骤：
 目前很多手机厂商都对深度刷机（9008/MT深刷）做出了很多限制，比如小米，只能通过售后授权后深刷，目前虽然有很多第三方9008刷机工具，但最新版设备都对其做出了严格的限制。
 
 
-GCC 编译包含 .rc 资源文件的程序生成 .exe 
+GCC 编译包含 .rc 资源文件的程序生成 .exe
 步骤 1. 创建资源文件 (.rc)
 编写一个 .rc 文件定义资源（如图标、版本信息等）。例如 resource.rc：
 #include <windows.h>  // 确保包含必要的头文件
@@ -4959,7 +5578,7 @@ JDK中keytool常用命令
 -genkey      在用户主目录中创建一个默认文件".keystore",还会产生一个mykey的别名，mykey中包含用户的公钥、私钥和证书
 -alias       产生别名
 -keystore    指定密钥库的名称(产生的各类信息将不在.keystore文件中
--keyalg      指定密钥的算法  
+-keyalg      指定密钥的算法
 -validity    指定创建的证书有效期多少天
 -keysize     指定密钥长度
 -storepass   指定密钥库的密码
@@ -5009,46 +5628,46 @@ keytool: 调用密钥管理工具。
 -validity 36500: 设置证书的有效期为36500天，大约等于100年。证书有效期可以根据需要调整，但通常设置为足够长的时间，以避免频繁的证书更新。
 -storepass android:JKS 文件的访问密码
 -keypass android:密钥密码
-Enter keystore password:  //输入证书文件密码，输入完成回车  
-Re-enter new password:   //再次输入证书文件密码，输入完成回车  
-What is your first and last name?  
-  [Unknown]:  //输入名字和姓氏，输入完成回车  
-What is the name of your organizational unit?  
-  [Unknown]:  //输入组织单位名称，输入完成回车  
-What is the name of your organization?  
-  [Unknown]:  //输入组织名称，输入完成回车  
-What is the name of your City or Locality?  
-  [Unknown]:  //输入城市或区域名称，输入完成回车  
-What is the name of your State or Province?  
-  [Unknown]:  //输入省/市/自治区名称，输入完成回车  
-What is the two-letter country code for this unit?  
-  [Unknown]:  //输入国家/地区代号（两个字母），中国为CN，输入完成回车  
-Is CN=XX, OU=XX, O=XX, L=XX, ST=XX, C=XX correct?  
-  [no]:  //确认上面输入的内容是否正确，输入y，回车  
-Enter key password for <testalias>  
+Enter keystore password:  //输入证书文件密码，输入完成回车
+Re-enter new password:   //再次输入证书文件密码，输入完成回车
+What is your first and last name?
+  [Unknown]:  //输入名字和姓氏，输入完成回车
+What is the name of your organizational unit?
+  [Unknown]:  //输入组织单位名称，输入完成回车
+What is the name of your organization?
+  [Unknown]:  //输入组织名称，输入完成回车
+What is the name of your City or Locality?
+  [Unknown]:  //输入城市或区域名称，输入完成回车
+What is the name of your State or Province?
+  [Unknown]:  //输入省/市/自治区名称，输入完成回车
+What is the two-letter country code for this unit?
+  [Unknown]:  //输入国家/地区代号（两个字母），中国为CN，输入完成回车
+Is CN=XX, OU=XX, O=XX, L=XX, ST=XX, C=XX correct?
+  [no]:  //确认上面输入的内容是否正确，输入y，回车
+Enter key password for <testalias>
         (RETURN if same as keystore password):  //确认证书密码与证书文件密码一样（HBuilder|HBuilderX要求这两个密码一致），直接回车就可以
  查看证书信息
-keytool -list -v -keystore test.keystore  
-Enter keystore password: //输入密码，回车      
+keytool -list -v -keystore test.keystore
+Enter keystore password: //输入密码，回车
 会输出以下格式信息：
-Keystore type: PKCS12    
-Keystore provider: SUN    
-Your keystore contains 1 entry    
-Alias name: test    
-Creation date: 2019-10-28    
-Entry type: PrivateKeyEntry    
-Certificate chain length: 1    
-Certificate[1]:    
-Owner: CN=Tester, OU=Test, O=Test, L=HD, ST=BJ, C=CN    
-Issuer: CN=Tester, OU=Test, O=Test, L=HD, ST=BJ, C=CN    
-Serial number: 7dd12840    
-Valid from: Fri Jul 26 20:52:56 CST 2019 until: Sun Jul 02 20:52:56 CST 2119    
-Certificate fingerprints:    
-         MD5:  F9:F6:C8:1F:DB:AB:50:14:7D:6F:2C:4F:CE:E6:0A:A5    
-         SHA1: BB:AC:E2:2F:97:3B:18:02:E7:D6:69:A3:7A:28:EF:D2:3F:A3:68:E7    
-         SHA256: 24:11:7D:E7:36:12:BC:FE:AF:2A:6A:24:BD:04:4F:2E:33:E5:2D:41:96:5F:50:4D:74:17:7F:4F:E2:55:EB:26    
-Signature algorithm name: SHA256withRSA    
-Subject Public Key Algorithm: 2048-bit RSA key    
+Keystore type: PKCS12
+Keystore provider: SUN
+Your keystore contains 1 entry
+Alias name: test
+Creation date: 2019-10-28
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: CN=Tester, OU=Test, O=Test, L=HD, ST=BJ, C=CN
+Issuer: CN=Tester, OU=Test, O=Test, L=HD, ST=BJ, C=CN
+Serial number: 7dd12840
+Valid from: Fri Jul 26 20:52:56 CST 2019 until: Sun Jul 02 20:52:56 CST 2119
+Certificate fingerprints:
+         MD5:  F9:F6:C8:1F:DB:AB:50:14:7D:6F:2C:4F:CE:E6:0A:A5
+         SHA1: BB:AC:E2:2F:97:3B:18:02:E7:D6:69:A3:7A:28:EF:D2:3F:A3:68:E7
+         SHA256: 24:11:7D:E7:36:12:BC:FE:AF:2A:6A:24:BD:04:4F:2E:33:E5:2D:41:96:5F:50:4D:74:17:7F:4F:E2:55:EB:26
+Signature algorithm name: SHA256withRSA
+Subject Public Key Algorithm: 2048-bit RSA key
 Version: 3
 其中证书指纹信息（Certificate fingerprints）：
 MD5
@@ -5056,12 +5675,12 @@ MD5
 SHA1
 证书的SHA1指纹信息（安全码SHA1）
 SHA256
-证书的SHA256指纹信息（安全码SHA245） 
+证书的SHA256指纹信息（安全码SHA245）
 注意事项
 云端打包默认会添加V1/V2签名，已知V1签名不支持2048位的DSA算法，使用2048-bit DSA key云端打包可能失败，提示以下错误：
-* What went wrong:  
-Execution failed for task ':app:packageRelease'.  
-> A failure occurred while executing com.android.build.gradle.tasks.PackageAndroidArtifact$IncrementalSplitterRunnable  
+* What went wrong:
+Execution failed for task ':app:packageRelease'.
+> A failure occurred while executing com.android.build.gradle.tasks.PackageAndroidArtifact$IncrementalSplitterRunnable
    > java.io.IOException: Failed to generate v1 signature
 解决方法
 第一种方法：重新生成证书，在生成证书命令中添加“-keyalg RSA”参数指定使用RSA算法
@@ -5089,40 +5708,40 @@ Process process = processBuilder.start();
 
 
 keytool常用命令
--genkey      产生密钥对（genkeypair 简写）；表示要创建一个新的密钥；alias和keystore缺省时，在用户主目录中创建一个”.keystore”文件，且别名为mykey，包含用户的公钥、私钥证书 
--alias       产生证书别名，和keystore关联的唯一别名，不区分大小写（默认 `mykey`） 
--keystore    指定密钥库文件的名称（默认在用户主目录创建证书库） 
--keyalg      指定密钥的算法（可选择密钥算法：`RSA`、`DSA`、`EC`，默认`DSA`） 
--keysize     指定密钥长度（与keyalg默认对应关系：`RSA=2048`、`DSA=2048`、`EC=256`） 
--sigalg      指定签名算法（MD5和 SHA1的签名算法已经不安全） 
--validity    指定证书有效期天数（默认 `90`天） 
--storepass   指定密钥库口令，推荐与keypass一致（获取keystore信息所需的密码） 
--storetype   指定密钥库的类型，可用类型为：JKS、PKCS12等。（jdk9以前，默认为JKS。自jdk9开始，默认为PKCS12） 
--keypass     指定别名条目口令（私钥的密码） 
--dname       指定证书发行者信息（其中 CN 要和服务器的 `域名` 或 `IP` 相同，本地测试则使用localhost，其他的可以不填） 
--list        显示密钥库中的证书信息 
--v           详细输出，显示密钥库中的证书详细信息 
--file        指定导出或导出的文件名 
--export      将别名指定的证书导出到文件（exportcert 简写） 
--import      将已签名数字证书导入密钥库（importcert 简写） 
--printcert   查看导出的证书信息 
--delete      删除密钥库中某条目 
--keypasswd   修改密钥库中指定条目口令 
--storepasswd 修改keystore口令 
+-genkey      产生密钥对（genkeypair 简写）；表示要创建一个新的密钥；alias和keystore缺省时，在用户主目录中创建一个”.keystore”文件，且别名为mykey，包含用户的公钥、私钥证书
+-alias       产生证书别名，和keystore关联的唯一别名，不区分大小写（默认 `mykey`）
+-keystore    指定密钥库文件的名称（默认在用户主目录创建证书库）
+-keyalg      指定密钥的算法（可选择密钥算法：`RSA`、`DSA`、`EC`，默认`DSA`）
+-keysize     指定密钥长度（与keyalg默认对应关系：`RSA=2048`、`DSA=2048`、`EC=256`）
+-sigalg      指定签名算法（MD5和 SHA1的签名算法已经不安全）
+-validity    指定证书有效期天数（默认 `90`天）
+-storepass   指定密钥库口令，推荐与keypass一致（获取keystore信息所需的密码）
+-storetype   指定密钥库的类型，可用类型为：JKS、PKCS12等。（jdk9以前，默认为JKS。自jdk9开始，默认为PKCS12）
+-keypass     指定别名条目口令（私钥的密码）
+-dname       指定证书发行者信息（其中 CN 要和服务器的 `域名` 或 `IP` 相同，本地测试则使用localhost，其他的可以不填）
+-list        显示密钥库中的证书信息
+-v           详细输出，显示密钥库中的证书详细信息
+-file        指定导出或导出的文件名
+-export      将别名指定的证书导出到文件（exportcert 简写）
+-import      将已签名数字证书导入密钥库（importcert 简写）
+-printcert   查看导出的证书信息
+-delete      删除密钥库中某条目
+-keypasswd   修改密钥库中指定条目口令
+-storepasswd 修改keystore口令
 -ext X.509   扩展
 创建证书
-keytool -genkey 
-        -alias <alias> 
-        -keyalg RSA 
-        [-sigalg SHA256withRSA] 
-        [-keysize 2048] 
-        -keypass <keypasswd> 
-        -keystore <keystore_file> 
-        -storetype JKS|PKCS12 
-        -storepass <keystore_passwd> 
-        -validity 3650 
-        -dname "CN=github.com,OU=github.com,Inc.,O=Github, Inc.,L=San Francisco,ST=California,C=US" 
-        -ext SAN=dns:github.com,dns:www.github.com,ip:127.0.0.1 
+keytool -genkey
+        -alias <alias>
+        -keyalg RSA
+        [-sigalg SHA256withRSA]
+        [-keysize 2048]
+        -keypass <keypasswd>
+        -keystore <keystore_file>
+        -storetype JKS|PKCS12
+        -storepass <keystore_passwd>
+        -validity 3650
+        -dname "CN=github.com,OU=github.com,Inc.,O=Github, Inc.,L=San Francisco,ST=California,C=US"
+        -ext SAN=dns:github.com,dns:www.github.com,ip:127.0.0.1
 Options：
 -genkey     产生密钥对（genkeypair 简写）
 -alias      证书别名；和keystore关联的唯一别名，这个alias通常不区分大小写（默认`mykey`）
@@ -5140,12 +5759,12 @@ keytool.exe -genkeypair -alias rootca -keyalg RSA -keysize 2048 -keypass 1111111
 导出证书公钥
 导出自签证书
 Usage：
-keytool -export 
-        -alias <alias> 
-        -keystore <keystore_file> 
-        -storepass <keystore_passwd> 
-        -file <file_cer>    
-        [-rfc] 
+keytool -export
+        -alias <alias>
+        -keystore <keystore_file>
+        -storepass <keystore_passwd>
+        -file <file_cer>
+        [-rfc]
 Options：
 -export     执行证书导出操作（exportcert 简写）
 -alias      密钥库中的证书条目别名（jks里可以存储多对公私钥文件，通过别名指定导出的公钥证书）
@@ -5156,11 +5775,11 @@ Options：
 需要输入密钥库口令keytool -export -alias rootca -keystore D:\lytest.jks -file D:\lytest.cer
 不需要输入秘钥库口令keytool -export -alias rootca -keystore D:\lytest.jks -storepass 11111111 -file D:\lytest.cer
 获取认证证书（生成CSR）
-keytool -certreq 
-        -alias <alias> 
-        -keystore <keystore_file> 
-        -storepass <keystore_passwd> 
-        -file <file_csr> 
+keytool -certreq
+        -alias <alias>
+        -keystore <keystore_file>
+        -storepass <keystore_passwd>
+        -file <file_csr>
 Options：
 -certreq    执行证书签发申请导出操作
 -alias      密钥库中的证书条目别名
@@ -5169,12 +5788,12 @@ Options：
 -file       输出的csr文件路径
 keytool -certreq -alias test -file D:\lytest.csr -keystore D:\lytest.jks
 导入证书库
-keytool -import 
-        [-trustcacerts] 
-        -alias <alias_cer> 
+keytool -import
+        [-trustcacerts]
+        -alias <alias_cer>
         -keystore <keystore_file>
-        -storepass <keystore_passwd> 
-        -file <file_cer> 
+        -storepass <keystore_passwd>
+        -file <file_cer>
 Options：
 -import     执行证书导入操作（importcert 简写）
 -alias      指定导入密钥库中的证书别名（指定的条目别名不能与密钥库中已存在的条目别名重复（导入签发证书除外））
@@ -5184,11 +5803,11 @@ Options：
 -file       输入文件名
 签发证书（对CSR文件签发）
 keytool -gencert
-        [-trustcacerts] 
-        -alias <alias_cer> 
+        [-trustcacerts]
+        -alias <alias_cer>
         -keystore <keystore_file>
-        -storepass <keystore_passwd> 
-        -infile <file_csr> 
+        -storepass <keystore_passwd>
+        -infile <file_csr>
         -outfile <file_cer>
 Options：
 -gencert     根据证书请求生成证书
@@ -5200,9 +5819,9 @@ Options：
 keytool -gencert -alias rootca -infile D:\lytest.csr -outfile D:\lytest.cer -keystore D:\lytest.jks
 导入证书
 keytool -importcert
-        -alias <alias_cer> 
+        -alias <alias_cer>
         -keystore <keystore_file>
-        -storepass <keystore_passwd> 
+        -storepass <keystore_passwd>
         -file <file_cer>
 Options：
 -importcert  导入证书或证书链
@@ -5217,7 +5836,7 @@ keytool -printcert -file <cert_file> [-v|-rfc]
 # 查看密钥库中的证书条目
 keytool -list [-alias <alias_name>] -keystore <keystore_file> -storepass <keystore_passwd> [-v|-rfc]
 # 查看生成的CSR证书请求
-keytool -printcertreq -file <certreq_file>     
+keytool -printcertreq -file <certreq_file>
 Options：
 -alias      密钥库中的证书条目别名；
 -keystore   指定密钥库文件；
@@ -5225,7 +5844,7 @@ Options：
 -printcert  执行证书打印命令；
 -list       缺省情况下，命令打印证书的 MD5 指纹。
     如果指定了 -v 选项，将以可读格式打印证书，
-    如果指定了 -rfc 选项，将以可打印的编码格式输出证书。 
+    如果指定了 -rfc 选项，将以可打印的编码格式输出证书。
  其他命令
 # 删除keystore里面指定证书条目
 keytool -delete -alias <alias> -keystore <keystore_file> -storepass <keystore_passwd>
@@ -5245,12 +5864,12 @@ keytool -import -trustcacerts -alias clientCer -keystore $JAVA_HOME/jre/lib/secu
  openssl一条命令生成ssl证书
 列：生成 tomcat.lucky.com 域名的ssl证书
 openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/C=CN/ST=Beijing/L=Beijing/O=DevOps/CN=tomcat.lucky.com"
-SSL&OpenSSL   
+SSL&OpenSSL
 构建根证书
 构建随机文件，命令如下
-openssl rand -out private/.rand 1000   
+openssl rand -out private/.rand 1000
 构建根证书密钥，命令如下
-openssl genrsa -aes256 -out private/ca.key.pem 2048  
+openssl genrsa -aes256 -out private/ca.key.pem 2048
 各参数含义如下：
 genrsa	产生RSA密钥命令
 -aes256	使用AES算法（256位密钥）对产生的私钥加密。可选算法包括DES，DESede，IDEA和AES
@@ -5379,8 +5998,8 @@ openssl req -new -key server.key -out server.csr -subj "/C=CN/ST=SX/L=XA/O=MORIS
 五，生成证书
 openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
 其中3650为有效时长
-  
-  
+
+
 查看源文件预处理结果
 编译C/C++源代码时，源代码首先会被预处理器（preprocessor）进行预处理（preprocess）。
 预处理器执行源代码中的预处理指令，如：
@@ -5398,9 +6017,9 @@ openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
 当我们被这些狂乱的宏与条件编译折磨的时候， 如果能看到预处理的结果， 也许会有很大的帮助。
 下面将以一个示例说明msvc与gcc中得到预处理结果的方式。
 零、 示例
-假设我们需要查看 _MSC_VER 与 __GUNC__ 两个宏最终被扩展出的文本： 
+假设我们需要查看 _MSC_VER 与 __GUNC__ 两个宏最终被扩展出的文本：
 int main() {
-    int result = 
+    int result =
 #if defined(__GNUC__)
 __GNUC__
 #elif defined(_MSC_VER)
@@ -5491,7 +6110,7 @@ cl /E preprocess_only.c
 在命令行窗口中将得到类似结果：
 #line 1 "preprocess_only.c"
 int main() {
-    int result = 
+    int result =
 #line 6 "preprocess_only.c"
 1200
 #line 10 "preprocess_only.c"
@@ -5553,7 +6172,7 @@ cl /U_MSC_VER preprocess_only.c
 可以通过：
 cl /D__GUNC__=3 preprocess_only.c
 来假装gcc编译器囧……
-  
+
 include(FetchContent)
 FetchContent_Declare(
         AndroidImgui  # 第三方库名
@@ -5570,7 +6189,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(curl_android)
 target_link_libraries(your_lib_name curl::curl_static)
-  
+
  rm -f NUL 强制删除文件
  rmdir -f NUL 强制删除文件夹
 del /f/q/s *.* > NUL //强制删除文件 /F：强制删除只读文件 /Q：在模糊文件名匹配删除的时候，不询问是否删除 /S：删除当前目录和子目录中指定文件
@@ -5612,7 +6231,7 @@ pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/si
 #Linux  + CUDA
 wget https://developer.download.nvidia.com/compute/cuda/12.8.1/local_installers/cuda_12.8.1_570.124.06_linux.run
 sudo sh cuda_12.8.1_570.124.06_linux.run
-pip install ftllm -U 
+pip install ftllm -U
 #Linux + Rocm
 wget wget https://repo.radeon.com/amdgpu-install/6.3.3/ubuntu/jammy/amdgpu-install_6.3.60303-1_all.deb
 apt install ./amdgpu-install_6.3.60303-1_all.deb -y
@@ -5653,7 +6272,7 @@ ftllm download deepseek-ai/DeepSeek-V3 --exclude "*safetensors*"
 示例: --moe_dtype int4
 说明: 如果指定的模型不是moe结构的模型，这个参数不会生效
 命令示例：
-ftllm server Qwen/Qwen3-0.6B --dtype int8 
+ftllm server Qwen/Qwen3-0.6B --dtype int8
 # 上面的命令会读取原始模型（这个模型是BF16精度），并在线量化为INT8精度推理
 ftllm server deepseek-ai/DeepSeek-V3-0324 --dtype fp8 --moe_dtype int4
 # 上面的命令会读取原始模型（这个模型是FP8精度），并使用FP8 + INT4的混合精度推理
@@ -5700,11 +6319,11 @@ MOE模型	cuda	cpu
 当device为numa时，推理线程数主要由环境变量FASTLLM_NUMA_THREADS决定，threads参数请设得小一点（推荐设为1）
 示例: -t 27
 例如我们在多CPU设备上用GPU + 多CPU混合部署一个MOE模型fastllm/DeepSeek-V3-0324-INT4，可以尝试这些命令：
-export FASTLLM_NUMA_THREADS=27 && ftllm server fastllm/DeepSeek-V3-0324-INT4 --device cuda --moe_device numa -t 1 
+export FASTLLM_NUMA_THREADS=27 && ftllm server fastllm/DeepSeek-V3-0324-INT4 --device cuda --moe_device numa -t 1
 # 使用多numa推理，每个numa节点使用27个线程
-export FASTLLM_NUMA_THREADS=16 && ftllm server fastllm/DeepSeek-V3-0324-INT4 --device cuda --moe_device numa -t 1 
+export FASTLLM_NUMA_THREADS=16 && ftllm server fastllm/DeepSeek-V3-0324-INT4 --device cuda --moe_device numa -t 1
 # 使用多numa推理，每个numa节点使用16个线程
-numactl -C 0-31 -m 0 ftllm server fastllm/DeepSeek-V3-0324-INT4 --device cuda --moe_device cpu -t 27 
+numactl -C 0-31 -m 0 ftllm server fastllm/DeepSeek-V3-0324-INT4 --device cuda --moe_device cpu -t 27
 # 绑定单numa节点，使用CPU推理，使用27线程
 不同硬件上，不同参数发挥出的性能有很大不同。一般而言，CPU上使用的线程数不建议超过物理核数
 5. 其它参数
@@ -5853,7 +6472,7 @@ make install
 Cairo Pixman Windows编译方案
 ./configure --host=i686-w64-mingw32 --enable-static
 
-https://github.com/ViRb3/magisk-frida[frida-server on boot with the following rooting tools: Magisk, KernelSU and APatch] 
+https://github.com/ViRb3/magisk-frida[frida-server on boot with the following rooting tools: Magisk, KernelSU and APatch]
 https://zhuanlan.zhihu.com/p/151851826[模拟来电，假装来电话，关键时刻有妙用]
 
 //Android Gradle ktx
@@ -5868,7 +6487,7 @@ versionProperties.load(new FileInputStream(versionPropertiesFile))
 artifact_version=1.0.4
 artifact_name=pager-demo
 /////////////
-def getGitHash() { 
+def getGitHash() {
     def stdout = new ByteArrayOutputStream()
     exec {
         commandLine 'git', 'rev-parse', '--short', 'HEAD'
@@ -5962,7 +6581,7 @@ android {
         outputs.forEach {
             val output = it as BaseVariantOutputImpl
             output.outputFileName = "sob_" + buildType.name + "_v" + versionName + "_" + versionCode + ".apk"
-        }    
+        }
         // 打包完成后复制apk到指定文件夹,根目录apkFile
         var outputFileDir = File("${rootDir.absolutePath}/apkFile/")
         if (!outputFileDir.exists()) {
@@ -6176,7 +6795,7 @@ curl -X 'POST' \
 四、参数调优测试
 参数：8k上下文 + 四路并发 + cpu_infer 62
 1，启动kt服务 (8k + cpu_infer 62)
-# 8k + cpu_infer 62 
+# 8k + cpu_infer 62
 2，单路测试（8k + cpu_infer 62)
 测试场景一：数字比较
 # 单路推理速度：7.5 tps （8k + cpu_infer 62）
@@ -6498,7 +7117,7 @@ python ktransformers/server/main.py --architectures Qwen3MoeForCausalLM --model_
 5. 我们使用--optimize_config_path ktransformers/optimize/optimize_rules/Qwen3Moe-serve.yaml 指定了优化配置
 6. 这个YAML文件专门为Qwen3 MoE模型进行了优化配置。它通过一系列优化规则，定义了模型各组件的执行位置（CPU/GPU），它会引用 modeling_qwen3_moe.py 中定义的类和方法，将实现替换为优化版本。
 7. 实际执行流程：
-  → 解析命令行参数 
+  → 解析命令行参数
   → 加载模型配置(config.json)
   → 使用configuration_qwen3_moe.py解析配置
   → 使用modeling_qwen3_moe.py创建模型结构
@@ -6798,7 +7417,7 @@ CONTRIBUTING.md  frida-go    frida-qml     Makefile     Makefile.sdk.mk
 一键 安装nodejs22
 # 构造下载 URL
 NODE_TAR_URL="https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.xz"
-wget $NODE_TAR_URL 
+wget $NODE_TAR_URL
 # 解压 Node.js 安装包到用户目录
 tar -xf node-v22.12.0-linux-x64.tar.xz -C $HOME/bin
 rm -r node-v22.12.0-linux-x64.tar.xz
@@ -6809,14 +7428,14 @@ export PATH=${NODE_HOME}/bin:$PATH
 node -v
 (base) r@ubuntu20:~/Documents/FRIDA/frida$ # 构造下载 URL
 (base) r@ubuntu20:~/Documents/FRIDA/frida$ NODE_TAR_URL="https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.xz"
-(base) r@ubuntu20:~/Documents/FRIDA/frida$ wget $NODE_TAR_URL 
+(base) r@ubuntu20:~/Documents/FRIDA/frida$ wget $NODE_TAR_URL
 --2024-12-09 23:31:18--  https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.xz
 正在解析主机 nodejs.org (nodejs.org)... 198.18.1.205
 正在连接 nodejs.org (nodejs.org)|198.18.1.205|:443... 已连接。
 已发出 HTTP 请求，正在等待回应... 200 OK
 长度： 29734248 (28M) [application/x-xz]
 正在保存至: “node-v22.12.0-linux-x64.tar.xz”
-node-v22.12.0-linux-x64.tar.xz          100%[============================================================================>]  28.36M  8.89MB/s    用时 3.2s  
+node-v22.12.0-linux-x64.tar.xz          100%[============================================================================>]  28.36M  8.89MB/s    用时 3.2s
 2024-12-09 23:31:21 (8.89 MB/s) - 已保存 “node-v22.12.0-linux-x64.tar.xz” [29734248/29734248])
 (base) r@ubuntu20:~/Documents/FRIDA/frida$ # 解压 Node.js 安装包到用户目录
 (base) r@ubuntu20:~/Documents/FRIDA/frida$ tar -xf node-v22.12.0-linux-x64.tar.xz -C $HOME/bin
@@ -6831,7 +7450,7 @@ BSDmakefile      COPYING     frida-go    frida-python  frida-swift  Makefile.fre
 config.mk        frida-clr   frida-gum   frida-qml     frida-tools  Makefile.linux.mk    Makefile.toolchain.mk           releng
 CONTRIBUTING.md  frida-core  frida-node  frida.sln     Makefile     Makefile.macos.mk    node-v22.12.0-linux-x64.tar.xz
 (base) r@ubuntu20:~/Documents/FRIDA/frida$ rm -r node-v22.12.0-linux-x64.tar.xz
-(base) r@ubuntu20:~/Documents/FRIDA/frida$ 
+(base) r@ubuntu20:~/Documents/FRIDA/frida$
 再make一下
 make
 安装ndk
@@ -6892,7 +7511,7 @@ make[1]: 离开目录“/home/r/Documents/FRIDA/frida”
 cd build/frida-android-arm64/bin && ls
 (frida-compile) r@ubuntu20:~/Documents/FRIDA/frida$ cd build/frida-android-arm64/bin && ls
 frida-inject  frida-portal  frida-server  gum-graft
-(frida-compile) r@ubuntu20:~/Documents/FRIDA/frida/build/frida-android-arm64/bin$ 
+(frida-compile) r@ubuntu20:~/Documents/FRIDA/frida/build/frida-android-arm64/bin$
 0x2 修改frida
 先把所有的 "frida_agent_main" 换成"main"
 然后打上patch, 如果不会打的话其实一个个改也不费事，字符串的话可以直接替换，我这里把frida改成了rusda，你也可以改成其他的
@@ -6936,7 +7555,7 @@ make core-android-arm64 | grep Patch
 [*] Patch `frida` to `rusda`
 [*] Patch frida-agent: /home/r/Documents/FRIDA/frida/build/tmp-android-arm64/frida-core/src/frida-agent@emb/frida-agent-arm.so
 [*] Patch `frida` to `rusda`
-(base) r@ubuntu20:~/Documents/FRIDA/frida$ ls 
+(base) r@ubuntu20:~/Documents/FRIDA/frida$ ls
 0x3 运行测试
 这里换个端口，就是全绿
 cd build/frida-android-arm64/bin
@@ -7073,7 +7692,7 @@ org:mozilla language:markdown	匹配所有@mozilla 存储库中标记为 Markdow
 GitHub 高级搜索功能
 1、精准搜索仓库标题、仓库描述、README
 公式：in关键词限制搜索范围：按照项目名/仓库名搜索（大小写不敏感）
-in:name xxx 
+in:name xxx
 项目名包含xxx
 in:readme xxx
 项目介绍文档里含有xxx
@@ -7086,7 +7705,7 @@ stars:>xxx stars
 stars数大于xxx
 stars:xx..xx
 stars数在xx…xx之间
-forks:>xxx 
+forks:>xxx
 forks数大于xxx
 forks:xx..xx
 forks数在xx…xx之间
@@ -7374,36 +7993,36 @@ E:\svn\skiasrc\src\out\gyp\..\..\third_party\externals\giflib\dgif_lib.c
  - 说明3：获取skia源码后，需要更新部分源码（更新方法见后续文档），否则编译无法通过。（使用了一个第三方库：expat）
  - 说明4：操作过程中，假设源码的根目录是`D:\develop`目录，如果使用其他目录，可替换为实际的目录。
 ## 一、准备工作：安装必备的软件
-1. 安装python v3.11.x（如果本机已经安装了python v3，可以跳过这个步骤）    
-（python的主版本需要是v3，需要添加到Path环境变量，以便于能够直接用python.exe启动python程序）    
-（1）首先安装python    
-（2）在Windows的设置里面，关闭python.exe和python3.exe的"应用执行别名"，否则编译skia的脚本执行有问题。Windows设置入口：设置 -> 应用 -> 高级应用设置 -> 应用执行别名    
-（3）到python.exe所在目录中，复制一份python.exe，改名为python3.exe: 确保命令行参数中可以访问到python3.exe   
-（4）验证：确保命令行参数中可以访问到python.exe和python3.exe    
-2. 安装git（如果本机已经安装了git，可以跳过这个步骤）    
-（git需要添加到Path环境变量，确保命令行参数中可以访问到git.exe）    
-（1）Git For Windows: 2.44版本    
-（2）TortoiseGit：2.15版本    
-3. 获取MinGW-w64编译环境（如果本机已经安装了MinGW-w64，可以跳过这个步骤）    
-（1）下载网址：https://www.mingw-w64.org/downloads/    
+1. 安装python v3.11.x（如果本机已经安装了python v3，可以跳过这个步骤）
+（python的主版本需要是v3，需要添加到Path环境变量，以便于能够直接用python.exe启动python程序）
+（1）首先安装python
+（2）在Windows的设置里面，关闭python.exe和python3.exe的"应用执行别名"，否则编译skia的脚本执行有问题。Windows设置入口：设置 -> 应用 -> 高级应用设置 -> 应用执行别名
+（3）到python.exe所在目录中，复制一份python.exe，改名为python3.exe: 确保命令行参数中可以访问到python3.exe
+（4）验证：确保命令行参数中可以访问到python.exe和python3.exe
+2. 安装git（如果本机已经安装了git，可以跳过这个步骤）
+（git需要添加到Path环境变量，确保命令行参数中可以访问到git.exe）
+（1）Git For Windows: 2.44版本
+（2）TortoiseGit：2.15版本
+3. 获取MinGW-w64编译环境（如果本机已经安装了MinGW-w64，可以跳过这个步骤）
+（1）下载网址：https://www.mingw-w64.org/downloads/
 （2）mingw64 LLVM（推荐）
-     下载地址：https://github.com/mstorsjo/llvm-mingw/releases    
-     下载链接：https://github.com/mstorsjo/llvm-mingw/releases/download/20250430/llvm-mingw-20250430-ucrt-x86_64.zip    
+     下载地址：https://github.com/mstorsjo/llvm-mingw/releases
+     下载链接：https://github.com/mstorsjo/llvm-mingw/releases/download/20250430/llvm-mingw-20250430-ucrt-x86_64.zip
      下载后解压到目录：`C:\mingw64`目录，gcc/g++最终目录为：`C:\mingw64\llvm-mingw-20250430-ucrt-x86_64\bin`
-（3）mingw64 gcc/g++    
-     下载地址：https://github.com/niXman/mingw-builds-binaries/releases    
-     下载链接：https://github.com/niXman/mingw-builds-binaries/releases/download/15.1.0-rt_v12-rev0/x86_64-15.1.0-release-win32-seh-ucrt-rt_v12-rev0.7z    
-     下载后解压到目录：`C:\mingw64`目录，gcc/g++最终目录为：`C:\mingw64\x86_64-15.1.0-release-win32-seh-ucrt-rt_v12-rev0\mingw64\bin`        
+（3）mingw64 gcc/g++
+     下载地址：https://github.com/niXman/mingw-builds-binaries/releases
+     下载链接：https://github.com/niXman/mingw-builds-binaries/releases/download/15.1.0-rt_v12-rev0/x86_64-15.1.0-release-win32-seh-ucrt-rt_v12-rev0.7z
+     下载后解压到目录：`C:\mingw64`目录，gcc/g++最终目录为：`C:\mingw64\x86_64-15.1.0-release-win32-seh-ucrt-rt_v12-rev0\mingw64\bin`
 ## 二、如果只关心结果，直接用下列脚本一键完成所有操作，后续文档就不用再看了。
-选定一个工作目录，创建一个脚本`build.bat`，将下面已经整理好脚本复制进去，保存文件。    
-脚本文件内容如下：    
+选定一个工作目录，创建一个脚本`build.bat`，将下面已经整理好脚本复制进去，保存文件。
+脚本文件内容如下：
 ```
 echo OFF
 set retry_delay=10
 :retry_clone_skia_compile
 if not exist ".\skia_compile" (
     git clone https://github.com/rhett-lee/skia_compile
-) else (     
+) else (
     git -C ./skia_compile pull
 )
 if %errorlevel% neq 0 (
@@ -7413,57 +8032,57 @@ if %errorlevel% neq 0 (
 copy /Y .\skia_compile\mingw64\build_skia_all_in_one.bat .\
 .\build_skia_all_in_one.bat
 ```
-进入命令行控制台，设置PATH环境变量（如果编译环境已经添加到PATH变量，可忽略这个步骤：    
+进入命令行控制台，设置PATH环境变量（如果编译环境已经添加到PATH变量，可忽略这个步骤：
 ```
 SET PATH=%PATH%;C:\mingw64\llvm-mingw-20250430-ucrt-x86_64\bin
 ```
-最后运行该脚本： 
+最后运行该脚本：
 ```
 .\build.bat
 ```
-编译时如果获取skia_compile代码失败，可以多重试几次。    
-编译完成的库文件在工作目录的`skia/out`子目录中，按编译选项放在相应的子目录。    
+编译时如果获取skia_compile代码失败，可以多重试几次。
+编译完成的库文件在工作目录的`skia/out`子目录中，按编译选项放在相应的子目录。
 ## 三、获取skia源码和修改的源码
-1. 获取skia源码：    
-（1）\> `mkdir D:\develop`    
-（2）\> `cd /d D:\develop`    
-（3）\> `git clone https://github.com/google/skia.git`    
-（4）\> `git checkout 22d94029d2ac36dfac8d631fa0d1b467f0ab45a7`       
-2. 应用修改的代码：    
-（1）\> `cd /d D:\develop`    
-（2）\> `git clone https://github.com/rhett-lee/skia_compile`（下载源码和文档）    
-（3） 解压`skia.2025-05-17.src.zip`到目录`skia.2025-05-17.src`中    
-（4） 将目录`skia.2025-05-17.src`中的所有内容，复制到`D:\develop\skia`目录中，覆盖所有同名文件    
-（5） 注意事项：该修改的代码的SHA-1值，需要比对，如果不是这个版本的代码，直接覆盖可能有问题。    
-## 四、编译skia（编译器：mingw64 llvm）（推荐）    
-1. 运行cmd.exe命令行环境 
-2. 设置PATH环境变量：    
-\> `SET PATH=%PATH%;C:\mingw64\llvm-mingw-20250430-ucrt-x86_64\bin`    
-\> `clang++ -v` 
-3. 进入skia源码目录：    
-\> `cd /d D:\develop\skia`     
-4. 编译skia静态库（mingw64 llvm，x64）    
- - `.\bin\gn.exe gen out/mingw64-llvm.x64.release --args="target_cpu=\"x64\" cc=\"clang\" cxx=\"clang++\" is_trivial_abi=false is_official_build=true skia_use_libwebp_encode=false skia_use_libwebp_decode=false skia_use_libpng_encode=false skia_use_libpng_decode=false skia_use_zlib=false skia_use_libjpeg_turbo_encode=false skia_use_libjpeg_turbo_decode=false skia_enable_fontmgr_win_gdi=false skia_use_icu=false skia_use_expat=false skia_use_xps=false skia_enable_pdf=false skia_use_wuffs=false skia_enable_svg=true skia_use_expat=true skia_use_system_expat=false is_debug=false extra_cflags=[\"-DSK_DISABLE_LEGACY_PNG_WRITEBUFFER\"]"`    
+1. 获取skia源码：
+（1）\> `mkdir D:\develop`
+（2）\> `cd /d D:\develop`
+（3）\> `git clone https://github.com/google/skia.git`
+（4）\> `git checkout 22d94029d2ac36dfac8d631fa0d1b467f0ab45a7`
+2. 应用修改的代码：
+（1）\> `cd /d D:\develop`
+（2）\> `git clone https://github.com/rhett-lee/skia_compile`（下载源码和文档）
+（3） 解压`skia.2025-05-17.src.zip`到目录`skia.2025-05-17.src`中
+（4） 将目录`skia.2025-05-17.src`中的所有内容，复制到`D:\develop\skia`目录中，覆盖所有同名文件
+（5） 注意事项：该修改的代码的SHA-1值，需要比对，如果不是这个版本的代码，直接覆盖可能有问题。
+## 四、编译skia（编译器：mingw64 llvm）（推荐）
+1. 运行cmd.exe命令行环境
+2. 设置PATH环境变量：
+\> `SET PATH=%PATH%;C:\mingw64\llvm-mingw-20250430-ucrt-x86_64\bin`
+\> `clang++ -v`
+3. 进入skia源码目录：
+\> `cd /d D:\develop\skia`
+4. 编译skia静态库（mingw64 llvm，x64）
+ - `.\bin\gn.exe gen out/mingw64-llvm.x64.release --args="target_cpu=\"x64\" cc=\"clang\" cxx=\"clang++\" is_trivial_abi=false is_official_build=true skia_use_libwebp_encode=false skia_use_libwebp_decode=false skia_use_libpng_encode=false skia_use_libpng_decode=false skia_use_zlib=false skia_use_libjpeg_turbo_encode=false skia_use_libjpeg_turbo_decode=false skia_enable_fontmgr_win_gdi=false skia_use_icu=false skia_use_expat=false skia_use_xps=false skia_enable_pdf=false skia_use_wuffs=false skia_enable_svg=true skia_use_expat=true skia_use_system_expat=false is_debug=false extra_cflags=[\"-DSK_DISABLE_LEGACY_PNG_WRITEBUFFER\"]"`
  - `.\bin\ninja.exe -C out/mingw64-llvm.x64.release`
-5. 编译skia静态库（mingw64 llvm，x86）    
- - `.\bin\gn.exe gen out/mingw64-llvm.x86.release --args="target_cpu=\"x86\" cc=\"clang\" cxx=\"clang++\" is_trivial_abi=false is_official_build=true skia_use_libwebp_encode=false skia_use_libwebp_decode=false skia_use_libpng_encode=false skia_use_libpng_decode=false skia_use_zlib=false skia_use_libjpeg_turbo_encode=false skia_use_libjpeg_turbo_decode=false skia_enable_fontmgr_win_gdi=false skia_use_icu=false skia_use_expat=false skia_use_xps=false skia_enable_pdf=false skia_use_wuffs=false skia_enable_svg=true skia_use_expat=true skia_use_system_expat=false is_debug=false extra_cflags=[\"-DSK_DISABLE_LEGACY_PNG_WRITEBUFFER\"]"`    
- - `.\bin\ninja.exe -C out/mingw64-llvm.x86.release`    
+5. 编译skia静态库（mingw64 llvm，x86）
+ - `.\bin\gn.exe gen out/mingw64-llvm.x86.release --args="target_cpu=\"x86\" cc=\"clang\" cxx=\"clang++\" is_trivial_abi=false is_official_build=true skia_use_libwebp_encode=false skia_use_libwebp_decode=false skia_use_libpng_encode=false skia_use_libpng_decode=false skia_use_zlib=false skia_use_libjpeg_turbo_encode=false skia_use_libjpeg_turbo_decode=false skia_enable_fontmgr_win_gdi=false skia_use_icu=false skia_use_expat=false skia_use_xps=false skia_enable_pdf=false skia_use_wuffs=false skia_enable_svg=true skia_use_expat=true skia_use_system_expat=false is_debug=false extra_cflags=[\"-DSK_DISABLE_LEGACY_PNG_WRITEBUFFER\"]"`
+ - `.\bin\ninja.exe -C out/mingw64-llvm.x86.release`
 ## 五、编译skia（编译器：mingw64 gcc/g++）
-1. 运行cmd.exe命令行环境 
-2. 设置PATH环境变量：    
-\> `SET PATH=%PATH%;C:\mingw64\x86_64-15.1.0-release-win32-seh-ucrt-rt_v12-rev0\mingw64\bin`    
-\> `g++ -v` 
-3. 进入skia源码目录：    
-\> `cd /d D:\develop\skia` 
-4. 编译skia静态库（mingw64 gcc/g++，x64）    
- - `.\bin\gn.exe gen out/mingw64-gcc.x64.release --args="target_cpu=\"x64\" cc=\"gcc\" cxx=\"g++\" is_trivial_abi=false is_official_build=true skia_use_libwebp_encode=false skia_use_libwebp_decode=false skia_use_libpng_encode=false skia_use_libpng_decode=false skia_use_zlib=false skia_use_libjpeg_turbo_encode=false skia_use_libjpeg_turbo_decode=false skia_enable_fontmgr_win_gdi=false skia_use_icu=false skia_use_expat=false skia_use_xps=false skia_enable_pdf=false skia_use_wuffs=false skia_enable_svg=true skia_use_expat=true skia_use_system_expat=false is_debug=false extra_cflags=[\"-DSK_DISABLE_LEGACY_PNG_WRITEBUFFER\"]"`    
+1. 运行cmd.exe命令行环境
+2. 设置PATH环境变量：
+\> `SET PATH=%PATH%;C:\mingw64\x86_64-15.1.0-release-win32-seh-ucrt-rt_v12-rev0\mingw64\bin`
+\> `g++ -v`
+3. 进入skia源码目录：
+\> `cd /d D:\develop\skia`
+4. 编译skia静态库（mingw64 gcc/g++，x64）
+ - `.\bin\gn.exe gen out/mingw64-gcc.x64.release --args="target_cpu=\"x64\" cc=\"gcc\" cxx=\"g++\" is_trivial_abi=false is_official_build=true skia_use_libwebp_encode=false skia_use_libwebp_decode=false skia_use_libpng_encode=false skia_use_libpng_decode=false skia_use_zlib=false skia_use_libjpeg_turbo_encode=false skia_use_libjpeg_turbo_decode=false skia_enable_fontmgr_win_gdi=false skia_use_icu=false skia_use_expat=false skia_use_xps=false skia_enable_pdf=false skia_use_wuffs=false skia_enable_svg=true skia_use_expat=true skia_use_system_expat=false is_debug=false extra_cflags=[\"-DSK_DISABLE_LEGACY_PNG_WRITEBUFFER\"]"`
  - `.\bin\ninja.exe -C out/mingw64-gcc.x64.release`
-5. 编译skia静态库（mingw64 gcc/g++，x86）    
- - `.\bin\gn.exe gen out/mingw64-gcc.x86.release --args="target_cpu=\"x86\" cc=\"gcc\" cxx=\"g++\" is_trivial_abi=false is_official_build=true skia_use_libwebp_encode=false skia_use_libwebp_decode=false skia_use_libpng_encode=false skia_use_libpng_decode=false skia_use_zlib=false skia_use_libjpeg_turbo_encode=false skia_use_libjpeg_turbo_decode=false skia_enable_fontmgr_win_gdi=false skia_use_icu=false skia_use_expat=false skia_use_xps=false skia_enable_pdf=false skia_use_wuffs=false skia_enable_svg=true skia_use_expat=true skia_use_system_expat=false is_debug=false extra_cflags=[\"-DSK_DISABLE_LEGACY_PNG_WRITEBUFFER\"]"`    
- - `.\bin\ninja.exe -C out/mingw64-gcc.x86.release`    
+5. 编译skia静态库（mingw64 gcc/g++，x86）
+ - `.\bin\gn.exe gen out/mingw64-gcc.x86.release --args="target_cpu=\"x86\" cc=\"gcc\" cxx=\"g++\" is_trivial_abi=false is_official_build=true skia_use_libwebp_encode=false skia_use_libwebp_decode=false skia_use_libpng_encode=false skia_use_libpng_decode=false skia_use_zlib=false skia_use_libjpeg_turbo_encode=false skia_use_libjpeg_turbo_decode=false skia_enable_fontmgr_win_gdi=false skia_use_icu=false skia_use_expat=false skia_use_xps=false skia_enable_pdf=false skia_use_wuffs=false skia_enable_svg=true skia_use_expat=true skia_use_system_expat=false is_debug=false extra_cflags=[\"-DSK_DISABLE_LEGACY_PNG_WRITEBUFFER\"]"`
+ - `.\bin\ninja.exe -C out/mingw64-gcc.x86.release`
 ## 六、资源链接
-1. Skia的编译文档库，点击访问：[skia compile](https://github.com/rhett-lee/skia_compile) 
-2. nim duilib的代码库，点击访问：[nim duilib](https://github.com/rhett-lee/nim_duilib) 
+1. Skia的编译文档库，点击访问：[skia compile](https://github.com/rhett-lee/skia_compile)
+2. nim duilib的代码库，点击访问：[nim duilib](https://github.com/rhett-lee/nim_duilib)
 
 
 https://blog.csdn.net/superyu1992/article/details/105841465[#Android反编译#零基础脱掉360加固包的“外衣”]
@@ -7612,7 +8231,7 @@ SortByList:从 prop:System.DateModified 改为 prop:System.ItemNameDisplay 这�
 上述修改之前的默认用户是SYSTEM，“Administrators”默认权限是读取，改完之后可以还原回去。
 
 Windows explorer.exe 无法访问指定设备路径或文件。你可能没有适当的权限访问该项目。
-win10 [HKEY_CLASSES_ROOT\PackagedCom\ClassIndex]  win11  [HKEY_CLASSES_ROOT\PackagedCom\TreatAsClassIndex] 
+win10 [HKEY_CLASSES_ROOT\PackagedCom\ClassIndex]  win11  [HKEY_CLASSES_ROOT\PackagedCom\TreatAsClassIndex]
 右键[ClassIndex/TreatAsClassIndex]文件夹，点击权限->添加->输入对象[Users]->检查名称->确认->选择Users勾选[读取]权限
 
 
@@ -7660,7 +8279,7 @@ include_directories("D:\\ProgramFiles\\Qt\\qt5_7_lib_shared_64\\include")
 # 普通变量引入(可以理解为把D:\\ProgramFiles\\Qt\\qt5_7_lib_shared_64放入一个集合INCLUDE_PATH)
 # ${变量名} 可以获取集合内容，允许拼接
 set (INCLUDE_PATH D:\\ProgramFiles\\Qt\\qt5_7_lib_shared_64)
-include_directories(${INCLUDE_PATH}/include)       
+include_directories(${INCLUDE_PATH}/include)
 # 环境变量引入
 # 假设环境变量是INCLUDE_PATH = D:\\ProgramFiles\\Qt\\qt5_7_lib_shared_64
 # #ENV{环境变量名} 可以获取环境变量的内容，允许拼接
@@ -7685,20 +8304,20 @@ LINK_LIBRARIES("/opt/MATLAB/R2012a/bin/glnxa64/libeng.so")
 target_link_libraries 表示添加第三方 lib 库文件到目标子工程，上面 link_directories 是引入库目录到当前工程，link_libraries 是引入库文件到当前工程，具体是哪个工程并没有指明。就好比，货车把满载的货物运到幼儿园里，但是没分配。
 target_link_libraries 起的作用就是分发工作，分发xx库给指定工程，注意xx库必须是当前工程中有的或者 搜索路径里有的。
 target_link_libraries(子工程名 库文件1 库文件2 ...)     # 注意子工程名和库文件名之间以空格隔开
-add_executable(qt_test ${ALL_SRCS})    # 子工程名是 qt_test 
+add_executable(qt_test ${ALL_SRCS})    # 子工程名是 qt_test
 # 绝对路径引入
-target_link_libraries(qt_test 
+target_link_libraries(qt_test
     D:\\ProgramFiles\\Qt\\qt5_7_lib_shared_64\\lib\\Qt5Core.lib
     D:\\ProgramFiles\\Qt\\qt5_7_lib_shared_64\\lib\\Qt5Gui.lib
 )
 # 普通变量引入（被打包的lib文件，必须能在搜索路径下找到）
 set (LIB_FFMPEG "avcodec.lib" "avdevice.lib" "avfilter.lib")
-target_link_libraries(qt_test 
+target_link_libraries(qt_test
     ${LIB_FFMPEG}
 )
 # 预定义变量引入
 # PROJECT_SOURCE_DIR 是cmake的预定义变量，表示顶层CmakeList文件所在路径
-target_link_libraries(qt_test 
+target_link_libraries(qt_test
     ${PROJECT_SOURCE_DIR}/ExtLib/ffmpeg/win64/lib/avcodec.lib
 )
 5、target_include_directories（引入头文件目录到子工程）
@@ -7718,7 +8337,7 @@ COMPONENTS：从库中找子库（模块）xx，比如COMPONENTS Widget表示找
 以OpenCV库为例，OpenCV库提供的是 OpenCVConfig.cmake文件，只需引入一次，便可以将OpenCV所有的库文件和头文件引入到当前工程。OpenCVConfig.cmake 也给出了详细的说明。
 find_package(OpenCV REQUIRED)
 # OpenCV_INCLUDE_DIRS 是预定义变量，代表OpenCV库的头文件路径
-include_directories(${OpenCV_INCLUDE_DIRS}) 
+include_directories(${OpenCV_INCLUDE_DIRS})
 # OpenCV_LIBS 是预定义变量，代表OpenCV库的lib库文件
 target_link_libraries(MY_TARGET_NAME ${OpenCV_LIBS})
 以QT库为例，QT库是一个大型库，内部还包含了许多子库，在引入的时候最好按需引入
@@ -7953,7 +8572,7 @@ PowerShell：Remove-Item C:\ProgramData\chocolatey -Recurse
 PowerShell：Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
 解决flutter下载dartsdk慢的办法
-CMD：set FLUTTER_STORAGE_BASE_URL=https://mirrors.sjtug.sjtu.edu.cn/ 
+CMD：set FLUTTER_STORAGE_BASE_URL=https://mirrors.sjtug.sjtu.edu.cn/
 CMD：set PUB_HOSTED_URL=https://dart-pub.mirrors.sjtug.sjtu.edu.cn/
 上海交通大学
 FLUTTER_STORAGE_BASE_URL: https://mirrors.sjtug.sjtu.edu.cn/
@@ -7965,7 +8584,7 @@ PUB_HOSTED_URL: https://pub.flutter-io.cn
 FLUTTER_STORAGE_BASE_URL: https://mirrors.tuna.tsinghua.edu.cn/flutter
 PUB_HOSTED_URL: https://mirrors.tuna.tsinghua.edu.cn/dart-pub
 **上海交通大学**
-FLUTTER_STORAGE_BASE_URL: https://mirrors.sjtug.sjtu.edu.cn/ 
+FLUTTER_STORAGE_BASE_URL: https://mirrors.sjtug.sjtu.edu.cn/
 PUB_HOSTED_URL: https://dart-pub.mirrors.sjtug.sjtu.edu.cn/
 
 Windows环境下安装pkg-config
@@ -8050,13 +8669,13 @@ pip install xxx -i https://mirrors.aliyun.com/pypi/simple
 pip install xxx -i https://pypi.mirrors.ustc.edu.cn/simple/
 四、豆瓣源 http://pypi.douban.com/simple/
 pip install xxx -i http://pypi.douban.com/simple/
-pip config set global.index-url http://mirrors.aliyun.com/pypi/simple/ 
+pip config set global.index-url http://mirrors.aliyun.com/pypi/simple/
 pip config set install.trusted-host mirrors.aliyun.com
 python -m pip install --upgrade pip
 pip install -U huggingface_hub hf_transfer
 setx HF_ENDPOINT https://hf-mirror.com
-setx HF_HOME D:/VscodiumZone/.cache/huggingface 
-setx TRANSFORMERS_CACHE D:/VscodiumZone/.cache   
+setx HF_HOME D:/VscodiumZone/.cache/huggingface
+setx TRANSFORMERS_CACHE D:/VscodiumZone/.cache
 huggingface-cli download --resume-download runfuture/MiniCPM-2B-dpo-q4km-gguf --local-dir MiniCPM-2B-dpo-q4km-gguf
 huggingface-cli download --resume-download --local-dir-use-symlinks False runfuture/MiniCPM-2B-dpo-q4km-gguf--local-dir  MiniCPM-2B-dpo-q4km-gguf  --cache-dir  MiniCPM-2B-dpo-q4km-gguf
 
@@ -8504,23 +9123,23 @@ Community Triplets:
   x86-windows-static-md
   x86-windows-static
   x86-windows-v120
-  
+
 
 npm config set registry https://registry.npmmirror.com  切换淘宝NPM镜像站
 npm config get registry 查看镜像状态
 npm config set registry https://registry.npmjs.org  恢复官方镜像源
 
-安装cnpm 
+安装cnpm
 npm install -g cnpm --registry=https://registry.npmmirror.com
 安装pnpm
 npm install -g pnpm --registry=https://registry.npmmirror.com
 # 注册模块镜像
-npm set registry https://registry.npmmirror.com  
-// node-gyp 编译依赖的 node 源码镜像  
-npm config set disturl https://npmmirror.com/dist 
-npm set disturl https://npmmirror.com/dist 
-// 清空缓存  
-npm cache clean --force  
+npm set registry https://registry.npmmirror.com
+// node-gyp 编译依赖的 node 源码镜像
+npm config set disturl https://npmmirror.com/dist
+npm set disturl https://npmmirror.com/dist
+// 清空缓存
+npm cache clean --force
 # mirror config
 sharp_binary_host = https://npmmirror.com/mirrors/sharp
 sharp_libvips_binary_host = https://npmmirror.com/mirrors/sharp-libvips
@@ -8606,15 +9225,15 @@ CXX = g++
 CXX = g++
 CC = gcc
 WINDRES = windres
-ASMFLAGS	:=               
+ASMFLAGS	:=
 RCFLAGS		:= -O coff
-CXXFLAGS	:= -std=c++14 -w -O3 -g -static -DWIN32 -D_WIN32 -D__WIN32__ -D_WINDOWS -DWINDOWS -D__WINDOWS__ -D_GLFW_WIN32 -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DLUA_COMPAT_5_3 -DLUA_COMPAT_5_2  -DFT2_BUILD_LIBRARY -DFT_CONFIG_OPTION_SYSTEM_ZLIB -DBUILDING_LIBCURL -DCURL_HIDDEN_SYMBOLS -DHAVE_CURL_CONFIG_H -DCURL_STATICLIB -DSFML_STATIC -DAL_BUILD_LIBRARY -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DFLAC__CPU_X86_64 -DFLAC__HAS_X86INTRIN -DFLAC__ALIGN_MALLOC_DATA -DFLAC__NO_DLL -DFLAC__OVERFLOW_DETECT -DFLAC__HAS_OGG -DFLAC__ENABLE_64_BIT_WORDS  -DLOAD_PNG -DLOAD_JPG -DLOAD_WEBP -DLOAD_GIF -DOGG_MUSIC -DMUSIC_MID_TIMIDITY -DMUSIC_MID_NATIVE -DMUSIC_OGG -DMUSIC_OPUS -DMUSIC_FLAC -DOPUS_CUSTOM_NOSTATIC -DOPUS_BUILD -DVAR_ARRAYS -DFPM_DEFAULT -DFIXED_POINT -DWIN32_LEAN_AND_MEAN             
-CCFLAGS		:= -std=c11 -w -O3 -g -static -DWIN32 -D_WIN32 -D__WIN32__ -D_WINDOWS -DWINDOWS -D__WINDOWS__ -D_GLFW_WIN32 -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DLUA_COMPAT_5_3 -DLUA_COMPAT_5_2  -DFT2_BUILD_LIBRARY -DFT_CONFIG_OPTION_SYSTEM_ZLIB -DBUILDING_LIBCURL -DCURL_HIDDEN_SYMBOLS -DHAVE_CURL_CONFIG_H -DCURL_STATICLIB -DSFML_STATIC -DAL_BUILD_LIBRARY -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DFLAC__CPU_X86_64 -DFLAC__HAS_X86INTRIN -DFLAC__ALIGN_MALLOC_DATA -DFLAC__NO_DLL -DFLAC__OVERFLOW_DETECT -DFLAC__HAS_OGG -DFLAC__ENABLE_64_BIT_WORDS  -DLOAD_PNG -DLOAD_JPG -DLOAD_WEBP -DLOAD_GIF -DOGG_MUSIC -DMUSIC_MID_TIMIDITY -DMUSIC_MID_NATIVE -DMUSIC_OGG -DMUSIC_OPUS -DMUSIC_FLAC -DOPUS_CUSTOM_NOSTATIC -DOPUS_BUILD -DVAR_ARRAYS -DFPM_DEFAULT -DFIXED_POINT -DWIN32_LEAN_AND_MEAN               
-## FLAG		:= -std=c++11 -m32 -w -O3 -g -static -fprofile-arcs -ftest-coverage -D_WIN32 -DWIN32 -D_DEBUG -DDEBUG -D_WINDOWS -DWINDOWS -D_UNICODE -DUNICODE -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DSK_IGNORE_ETC1_SUPPORT                   
+CXXFLAGS	:= -std=c++14 -w -O3 -g -static -DWIN32 -D_WIN32 -D__WIN32__ -D_WINDOWS -DWINDOWS -D__WINDOWS__ -D_GLFW_WIN32 -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DLUA_COMPAT_5_3 -DLUA_COMPAT_5_2  -DFT2_BUILD_LIBRARY -DFT_CONFIG_OPTION_SYSTEM_ZLIB -DBUILDING_LIBCURL -DCURL_HIDDEN_SYMBOLS -DHAVE_CURL_CONFIG_H -DCURL_STATICLIB -DSFML_STATIC -DAL_BUILD_LIBRARY -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DFLAC__CPU_X86_64 -DFLAC__HAS_X86INTRIN -DFLAC__ALIGN_MALLOC_DATA -DFLAC__NO_DLL -DFLAC__OVERFLOW_DETECT -DFLAC__HAS_OGG -DFLAC__ENABLE_64_BIT_WORDS  -DLOAD_PNG -DLOAD_JPG -DLOAD_WEBP -DLOAD_GIF -DOGG_MUSIC -DMUSIC_MID_TIMIDITY -DMUSIC_MID_NATIVE -DMUSIC_OGG -DMUSIC_OPUS -DMUSIC_FLAC -DOPUS_CUSTOM_NOSTATIC -DOPUS_BUILD -DVAR_ARRAYS -DFPM_DEFAULT -DFIXED_POINT -DWIN32_LEAN_AND_MEAN
+CCFLAGS		:= -std=c11 -w -O3 -g -static -DWIN32 -D_WIN32 -D__WIN32__ -D_WINDOWS -DWINDOWS -D__WINDOWS__ -D_GLFW_WIN32 -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DLUA_COMPAT_5_3 -DLUA_COMPAT_5_2  -DFT2_BUILD_LIBRARY -DFT_CONFIG_OPTION_SYSTEM_ZLIB -DBUILDING_LIBCURL -DCURL_HIDDEN_SYMBOLS -DHAVE_CURL_CONFIG_H -DCURL_STATICLIB -DSFML_STATIC -DAL_BUILD_LIBRARY -DAL_LIBTYPE_STATIC -DAL_ALEXT_PROTOTYPES -DFLAC__CPU_X86_64 -DFLAC__HAS_X86INTRIN -DFLAC__ALIGN_MALLOC_DATA -DFLAC__NO_DLL -DFLAC__OVERFLOW_DETECT -DFLAC__HAS_OGG -DFLAC__ENABLE_64_BIT_WORDS  -DLOAD_PNG -DLOAD_JPG -DLOAD_WEBP -DLOAD_GIF -DOGG_MUSIC -DMUSIC_MID_TIMIDITY -DMUSIC_MID_NATIVE -DMUSIC_OGG -DMUSIC_OPUS -DMUSIC_FLAC -DOPUS_CUSTOM_NOSTATIC -DOPUS_BUILD -DVAR_ARRAYS -DFPM_DEFAULT -DFIXED_POINT -DWIN32_LEAN_AND_MEAN
+## FLAG		:= -std=c++11 -m32 -w -O3 -g -static -fprofile-arcs -ftest-coverage -D_WIN32 -DWIN32 -D_DEBUG -DDEBUG -D_WINDOWS -DWINDOWS -D_UNICODE -DUNICODE -DNANOVG_GLEW -DGLEW_STATIC -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS -DLUA_COMPAT -DLUA_COMPAT_ALL -DSK_IGNORE_ETC1_SUPPORT
 LFLAGS = -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ldxguid -ld3d11 -lxinput -ldinput8 -ld2d1 -ldwrite -lwindowscodecs -lshlwapi -lWs2_32 -lIphlpapi -lcomctl32 -lpthread -ldsound -lddraw -lm -lbcrypt -lsetupapi -lsecur32 -lcrypt32  -lpsapi -luserenv
-## LFLAGS = -municode -mwindows -fexec-charset=utf-8 -finput-charset=utf-8 -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ddxguid -dd3d11 -lshlwapi -lWs2_32 -lIphlpapi -lcomctl32 
-## LFLAGS = -municode -mwindows -fexec-charset=utf-8 -finput-charset=utf-8 -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ddxguid -dd3d11 -lshlwapi -lWs2_32 -lIphlpapi -lcomctl32 
-## LFLAGS = -Wl,--subsystem,console -municode -mconsole -fexec-charset=gbk -finput-charset=gbk -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ddxguid -dd3d11 -lshlwapi -lWs2_32 -lIphlpapi 
+## LFLAGS = -municode -mwindows -fexec-charset=utf-8 -finput-charset=utf-8 -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ddxguid -dd3d11 -lshlwapi -lWs2_32 -lIphlpapi -lcomctl32
+## LFLAGS = -municode -mwindows -fexec-charset=utf-8 -finput-charset=utf-8 -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ddxguid -dd3d11 -lshlwapi -lWs2_32 -lIphlpapi -lcomctl32
+## LFLAGS = -Wl,--subsystem,console -municode -mconsole -fexec-charset=gbk -finput-charset=gbk -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ddxguid -dd3d11 -lshlwapi -lWs2_32 -lIphlpapi
 ## LFLAGS = -Wl,--subsystem,windows -municode -mwindows -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ddxguid -dd3d11 -lshlwapi -lWs2_32 -lIphlpapi
 ## LFLAGS = -Wl,--subsystem,console -municode -mconsole -lkernel32 -limm32 -lversion -luser32 -lwinspool -lodbc32 -lodbccp32 -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid  -lwinmm -lmingw32 -lMsimg32 -lopengl32 -lglu32 -lgdi32 -lgdiplus -ld3d9 -ddxguid -dd3d11 -lshlwapi -lWs2_32 -lIphlpapi
 OUTPUT	:= output
@@ -8631,7 +9250,7 @@ LIBDIRS		:= $(LIB)
 FIXPATH = $(subst /,\,$1)
 RM			:= del
 TARGET 		:=  /s /q /f
-## RM			:= rm 
+## RM			:= rm
 ## TARGET 		:= -f
 MD	:= mkdir
 else
@@ -8640,7 +9259,7 @@ SOURCEDIRS	:= $(shell find $(SRC) -type d)
 INCLUDEDIRS	:= $(shell find $(INCLUDE) -type d)
 LIBDIRS		:= $(shell find $(LIB) -type d)
 FIXPATH = $1
-RM = rm 
+RM = rm
 TARGET 		:= -f
 MD	:= mkdir -p
 endif
@@ -8694,7 +9313,7 @@ $(MAIN): $(ASMOBJECTS)  $(CPPOBJECTS) $(CXXOBJECTS) $(CCOBJECTS) $(COBJECTS) $(R
 .cc.o:
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -MMD $<  -o $@
 .c.o:
-	$(CC) $(CCFLAGS) $(INCLUDES) -c -MMD $<  -o $@ 
+	$(CC) $(CCFLAGS) $(INCLUDES) -c -MMD $<  -o $@
 .PHONY: clean
 clean:
 	del $(call FIXPATH,src/*.o)
@@ -8738,7 +9357,7 @@ help:
     @echo "make run 直接运行程序"
     @echo "make lint 执行代码检查"
     @echo "make docker 构建docker镜像"
-    
+
 Makefile常用函数汇总
  一、名称处理函数
 1、wildcard —— 获取指定格式的文件列表
@@ -8778,7 +9397,7 @@ $(patsubst %.cpp,%.o,add.cpp bar.cpp)
 和上面 patsubst  达到的效果是一样的，只不过这里的写法更加简单，通常用于替换文件后缀，这里所表达的意思是：将 C_SOURCES 变量中所有 .c 后缀替换成 .o 。
 比如 C_SOURCES 中包含的是
 file1.c file2.c file3.c
-那么最后会被替换成  
+那么最后会被替换成
 file1.o file2.o file3.o
 4、strip —— 去掉开头和结尾的空白字符
 这里所说的空白字符可以是 空格键 或者 Tab 产生的
@@ -8786,10 +9405,10 @@ $(strip <string>)
 $(strip, add.cpp bar.cpp )
 5、findstring —— 在某个字串中查找指定字符串
 在字符串 <src> 中查找目标字符或者字符串 <dst>，如果找到了就返回对应字符，如果没有找到返回空字符。
-$(findstring <dst>,<src>) 
-$(findstring a,a b c) 
+$(findstring <dst>,<src>)
+$(findstring a,a b c)
 6、filter —— 保留指定格式的字符串
-保留指定格式的字符串，指定的格式可以有多个，返回保留的字符串 
+保留指定格式的字符串，指定的格式可以有多个，返回保留的字符串
 $(filter <pattern...>,<text>)
 sources := foo.c bar.c baz.s ugh.h
 result := $(filter %.c %.s,${sources})
@@ -8801,8 +9420,8 @@ sources := foo.c bar.c baz.s ugh.h
 result := $(filter %.h,${sources})
 8、addprefix —— 为字符串添加前缀
 该函数用于向字符串列表中的每个字符串添加指定的前缀。可以是添加路径前缀，也可以添加字符前缀。比如我们要在 所有文件名之前添加路径前缀。
-OBJ_FILES = main.o util.o helper.o  
-PREFIXED_OBJ_FILES = $(addprefix obj/,$(OBJ_FILES))  
+OBJ_FILES = main.o util.o helper.o
+PREFIXED_OBJ_FILES = $(addprefix obj/,$(OBJ_FILES))
 此时 PREFIXED_OBJ_FILES 的输出如下：
 obj/main.o obj/util.o obj/helper.o
 三、控制函数（信息打印函数）
@@ -8833,10 +9452,10 @@ $(call <expression>,<parm1>,<parm2>,<parm3>,...)
 shell 可以执行操作系统的shell命令，返回的是命令行命令的执行结果
 shell <commands>
 $(shell ps ajx | grep test)
-4、eval 
+4、eval
 eval 可以将 <text> 中的内容作为makefile的一部分，然后按照makefile的语法解析这些内容，无返回值。该函数在执行时会对参数展开两次，可以理解为第一次是eval函数检查<text>语法，第二次是解析 <text>内容。
-$(eval <text>)   
-    
+$(eval <text>)
+
 Makefile常用函数总结
 1、realpath  返回一个绝对路径
 例：ROOT  = $(realpath ./)  返回当前路径的绝对地址，赋值给ROOT
@@ -8852,7 +9471,7 @@ $(patsubst pattern, replacement, text)
 命令格式
 $(addprefix prefix, name..)
 例子：
-file = a.c b.c 
+file = a.c b.c
 dir_file = $(addprefix src/,$(file))
 在a.c b.c文件前面加入文件夹名称src/
 5、filter函数
@@ -9019,7 +9638,7 @@ pkg: 编译非 main 包的中间连接文件
 src: go 项目源代码
 开发的程序源码则放在src里，可以在src里创建多个项目。每一个项目同时也是一个文件夹。
 go1.12 之后，淡化了 GOPATH，因此也可以忽略这部分内容。
-    
+
 从源码(编译)安装golang
 通常情况下，安装go只需要在官网(https://golang.org/dl/)下载适合系统的二进制发布包，按照安装说明进行安装即可。
 对于Linux, Mac OS X和FreeBSD系统下的安装，三步即可完成：
@@ -9168,7 +9787,7 @@ for /f "delims=" %%i in ('dir /a-d /b %mydir%') do (
         if "!m!"=="1" (    :1000表示每1000个文件存放在一个文件夹，该数字表示每个文件夹中的文件个数
         set /a n+=1,m=0
         md zz"!n!"
-        echo "完成<<" "!m!" ">>个啦" 
+        echo "完成<<" "!m!" ">>个啦"
         echo "创建" "zz!n!" "稍等3秒"
         color 0A
                 for /L %%a in ( 3,-1,0) do (
@@ -9185,7 +9804,7 @@ pause
 //windows下合并压缩包
 copy /b skia_source.tar.gz* skia_source.tar.gz
 //linux分割压缩包
-split 重命名 -b 分割大小 -d 原始压缩包 split skia_source.tar.gz -b 10240m -d test.tar.gz 
+split 重命名 -b 分割大小 -d 原始压缩包 split skia_source.tar.gz -b 10240m -d test.tar.gz
 //linu下合并压缩包
  cat skia_source.tar.gz*>> test.tar.gz
  split -b 1G -d -a 1 原始test.tar 目标test.tar.
@@ -9407,8 +10026,8 @@ public: virtual void set##funName(const varType& var);
 
 Linux网络配置
 重置网络
-service network-manager stop 
-rm /var/lib/NetworkManager/NetworkManager.state 
+service network-manager stop
+rm /var/lib/NetworkManager/NetworkManager.state
 service network-manager start
 配置网络
 ifconfig -a //查看所有网卡信息
@@ -9495,8 +10114,8 @@ ubuntu 使用如下命令: apt-get autoremove -yapt-get -fy installapt-get insta
 wget http://mirrors.sohu.com/mysql/MySQL-5.6/mysql-5.6.45.tar.gz
 4.2 解压编译
 执行如下命令:
-tar -zxvf mysql-5.6.45.tar.gz 
-cd mysql-5.6.45 
+tar -zxvf mysql-5.6.45.tar.gz
+cd mysql-5.6.45
 cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci -DWITH_READLINE=1 -DWITH_SSL=system -DWITH_ZLIB=system -DWITH_EMBEDDED_SERVER=1 -DENABLED_LOCAL_INFILE=1
 make -j 2 && make install
 编译将是一个漫长得过程。。。不同的机器性能等待时间不同。
@@ -9808,7 +10427,7 @@ wget https://sourceforge.net/projects/pcre/files/pcre/8.39/pcre-8.39.tar.bz2
 tar -jxvf pcre-8.39.tar.bz2
 cd pcre-8.39
 ./configure
-make -j 2 && make install 
+make -j 2 && make install
 cd ..
 6.3 解压编译nginx
 tar -zxvf nginx-1.6.0.tar.gz
@@ -9930,7 +10549,7 @@ case "$1" in
         exit 1
         fi
         $NGINX_BIN -c $CONFIGFILE
-        if [ "$?" != 0 ] ; 
+        if [ "$?" != 0 ] ;
         then
         echo " failed"
         exit 1
@@ -9940,7 +10559,7 @@ case "$1" in
     ;;
     stop)
         echo -n "Stoping $NAME... "
-        if ! netstat -tnpl | grep -q nginx; 
+        if ! netstat -tnpl | grep -q nginx;
         then
         echo "$NAME is not running."
         exit 1
@@ -9964,13 +10583,13 @@ case "$1" in
     ;;
     force-quit)
         echo -n "Terminating $NAME... "
-        if ! netstat -tnpl | grep -q nginx; 
+        if ! netstat -tnpl | grep -q nginx;
         then
         echo "$NAME is not running."
         exit 1
         fi
         kill `pidof $NAME`
-        if [ "$?" != 0 ] ; 
+        if [ "$?" != 0 ] ;
         then
         echo " failed"
         xit 1
@@ -9984,7 +10603,7 @@ case "$1" in
     ;;
     reload)
         echo -n "Reload service $NAME... "
-        if netstat -tnpl | grep -q nginx; 
+        if netstat -tnpl | grep -q nginx;
         then $NGINX_BIN -s reload
             echo " done"elseecho "$NAME is not running, can't reload."
             exit 1
@@ -10085,7 +10704,7 @@ case "$1" in
         ${0} stop
         ${0} start
         ;;
-  *)  
+  *)
     echo "Usage: /etc/init.d/redis {start|stop|restart}" >&2
     exit 1
 esac
@@ -10206,8 +10825,8 @@ $db['default']['database'] = 'teamtalk';
 17、测试
 直接在浏览器输入ip地址即可看到php页面，这时候就可以在后台添加test用户了
 如果页面中出现如下错误，
-Unable to connect to your database server using the provided settings.  
-Filename: core/Loader.php  
+Unable to connect to your database server using the provided settings.
+Filename: core/Loader.php
 Line Number: 346
 可以参考后面的链接查找问题，我的修改 $db[‘default’][‘hostname’] = ‘127.0.0.1’;访问通过
 TeamTalk部署问题及解决方案[https://blog.csdn.net/siyacaodeai/article/details/114984901]
@@ -10228,7 +10847,7 @@ root      1717     1  0 22:13 ?        00:00:02 ./http_msg_server
 root      1729     1  0 22:13 ?        00:00:02 ./route_server
 root      1737     1  0 22:14 ?        00:00:02 ./login_server
 root      1757     1  0 22:15 ?        00:00:02 ./msg_server
-root      1788  1774  0 22:34 pts/2    00:00:00 grep server 
+root      1788  1774  0 22:34 pts/2    00:00:00 grep server
 如果没有发现:db_proxy_server, http_msg_server,route_server,login_server,msg_server的进程，请执行如下命令启动:
 cd /usr/local/teamtalk
 cd xxxx
@@ -10351,15 +10970,15 @@ $	 :: 匹配输入字符串的结尾位置。如果设置了 RegExp 对象的 Mu
 ^	 :: 匹配输入字符串的开始位置，除非在方括号表达式中使用，当该符号在方括号表达式中使用时，表示不接受该方括号表达式中的字符集合。要匹配 ^ 字符本身，请使用 \^。
 {	 :: 标记限定符表达式的开始。要匹配 {，请使用 \{。
 |	 :: 指明两项之间的一个选择。要匹配 |，请使用 \|。
-*	 :: 匹配前面的子表达式零次或多次。例如，zo* 能匹配 "z" 以及 "zoo"。* 等价于 {0,}。	
-+	 :: 匹配前面的子表达式一次或多次。例如，zo+ 能匹配 "zo" 以及 "zoo"，但不能匹配 "z"。+ 等价于 {1,}。	
+*	 :: 匹配前面的子表达式零次或多次。例如，zo* 能匹配 "z" 以及 "zoo"。* 等价于 {0,}。
++	 :: 匹配前面的子表达式一次或多次。例如，zo+ 能匹配 "zo" 以及 "zoo"，但不能匹配 "z"。+ 等价于 {1,}。
 ?	 :: 匹配前面的子表达式零次或一次。例如，do(es)? 可以匹配 "do" 、 "does"、 "doxy" 中的 "do" 和 "does"。? 等价于 {0,1}。
-{n}	 :: n 是一个非负整数。匹配确定的 n 次。例如，o{2} 不能匹配 "Bob" 中的 o，但是能匹配 "food" 中的两个 o。	
-{n,}	 :: n 是一个非负整数。至少匹配n 次。例如，o{2,} 不能匹配 "Bob" 中的 o，但能匹配 "foooood" 中的所有 o。o{1,} 等价于 o+。o{0,} 则等价于 o*。	
+{n}	 :: n 是一个非负整数。匹配确定的 n 次。例如，o{2} 不能匹配 "Bob" 中的 o，但是能匹配 "food" 中的两个 o。
+{n,}	 :: n 是一个非负整数。至少匹配n 次。例如，o{2,} 不能匹配 "Bob" 中的 o，但能匹配 "foooood" 中的所有 o。o{1,} 等价于 o+。o{0,} 则等价于 o*。
 {n,m}	 :: m 和 n 均为非负整数，其中 n <= m。最少匹配 n 次且最多匹配 m 次。例如，o{1,3} 将匹配 "fooooood" 中的前三个 o。o{0,1} 等价于 o?。请注意在逗号和两个数之间不能有空格。
-^	 :: 匹配输入字符串开始的位置。如果设置了 RegExp 对象的 Multiline 属性，^ 还会与 \n 或 \r 之后的位置匹配。	
-$	 :: 匹配输入字符串结尾的位置。如果设置了 RegExp 对象的 Multiline 属性，$ 还会与 \n 或 \r 之前的位置匹配。	
-\b	 :: 匹配一个单词边界，即字与空格间的位置。	
+^	 :: 匹配输入字符串开始的位置。如果设置了 RegExp 对象的 Multiline 属性，^ 还会与 \n 或 \r 之后的位置匹配。
+$	 :: 匹配输入字符串结尾的位置。如果设置了 RegExp 对象的 Multiline 属性，$ 还会与 \n 或 \r 之前的位置匹配。
+\b	 :: 匹配一个单词边界，即字与空格间的位置。
 \B	 :: 非单词边界匹配。
 常用正则表达式汇总
 匹配大写字母开头单词      r"\b[A-Z]+[a-z]*\b"      r"\b[A-Z]\w*\b"
@@ -10418,11 +11037,11 @@ $	 :: 匹配输入字符串结尾的位置。如果设置了 RegExp 对象的 Mu
 4 m-n位的数字：^\d{m,n}$
 5 零和非零开头的数字：^(0|[1-9][0-9]*)$
 6 非零开头的最多带两位小数的数字：^([1-9][0-9]*)+(.[0-9]{1,2})?$
-7 带1-2位小数的正数或负数：^(\-)?\d+(\.\d{1,2})?$   
+7 带1-2位小数的正数或负数：^(\-)?\d+(\.\d{1,2})?$
 8 正数、负数、和小数：^(\-|\+)?\d+(\.\d+)?$
 9 有两位小数的正实数：^[0-9]+(.[0-9]{2})?$
 10 有1~3位小数的正实数：^[0-9]+(.[0-9]{1,3})?$
-11 非零的正整数：^[1-9]\d*$ 或 ^([1-9][0-9]*){1,3}$ 或 ^\+?[1-9][0-9]*$    
+11 非零的正整数：^[1-9]\d*$ 或 ^([1-9][0-9]*){1,3}$ 或 ^\+?[1-9][0-9]*$
 12 非零的负整数：^\-[1-9][]0-9"*$ 或 ^-[1-9]\d*$
 13 非负整数：^\d+$ 或 ^[1-9]\d*|0$
 14 非正整数：^-[1-9]\d*|0$ 或 ^((-\d+)|(0+))$
@@ -10495,7 +11114,7 @@ git config --global --unset https.proxy
 cmd代理设置：
 set http_proxy=socks5://127.0.0.1:7890
 set https_proxy=socks5://127.0.0.1:7890
-set DEPOT_TOOLS_WIN_TOOLCHAIN=0 
+set DEPOT_TOOLS_WIN_TOOLCHAIN=0
 第五步：克隆代码：
 git clone https://chromium.googlesource.com/angle/angle
 cd angle
@@ -10511,7 +11130,7 @@ gn gen out/Release --sln=angle-release --ide=vs2019 --args="is_debug=false is_cl
 2. MAC编译
 第一步：先对Mac下的git代理（同window下的git）
 第二步：设置Mac系统代理 Mac Terminal Proxy
-// Execute one or both of the export commands for HTTP traffic. 
+// Execute one or both of the export commands for HTTP traffic.
 export http_proxy=192.168.1.10:8080
 export HTTP_PROXY=192.168.1.10:8080
 // Same as with HTTP, use one or both the examples below for HTTPS traffic
@@ -10578,7 +11197,7 @@ vec<string> vec2;
    replace()算法的作用是将给定序列中所有等会给定值的元素都改为另一个值，此算法接收四个参数，前两个是迭代器，表示输入序列范围，第三个是表示要搜索的      值，第四个是要换的新值。
    例：replace(vec.begin(), vec.end(), "", "test");//将vec中的空字符串改为test。
    如果我们需要保证原序列的值不变，则可以使用replace_copy()算法，使原序列不变，将改变后的序列值拷贝给新容器。
-   例：replace_copy(vec.begin(), vec.end()，back_inserter(vec2), "", "test");//将修改后的新序列保存到vec2中，原序列值不变。  
+   例：replace_copy(vec.begin(), vec.end()，back_inserter(vec2), "", "test");//将修改后的新序列保存到vec2中，原序列值不变。
 9.sort（）；
    sort()算法的作用是重新排列输入的序列中的元素，它是按照字典序列来重新排布序列。
    例：vector<string> vec = {"the", "quick", "red", "for", "jump","over", "the", "slow", "red", "turtle"}；
@@ -10590,7 +11209,7 @@ vec<string> vec2;
      执行完后的结果：for jump over quick red slow the  turtle the
      这是如果我们需要得到一个不重复的序列，则只需要使用erase（）即可，即
      vec.erase(end_unique, vec.end());
-      执行完后的结果：for jump over quick red slow the  turtle 
+      执行完后的结果：for jump over quick red slow the  turtle
 注：为了讲后面的算法，这里先普及一下谓词，这里所谓的谓词并不是语言语法上的谓词，而是向算法传递的函数名。
     例：bool isShort(const string &s1, const string &s2)
       { return s1.size() < s2.size(); }
@@ -10614,7 +11233,7 @@ vec<string> vec2;
     例：for_each(wc, vec.end(), [](const string &s){cout << s << " ";});
          cout << endl;
     上述程序的作用就是打印输出序列中从wc到vec.end（）中的元素。
-    
+
 
 题解决C++调用C函数同名问题
 我们在写C++类时，有时候需要调用C程序接口，这涉及到C++本身定义的成员函数名和C函数名重名的问题，如：
@@ -10669,7 +11288,7 @@ D2dPrerequisite.h，包含一些编译Direct2D程序所需要用到的头文件�
   //////////////////////////////////////////////////////////////////////////
   //Header files and lib files for Direct2D and DirectWrite
   #include <d2d1.h>                //Direct2D,for normal rendering task
-  #include <d2d1helper.h>        
+  #include <d2d1helper.h>
   #include <dwrite.h>                //DirectWrite,for drawing text
   #include <wincodec.h>                //Windows imaging component,for image decoding
  #pragma comment(lib,"d2d1.lib")
@@ -10824,7 +11443,7 @@ D2dPrerequisite.h，包含一些编译Direct2D程序所需要用到的头文件�
          //Draw line
          //We can set the color and opacity of solid color brush at any time,
          //so there is no need to create brushes for different colors
-         m_pSolidColorBrush->SetColor(redColor);        
+         m_pSolidColorBrush->SetColor(redColor);
          D2D1_POINT_2F startPoint = Point2F(10,10);
          D2D1_POINT_2F endPoint = Point2F(90,90);
          m_pHwndRenderTarget->DrawLine(startPoint,endPoint,m_pSolidColorBrush,5.0);
@@ -11172,17 +11791,17 @@ topics:>5：搜索具有3个以上主题的仓库。
 followers:n：根据仓库关注者数量搜索仓库。
 
 rd /s /q %USER_FOLDER%#强制删除文件夹
-ftype txtfile=%SystemRoot%\system32\notepad.exe "%1" 
+ftype txtfile=%SystemRoot%\system32\notepad.exe "%1"
 ftype text="E:\Notepad3\Notepad3.exe" %1 修复textfile类型关联打开程序
 assoc .gradle=text 关联.gradle为textfile类型
-assoc .md=text 
-assoc .mjs=text 
-assoc .conf=text 
-assoc .patch=text 
-assoc .props=text 
-assoc .properties=text 
-assoc .pro=text 
-assoc .sh=text 
+assoc .md=text
+assoc .mjs=text
+assoc .conf=text
+assoc .patch=text
+assoc .props=text
+assoc .properties=text
+assoc .pro=text
+assoc .sh=text
 assoc .mk=text
 assoc .h=text
 assoc .hpp=text
@@ -11211,7 +11830,7 @@ assoc .manifest=text
 assoc .yaml=text
 
 TlbbTools
-装备 EquipBase.txt      
+装备 EquipBase.txt
 装备上的buff StandardImpact.txt
 buff说明     equipextraattr.txt
 buff的特效  ImpactDirectly.txt
@@ -11230,7 +11849,7 @@ win10下vs2008编译32位qt4.8.7
  2.6  注意：编译一个多小时后会报以下错误：platform\DefaultLocalizationStrategy.cpp(327):error C2001：常量中有换行符platform\DefaultLocalizationStrategy.cpp(327):fatal error C1057:宏扩展中遇到意外的文件结束 NMAKE:fatal error U1077:"...(路径)\MSVS10.0\VC\BIN\cl.EXE":返回代码"0x2" Stop. NMAKE:fatal error U1077:"...(路径)\MSVS10.0\VC\BIN\nmake.EXE":返回代码"0x2" Stop. NMAKE:fatal error U1077:"cd":返回代码"0x2" Stop. NMAKE:fatal error U1077:"cd":返回代码"0x2" Stop. 解决方法：打开这个文件：<Qt Dir>\src\3rdparty\webkit\Source\WebCore\platform\DefaultLocalizationStrategy.cpp 按Ctrl+G定位 到 327 行，改为：return WEB_UI_STRING("Look Up \"<selection>\"", "Look Up context menu item with selected word").replace("<selection>",truncatedStringForLookupMenuItem(selectedString)); 注意第一个括号内look up 后的双引号。修改好后使用nmake重新编译。
 2.7 预估总编译需要3个小时左右
 3.1 把 qmake.cache(和configure.cache)备份到别的地方
-3.2 nmake confclean 
+3.2 nmake confclean
 3.3 把 qmake.cache(和configure.cache) 复制回原处如果不这样，安装 qt-vs-addin 后进行 Qt Versions 添加路径时将失败。
 4.1 运行qt-vs-addin-1.1.11-opensource.exe
 4.2  打开VS2010， 选择QT---->QT Options.在QTversions页面点击add, name中输入QT版本的名字，例如4.8.7，path中输入QT所在位置：D:\Qt4.8.74.3  环境变量path中添加D:\Qt4.8.7\bin
@@ -11303,12 +11922,12 @@ pause
    cd d:\fpc_svn
    makelazwin32      //makelazwin64
 3，运行d:\laz_svn\lazarus.exe，即可打开IDE。
-警告:The FPC source directory "D:\fpc_svn\" does not 
+警告:The FPC source directory "D:\fpc_svn\" does not
      look correct:
      Found version ..1, expected 2.7.1
    新建目录 d:\fpc_svn\source
    复制 d:\fpc_svn\packages 到d:\fpc_svn\source
-   复制 d:\fpc_svn\rtl 到d:\fpc_svn\source  
+   复制 d:\fpc_svn\rtl 到d:\fpc_svn\source
 lazarus目录   D:\laz_svn\
 编译器路径    D:\fpc_svn\bin\i386-win32\fpc.exe
 FPC源代码目录 D:\fpc_svn\source
@@ -11326,10 +11945,10 @@ win64编译win32时，提示:compiler "D:\fpc_svn\bin\x86_64-win64\fpc.exe
    下的所有东西都剪切到 d:\laz_svn\config 里。
 6、在安装目录里建立一个批处理文件，如： run_lazarus.bat
    D:\laz_svn\startlazarus.exe --pcp=D:\laz_svn\config
-7、运行 run_lazarus.bat 
+7、运行 run_lazarus.bat
 
 
- Linux下安装lazarus及升級到最新SVN方法 
+ Linux下安装lazarus及升級到最新SVN方法
 ubuntu:
    sudo apt-get install lazarus
 Fedora:
@@ -11345,11 +11964,11 @@ Fedora:
 [pre] svn co http://svn.freepascal.org/svn/fpc/trunk fpc
 然后编译,编译前还要下载一些库：
 sudo apt-get install libgpmg1-dev fakeroot libncurses5-dev build-essential
-cd lazarus/tools/install 
-./create_fpc_deb.sh fpc  /home/user/fpc 
+cd lazarus/tools/install
+./create_fpc_deb.sh fpc  /home/user/fpc
 编译fpc源码及生成deb包，/home/user/fpc源码的路径
 完成后会生成一个fpc.tgz和fpc.deb包，如 fpc_2.5.1-101202_i386.deb fpc-2.5.1-101202.tar.gz
-安装fpc: 
+安装fpc:
   sudo dpkg -i fpc_2.5.1-101202_i386.deb
 然后cd ../..退出lazars目录下：make clean all
 完成后使用./lazarus 打开
@@ -11357,19 +11976,19 @@ cd lazarus/tools/install
 Environment-&gt;Options
               -&gt;Lazarus directory(default for all projects)
                /home/user/lazarus/
-              -&gt;Compiler path(e.g.fpc) 
+              -&gt;Compiler path(e.g.fpc)
                /usr/bin/fpc
               -&gt;FPC source directory
-               /home/user/fpc/ 
+               /home/user/fpc/
               -&gt;Make path
                 /usr/bin/make
               -&gt;Directory for building test projects
-                /tmp 
+                /tmp
 完成后就可以用了！
 以后再更新源碼就用：
   svn update fpc
   svn update lazarus
-再重新 ./create_fpc_deb.sh fpc  /home/user/fpc  
+再重新 ./create_fpc_deb.sh fpc  /home/user/fpc
       sudo dpkg -i fpc_2.5.1-101202_i386.deb
       make clena all
 就可以了！Fedora 則要用 create_fpc_rpm.sh 了
@@ -11412,8 +12031,8 @@ repo forall -c 'git lfs pull'
         conda config --set show_channel_urls yes
         conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/`
         conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/msys2/
-        
-gcc -c xxx.c 
+
+gcc -c xxx.c
 ar -crv libxxx.a -o xxx.o
 gcc -shared -fPIC -o libxxx.so xxx.o
 gcc xxx.c -shared -fPIC -o libxxx.so
@@ -11424,7 +12043,7 @@ gcc  main.o main 链接
 
 NuGet镜像
 https://mirrors.huaweicloud.com/repository/nuget/v3/index.json
-https://nuget.cnblogs.com/v3/index.json 
+https://nuget.cnblogs.com/v3/index.json
 https://api.nuget.org/v3/index.json
 Git-Mirror镜像
 https://gitee.com/mirrors/
@@ -11436,7 +12055,7 @@ https://pypi.mirrors.ustc.edu.cn/simple/
 pip install package -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 pip install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 永久替换
-pip config set global.index-url http://mirrors.aliyun.com/pypi/simple/ 
+pip config set global.index-url http://mirrors.aliyun.com/pypi/simple/
 pip config set install.trusted-host mirrors.aliyun.com
 Android Maven镜像
 maven { url 'https://maven.aliyun.com/repository/xxx' } / central jcenter google gradle-plugin public
@@ -11448,9 +12067,9 @@ Android手机 闪存的格式化+trim 后，数据几乎很难找回来
 
 ssh-keygen -t rsa -b 4096 -C "allen.x.6032@gmail.com" // 生成ssh密钥
 ssh -T git@github.com // 校验ssh密钥
-git config --global --list 
-git config --global user.name "xx" 
-git config --global user.email "x@x.x" 
+git config --global --list
+git config --global user.name "xx"
+git config --global user.email "x@x.x"
 git config --global https.postBuffer 512m
 git config --global https.lowSpeedLimit 0
 git config --global https.lowSpeedTime 99
@@ -11491,13 +12110,13 @@ gradlew :app:dependencies > app.txt 依赖分析
 gradlew app:assembleRelease 模块编译
 设置GRADLE_USER_HOME环境变量 修改Gradle默认cache位置
 管理员运行cmd， rd /s c:\\$Recycle.Bin  强制清理回收站
-dupe:.vs dupe:ipch dupe:.git dupe:.gradle dupe:.idea dupe:gradle-build dupe:*.dir dupe:*.pdb dupe:*.idb dupe:*.exp dupe:*.cxx 
+dupe:.vs dupe:ipch dupe:.git dupe:.gradle dupe:.idea dupe:gradle-build dupe:*.dir dupe:*.pdb dupe:*.idb dupe:*.exp dupe:*.cxx
 删除 java 注释 /* */：    /\*{1,2}[\s\S]*?\*/
 删除 java 注释 //：        //[\s\S]*?\n  （谨慎操作，双斜线后面不一定是注释也会是路径）
 删除 xml 注释：             <!-[\s\S]*?-->
 删除空白行：               ^\s*\n
 
-D:\android-sdk\ndk\android-ndk-r13b\ndk-build 
+D:\android-sdk\ndk\android-ndk-r13b\ndk-build
 D:\crystax-ndk-10.3.2\ndk-build
 
 md/mkdir 创建文件夹
@@ -11512,7 +12131,7 @@ Windows环境变量
 %APPDATA% =C:\Users\用户名\AppData\Roaming
 %LOCALAPPDATA% =C:\Users\用户名\AppData\Local
 %windir% =C:\WINDOWS
-%Path% =C:\Windows\system32;C:\Windows; 
+%Path% =C:\Windows\system32;C:\Windows;
 %ProgramData% =C:\ProgramData
 %ProgramFiles% =C:\Program Files
 %ProgramFiles(x86)% =C:\Program Files (x86)
@@ -11527,11 +12146,11 @@ Windows环境变量
 %HOMEPATH% =\Users\用户名
 %LOGONSERVER% =\\MicrosoftAccount
 %OS% =Windows_NT
-%ProgramW6432% =C:\Program Files  
-%PUBLIC% =C:\Users\Public 
+%ProgramW6432% =C:\Program Files
+%PUBLIC% =C:\Users\Public
 %TEMP% =C:\Users\用户名\AppData\Local\Temp
 %TMP% =C:\Users\用户名\AppData\Local\Temp
-%USERDOMAIN% =MyPC 
+%USERDOMAIN% =MyPC
 %USERNAME% =用户名
 @echo off
 echo 当前盘符：%~d0
@@ -11549,7 +12168,7 @@ pause
 
 启用 WSL(方法)
 wsl --install
-管理员身份打开 PowerShell 工具并运行 
+管理员身份打开 PowerShell 工具并运行
 dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
 Windows 10（2004）上启用虚拟机平台
 dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
@@ -11574,8 +12193,8 @@ cd .\Ubuntu\
 .\ubuntu2004.exe
 
 wget https://gitee.com/lin-xi-269/tools/raw/master/os/QHubuntu20.04 && bash QHubuntu20.04
-创建文件.wslconfig 
-code %UserProfile%\.wslconfig 
+创建文件.wslconfig
+code %UserProfile%\.wslconfig
 修改WSL内存和处理核心增加自动释放内存和缓存文件
 [wsl2]
  processors=8
@@ -11585,11 +12204,11 @@ code %UserProfile%\.wslconfig
  autoProxy=true
  etworkingMode=mirrored
  #dnsTunneling=true
-[experimental] 
+[experimental]
  #hostAddressLoopback=true
  autoMemoryReclaim=gradual
  sparseVhd=true
- 
+
 wsl -l -o 列出可用在线系统
 wsl -l -v 列出已安装系统
 wsl --status 检查WSL状态
@@ -11604,7 +12223,7 @@ wsl --unregister xx 注销并卸载系统
 apt 换源
 Debian / Ubuntu 的官方源在国内访问很慢，咱们更换为清华大学 TUNA 的软件源镜像
 $ sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
-$ sudo vim /etc/apt/sources.list 
+$ sudo vim /etc/apt/sources.list
 # 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
 deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse
@@ -11702,7 +12321,7 @@ https://zhuanlan.zhihu.com/p/707298876[在windows上编译ffmpeg]
 https://www.gyan.dev/ffmpeg/builds/[FFmpeg Build binaries for Windows]
 https://blog.csdn.net/cpp_learner/article/details/142345860[Windows环境 源码编译 FFmpeg]
 
-cast from pointer to smaller type 'XX' (aka 'XX') loses information 
+cast from pointer to smaller type 'XX' (aka 'XX') loses information
 (XX)(size_t)?
 
 
@@ -11727,13 +12346,13 @@ ACRTIMP_ALT FILE* __cdecl __acrt_iob_func(unsigned);
  * 当libjpeg-turbo用vs2015编译时，不需要此补丁文件
  */
 #if _MSC_VER>=1900
-#include "stdio.h" 
-_ACRTIMP_ALT FILE* __cdecl __acrt_iob_func(unsigned); 
-#ifdef __cplusplus 
-extern "C" 
-#endif 
-FILE* __cdecl __iob_func(unsigned i) { 
-    return __acrt_iob_func(i); 
+#include "stdio.h"
+_ACRTIMP_ALT FILE* __cdecl __acrt_iob_func(unsigned);
+#ifdef __cplusplus
+extern "C"
+#endif
+FILE* __cdecl __iob_func(unsigned i) {
+    return __acrt_iob_func(i);
 }
 
 snprintf重定义
@@ -11806,13 +12425,13 @@ mt.exe -manifest MyApp.exe.manifest -outputresource:MyApp.exe;1
 mingw-gcc 编译出有 win10 风格的 win32 程序
 入口函数源文件加上
 [[
-#if defined _M_IX86  
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")  
-#elif defined _M_X64  
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"")  
-#else  
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")  
-#endif 
+#if defined _M_IX86
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#elif defined _M_X64
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#else
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif
 ]]
 然后在程序输出目录下建一个 " 程序名.exe.manifest“ 的文件
 [[
@@ -12041,67 +12660,67 @@ template<> struct char_traits<unsigned short>
   typedef streampos         pos_type;
   typedef streamoff         off_type;
   typedef mbstate_t         state_type;
-  static void 
+  static void
   assign(char_type& __c1, const char_type& __c2)
   { __c1 = __c2; }
-  static bool 
+  static bool
   eq(const char_type& __c1, const char_type& __c2)
   { return __c1 == __c2; }
-  static bool 
+  static bool
   lt(const char_type& __c1, const char_type& __c2)
   { return __c1 < __c2; }
-  static int 
+  static int
   compare(const char_type* __s1, const char_type* __s2, size_t __n)
-  { 
+  {
     for (size_t __i = 0; __i < __n; ++__i)
       if (!eq(__s1[__i], __s2[__i]))
         return lt(__s1[__i], __s2[__i]) ? -1 : 1;
-    return 0; 
+    return 0;
   }
   static size_t
   length(const char_type* __s)
-  { 
-    const char_type* __p = __s; 
-    while (*__p) ++__p; 
+  {
+    const char_type* __p = __s;
+    while (*__p) ++__p;
     return static_cast<size_t>(__p - __s);
   }
-  static const char_type* 
+  static const char_type*
   find(const char_type* __s, size_t __n, const char_type& __a)
-  { 
+  {
     for (const char_type* __p = __s; size_t(__p - __s) < __n; ++__p)
       if (*__p == __a) return __p;
     return 0;
   }
-  static char_type* 
+  static char_type*
   move(char_type* __s1, const char_type* __s2, size_t __n)
   { return static_cast<char_type*>(memmove(__s1, __s2, __n * sizeof(char_type))); }
-  static char_type* 
+  static char_type*
   copy(char_type* __s1, const char_type* __s2, size_t __n)
   { return static_cast<char_type*>(memcpy(__s1, __s2, __n * sizeof(char_type))); }
-  static char_type* 
+  static char_type*
   assign(char_type* __s, size_t __n, char_type __a)
-  { 
-    for (char_type* __p = __s; __p < __s + __n; ++__p) 
+  {
+    for (char_type* __p = __s; __p < __s + __n; ++__p)
       assign(*__p, __a);
-    return __s; 
+    return __s;
   }
-  static char_type 
+  static char_type
   to_char_type(const int_type& __c)
   { return char_type(__c); }
-  static int_type 
+  static int_type
   to_int_type(const char_type& __c) { return int_type(__c); }
-  static bool 
+  static bool
   eq_int_type(const int_type& __c1, const int_type& __c2)
   { return __c1 == __c2; }
-  static int_type 
+  static int_type
   eof() { return int_type(-1); }
-  static int_type 
+  static int_type
   not_eof(const int_type& __c)
   { return eq_int_type(__c, eof()) ? int_type(0) : __c; }
 };
 template <> struct char_traits<unsigned int> {
   using char_type = unsigned int;
-  using int_type = unsigned long; 
+  using int_type = unsigned long;
   using off_type = streamoff;
   using pos_type = streampos;
   using state_type = mbstate_t;
@@ -12462,23 +13081,23 @@ char* strndup(const char* str, size_t n) {
 }
 
 drand48函数实现
-#ifndef DRAND48_H  
-#define DRAND48_H  
-#include <stdlib.h>  
-#define m 0x100000000LL  
-#define c 0xB16  
-#define a 0x5DEECE66DLL  
-static unsigned long long seed = 1;  
-double drand48(void)  
-{  
-    seed = (a * seed + c) & 0xFFFFFFFFFFFFLL;  
-    unsigned int x = seed >> 16;  
-    return  ((double)x / (double)m);  
-}  
-void srand48(unsigned int i)  
-{  
-    seed  = (((long long int)i) << 16) | rand();  
-}  
+#ifndef DRAND48_H
+#define DRAND48_H
+#include <stdlib.h>
+#define m 0x100000000LL
+#define c 0xB16
+#define a 0x5DEECE66DLL
+static unsigned long long seed = 1;
+double drand48(void)
+{
+    seed = (a * seed + c) & 0xFFFFFFFFFFFFLL;
+    unsigned int x = seed >> 16;
+    return  ((double)x / (double)m);
+}
+void srand48(unsigned int i)
+{
+    seed  = (((long long int)i) << 16) | rand();
+}
 #endif
 
 #define _USE_MATH_DEFINES
@@ -12527,23 +13146,17 @@ base&& ref3 = base();
 以下是关于GGUF量化模型配置及CPU+GPU混合推理的详细指南，基于llama.cpp框架实现：
 1. 环境准备
 1.1 安装依赖
-bash
-复制代码
 # 编译支持GPU的llama.cpp
 git clone https://github.com/ggerganov/llama.cpp && cd llama.cpp
 make LLAMA_CUBLAS=1  # NVIDIA GPU
 # 或
 make LLAMA_METAL=1   # Apple M系列芯片
 1.2 Python包安装
-bash
-复制代码
 pip install llama-cpp-python[server] --force-reinstall --upgrade --no-cache-dir
 # 指定CUDA版本
 CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python
 2. GGUF模型配置参数
 2.1 核心参数说明
-python
-复制代码
 from llama_cpp import Llama
 llm = Llama(
     model_path="mistral-7b-v0.1.Q4_K_M.gguf",  # GGUF模型路径
@@ -12564,8 +13177,6 @@ CPU辅助：处理剩余计算和内存管理
 8GB显存：约20-25层
 24GB显存：可卸载全部40+层
 3.2 性能优化参数
-python
-复制代码
 # 高级配置示例
 llm = Llama(
     ...
@@ -12578,8 +13189,6 @@ llm = Llama(
 )
 4. 推理示例
 4.1 基础文本生成
-python
-复制代码
 prompt = "如何制作法式薄饼？"
 output = llm.create_completion(
     prompt,
@@ -12592,8 +13201,6 @@ output = llm.create_completion(
 for chunk in output:
     print(chunk["choices"][0]["text"], end="", flush=True)
 4.2 流式输出配置
-python
-复制代码
 response = llm(
     prompt,
     stream=True,
@@ -12603,8 +13210,6 @@ response = llm(
 )
 5. 性能监控与调优
 5.1 基准测试命令
-bash
-复制代码
 ./main -m model.gguf -n 128 -p "巴黎是" -ngl 25 -t 8 -c 2048 -b 512 --temp 0.7
 5.2 关键性能指标
 指标	预期值	监控方法
@@ -12614,21 +13219,16 @@ GPU利用率	>85%	nvidia-smi / ROCm
 推理延迟	<200ms/token	时间戳测量
 6. 常见问题解决
 6.1 CUDA内存不足
-python
-复制代码
+
 # 减少GPU卸载层数
 n_gpu_layers=20
 # 启用内存优化
 llm = Llama(..., vocab_only=True, use_mmap=True)
 6.2 性能瓶颈分析
-bash
-复制代码
 # 查看各层执行设备
 export LLAMA_DEBUG=1
 ./main ... 2>&1 | grep -E 'llm_load_tensors|llama_graph_compute'
 7. 高级配置参考
-python
-复制代码
 # 多GPU负载均衡
 llm = Llama(
     ...
