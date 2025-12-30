@@ -294,7 +294,6 @@ adb -s 设备号 tcpip 端口号
 adb pair IP:端口号
 adb connect IP:端口号
 
-
 gradlew app:assembleRelease
 gradlew :app:dependencies  > app.txt
 gradlew :app:androidDependencies > app.txt
@@ -313,6 +312,7 @@ set GRADLE_USER_HOME="C:/.gradle"
 setx GRADLE_USER_HOME C:/.gradle
 setx GRADLE_USER_HOME C:/.gradle /m
 
+apk重签名
 jarsigner -verify -verbose -certs 获取apk签名状态、信息
 jarsigner -verbose -keystore {签名证书存放路径} -signedjar {签名后apk存放路径} {未签名的apk路径} {证书别名}
 jarsigner -verbose -keystore test.jks -signedjar unsign_test.apk signed_test.apk test
@@ -320,7 +320,12 @@ jarsigner -verbose -keystore {签名证书存放路径} -storepass {签名证书
 jarsigner -verbose -keystore test.jks -storepass 123123 -signedjar test.apk before_test.apk test
 jarsigner -verbose -keystore (签名地址) -signedjar (签名后的apk地址) (待签名apk地址) (别名) V1签名（jarsigner方式）
 apksigner sign --ks (签名地址) --ks-key-alias (别名) --out (签名后的apk地址) (待签名apk地址)  V2签名（apksigner方式）
-jarsigner -verbose -keystore {签名证书存放路径} -signedjar {签名后apk存放路径} {未签名的apk路径} {证书别名
+jarsigner -verbose -keystore {签名证书存放路径} -signedjar {签名后apk存放路径} {未签名的apk路径} {证书别名}
+
+apk生成新签名
+keytool -genkey -alias testalias -keyalg RSA -keysize 2048 -validity 36500 -keystore gdgame.jks -storepass gdgame789123 -keypass gdgame789123 -dname "CN=None, OU=None, O=None, L=None, ST=None, C=None"
+keytool -genkey -alias releasealias -keyalg RSA -keysize 2048 -validity 36500 -keystore nhwj.jks -storepass nhwj789123 -keypass nhwj789123 -dname "CN=None, OU=None, O=None, L=None, ST=None, C=None"
+keytool -genkey -alias goshine -keyalg RSA -keysize 2048 -validity 36500 -keystore goshine_hn -storepass goshine2020 -keypass goshine2020 -dname "CN=None, OU=None, O=None, L=None, ST=None, C=None"
 
 git config --global filter.lfs.smudge "git-lfs smudge --skip"#跳过大文件clone pull
 git config --global filter.lfs.smudge "git-lfs smudge -- %f"#解除跳过大文件clone pull
@@ -427,6 +432,3297 @@ git config --global url."https://ghproxy.net/https://github.".insteadOf git://gi
 git config --global url."https://ghproxy.net/https://github.com".insteadOf https://github.com
 git config --global url."https://ghproxy.net/https://github.com/".insteadOf git@github.com:
 git config --global url."https://mirrors.tuna.tsinghua.edu.cn/git/chromiumos".insteadOf https://chromium.googlesource.com
+
+
+Windows 11 部署 Linux 环境并编译 LineageOS 指南
+适配设备：一加9（代号 lemonade）
+一、准备 Linux 环境（WSL）
+1、安装 WSL 并配置 Ubuntu
+在 Windows 终端中执行（需管理员权限） wsl --install -d Ubuntu-24.04
+安装完成后，从开始菜单打开 Ubuntu-24.04
+首次启动需设置用户名和密码（密码输入时不可见，正常输入后回车）
+二、基础环境配置
+2、更新软件源并安装工具
+添加软件仓库 sudo add-apt-repository universe multiverse
+更新软件包列表 sudo apt update
+安装解压工具和文本编辑器 sudo apt install unzip gedit
+3、安装 Android 调试工具 (ADB)
+下载工具到根目录 wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+解压到用户目录 unzip platform-tools-latest-linux.zip -d ~
+添加环境变量：gedit ~/.profile
+在文件末尾添加：
+if [ -d "$HOME/platform-tools" ] ; then
+    PATH="$HOME/platform-tools:$PATH"
+fi
+让配置生效 source ~/.profile
+三、安装编译依赖
+4、安装构建工具链
+sudo apt-get install bc bison build-essential ccache curl flex g++-multilib gcc-multilib git git-lfs gnupg gperf imagemagick lib32readline-dev lib32z1-dev libelf-dev liblz4-tool lz4 libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev
+5、配置代码仓库工具 (Repo)
+创建工具目录 mkdir -p ~/bin
+创建源码目录 mkdir -p ~/android/lineage
+下载 Repo 工具 curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+赋予执行权限 chmod a+x ~/bin/repo
+编辑 ~/.profile 文件：gedit ~/.profile
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+让配置生效 source ~/.profile
+6、配置 Git 账户
+you@example.com 替换为你的邮箱 git config --global user.email "you@example.com"
+Your Name 替换为你的用户名 git config --global user.name "Your Name"
+启用 Git LFS git lfs install
+四、源码下载与配置
+7、初始化源码仓库
+cd ~/android/lineage
+指定国内镜像
+设置 repo 工具镜像 export REPO_URL='https://mirrors.ustc.edu.cn/aosp/git-repo'
+替换 AOSP 仓库
+git config --global url."https://mirrors.ustc.edu.cn/aosp/".insteadOf https://android.googlesource.com/
+git config --global url."https://gitclone.com/github.com/LineageOS/".insteadOf https://github.com/LineageOS/
+初始化仓库 repo init -u https://mirrors.cernet.edu.cn/lineageOS/LineageOS/android.git -b lineage-22.1 --git-lfs --no-clone-bundle
+同步源码（耗时较长，建议保持网络稳定） repo sync
+五、设备驱动与 USB 调试
+8、Windows 端 USB 设备共享
+打开windows终端运行
+安装 USB/IP 工具 winget install --interactive --exact dorssel.usbipd-win
+查看设备列表（记录目标设备的 BUSID） usbipd list
+绑定设备（如 3-1） usbipd bind --busid <busid>
+共享到 WSL usbipd attach --wsl --busid <busid>
+在WSL中运行
+安装usbutils sudo apt install usbutils
+查看usb设备能否被wsl检测到 lsusb
+9、WSL 内 USB 权限配置
+创建 USB 权限规则 echo 'SUBSYSTEM=="usb", MODE="0666", GROUP="plugdev"' | sudo tee /etc/udev/rules.d/99-android.rules
+重新加载规则 sudo udevadm control --reload-rules
+触发设备更新 sudo udevadm trigger
+六、编译 LineageOS
+10、准备设备代码
+源码根目录 cd ~/android/lineage
+加载编译环境 source build/envsetup.sh
+自动配置设备树和依赖项 breakfast lemonade
+11、提取设备驱动文件
+确保手机已开启 USB 调试 和 Root 权限，连接电脑后执行 cd ~/android/lineage/device/oneplus/lemonade
+从手机提取硬件驱动 ./extract-files.py
+12、开始编译
+启用编译缓存 export USE_CCACHE=1
+设置缓存路径 export CCACHE_EXEC=/usr/bin/ccache
+设置缓存大小为 50GB ccache -M 50G
+在windows 11中 C:\Users\你的用户名 目录下创建 文本文档 ，重命名为 .wslconfig ，打开并添加以下内容，设置WSL可使用的内存，cpu核心数
+[wsl2]
+memory=32GB
+swap=8GB
+processors=4
+返回源码根目录 cd ~/android/lineage
+加载编译环境 source build/envsetup.sh
+启动编译（耗时数小时 #### build completed successfully (11:43:56 (hh:mm:ss)) ####）
+切换回源码根目录 croot
+完整编译（user debug） brunch lemonade
+七、获取编译结果
+编译完成后，生成的 ROM 文件目录 cd $OUT
+主要文件：
+boot.img : 恢复镜像
+lineage-*.zip : LineageOS 安装包
+
+
+LineageOS-21 编译大战！—— 一个萌新的心路历程 ☆
+kira~☆ 本文将同步闪耀于 CSDN & 看雪论坛，请多指教！
+0x01 碎碎念 Time~
+最近闲得快要长蘑菇了，于是淘来一台二手 LG G8 ThinQ (代号是 alphaplus 哦~)，打算让它成为我的新玩具... 啊不，是备用机！然后捏，一个大胆的想法突然降临：何不亲手为它打造一套 LineageOS 呢？
+说干就干，冒险的帷幕，就此拉开！(•̀ㅂ•́)و✧
+0x02 冒险前的物资准备！
+大量的时间 & 钢铁般的耐心 (非常重要！说三遍！后面还会再说！)
+Linux 大陆通行证 (强烈推荐物理机，跑起来才够劲！虚拟机什么的... 稍稍有点勉强啦。WSL2 也要小心，特别是 WSL1，那是万万不可的哟~‍♀️)
+畅通无阻的网络 (我们需要从 GitHub 召唤 Vendor Blobs 和 Kernel 这些神秘力量！后面会细说。可怜我的校园网只有 7Mb/s，光是拉源码就花了一整天... ！)
+一个足够大的磁盘空间 (咱的口袋是 391.8GB，编译完成后还剩大约 67.1GB，给小伙伴们参考一下~ 至少需要 400GB 才稳妥哦！)
+强力的 CPU 核心 (我用的是 i7-9750H... 没错，就是那台服役 6 年的老伙计笔记本！编译过程大概跑了一整天... 核心越多越好，像八爪鱼那样！)
+至少 32GB 的内存 (不开 swap 会直接宕机！亲身经历 T_T... 建议设置 12GB 的 swap 结界，不然真的会死得很惨...)
+再次强调：大量的时间 & 钢铁般的耐心！ (这是成为魔法师... 啊呸，编译大师的必备素质！)
+0x03 羁绊的开始！Let's Go!
+Step 1: 搭建我们的秘密基地 (环境准备)
+首先，得把我们的 Linux 小窝打造成适合编译魔法的环境。需要安装一些神秘的咒语。
+本教程基于 Archlinux 魅魔，Ubuntu 小姐姐部分如果有误，请温柔地指出，我会立刻修正哒~ (没有特别标注的话，就是两个系统通用的咒语哦！)
+！！！注意注意！！！编译的时候千万不要用 root 大人的权限，会引来不必要的麻烦哦！Σ( ° △ °|||)
+For Archlinux 小伙伴:
+# 先来个全身心的大扫除和升级！
+sudo pacman -Syyu
+# 然后召唤我们需要的工具伙伴们！
+sudo pacman -S --needed base-devel git jdk17-openjdk python python-pip ccache \
+             libxml2 ncurses zlib openssl pngcrush schedtool imagemagick \
+             bc android-tools rsync wget unzip zip p7zip curl \
+             libxslt lz4 patchelf coreutils findutils gawk grep sed git git-lfs
+For Ubuntu 小伙伴:
+# 同样，先给系统梳梳毛，升升级~
+sudo apt update && sudo apt upgrade
+# 召唤 Ubuntu 平台的工具伙伴们！
+sudo apt install bc bison build-essential ccache curl flex g++-multilib gcc-multilib git git-lfs gnupg gperf imagemagick lib32readline-dev lib32z1-dev libdw-dev libelf-dev liblz4-tool lz4 libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev libwxgtk3.0-dev lib32ncurses5-dev libncurses5 libncurses5-dev
+Step 1.5: 召唤 Ccache 酱，开启高速模式！
+诶嘿嘿~ 想要让之后的编译快到飞起吗？那就快来召唤 Ccache 酱 这位时间魔法师吧！她能记住你编译过的东西，下次再编译同样的内容时，就能瞬间完成，大大缩短等待时间哦！(ﾉ´ヮ´)ﾉ*:･ﾟ✧
+要召唤 Ccache 酱，你需要咏唱以下咒语：
+export USE_CCACHE=1
+export CCACHE_EXEC=/usr/bin/ccache
+然后，记得把这两行神秘代码也添加到你的 ~/.bashrc (或者 ~/.zshrc，看你用哪个 Shell 啦) 文件里，这样每次打开终端，Ccache 酱就会自动准备好为你加速啦！
+接下来，要告诉 Ccache 酱她能使用多少硬盘空间来存放她的编译产物。念这个咒语：
+# 这里以分配 30GB 为例，可以根据自己的硬盘大小调整哦
+ccache -M 30G
+这里的 30G 就代表 Ccache 酱可以征用 30GB 的硬盘空间哦。这个咒语只需要成功咏唱 一次 就好~
+Ccache 酱需要多大空间呢？
+一般来说，给她分配 25GB 到 100GB 的空间，就能让编译速度发生翻天覆地的变化！(举个栗子，原本 1 小时的漫长等待，可能咻的一下就缩短到 20 分钟！)
+如果你只打算为一个老婆… 啊不，一台设备编译 ROM，那么 25GB-50GB 就足够 Ccache 酱施展拳脚啦。
+但如果你是个“后宫王”体质，要为好几位内核源码不同的设备后宫编译，那最好给她准备 75GB-100GB 的大 house！
+不过要注意！ 这部分空间会被 Ccache 酱 永久占据 (除非你手动清理或卸载她)，所以在决定大小前要好好掂量一下自己的硬盘容量，别不小心撑爆了哟！
+还有个小秘技！Ccache 酱的压缩魔法！
+你可以选择开启 Ccache 酱的压缩模式！虽然这可能会让她的编译速度稍微慢一丢丢，但好处是能在同样的空间里塞下更多的缓存文件！更省空间了耶！
+要开启压缩模式，就念这个咒语 (同样，只需一次)：
+ccache -o compression=true
+小贴士： 如果开启了压缩模式，之前设定的缓存大小就可以适当调小一点啦 (比如只为一个设备编译的话，大概 20GB 可能就够用了~)
+好啦！有了 Ccache 酱的加持，我们的编译大业就能更加顺畅啦！继续前进！
+Step 2: 开辟源码的圣域 (创建源码目录)
+就在咱的用户目录下建一个新家吧~
+mkdir ~/LineageOS
+然后，瞬移进去！
+cd LineageOS
+Step 3: 获取 repo 酱这个传送门管理员 (设置 repo)
+mkdir ~/bin
+# 温馨提示：这条命令是把 ~/bin 目录暂时加入到当前 Shell 的寻路列表 (PATH) 里，
+# 新开终端或者重启电脑后就失效啦。想让它一直有效？把它加到 ~/.bashrc 或 ~/.zshrc 文件里吧！
+PATH=~/bin:$PATH
+# 从清华大学的神秘宝库里请来 repo 酱！
+curl https://mirrors.tuna.tsinghua.edu.cn/git/git-repo -o ~/bin/repo
+# 赋予 repo 酱执行魔法的力量！
+chmod a+x ~/bin/repo
+Step 4: 设定传送目标 (配置仓库)
+我们选择清华大学的镜像作为主要传送点。(当然 BFSU 镜像在 LineageOS-21.0 时也能成功抵达终点，但 LineageOS-22.1 遇到了 VNDK33 无法召唤的问题，22.2 又遇到了奇怪的编译错误... 可能是版本更新太快，同步还没跟上？)
+简单对比一下两大传送门 (截至我上次观察时... 诶～我上次观察是啥时候来着？)：
+清华源 (TUNA): 同步范围超广，但有时感觉拉取速度像是在爬... (不知道现在有没有变快？)
+ -> 清华酱的 AOSP 代码同步状态展示图 (看起来很大很全！)
+ -> 清华酱的 LineageOS 代码同步状态展示图 (感觉也不错！)
+北外源 (BFSU): 速度飞快！但可能因为同步有延迟，偶尔会找不到最新的零件。
+ -> BFSU 酱的 AOSP 代码同步状态展示图 (明显小很多)
+ -> BFSU 酱的 LineageOS 代码同步状态展示图 (同样，可能不是最新鲜的)
+结论： 清华更稳妥全面，但可能慢；BFSU 快但可能有坑。大家可以根据自己的网络情况和追求选择信仰！(当然，直连官方 GitHub/GoogleSource 的都是真·勇士！这件事实在是泰裤辣！)
+这里以 BFSU 源为例 (因为它在我的 LineageOS-21 冒险中成功了嘛)：
+# 赋予 repo 酱执行魔法的力量 (如果前面做了就不用重复啦)
+# chmod a+x ~/bin/repo
+# 初始化我们的冒险地图！指定 BFSU 为传送起点，目标是 lineage-21.0 分支，并开启 LFS 支持！
+repo init -u https://mirrors.bfsu.edu.cn/git/lineageOS/LineageOS/android.git -b lineage-21.0 --git-lfs
+小小解说：
+-u: 指定那个记录着所有宝藏地点 (manifest 仓库) 的 URL。
+-b: 我们要探索哪个版本的世界线 (分支)。
+--git-lfs: 开启对“大件行李”(Git Large File Storage) 的支持，有些宝藏需要这个才能搬运哦 (具体是哪些嘛... 咱也不知道，咱也不敢问)。
+Step 5: 向 Git 大神登记身份 (配置 Git)
+第一次进行大规模召唤 (拉取操作) 前，需要先跟 Git 大神报上名号：
+git config --global user.name "<你的昵称或者名字啦，记得去掉尖括号哦>"
+git config --global user.email "<你的邮箱地址，也去掉尖括号哈>"
+Step 6: 开始伟大的召唤仪式！(拉取源码)
+先悄悄修改一下传送契约 .repo/manifests/default.xml：
+把这段：
+<remote  name="github"
+         fetch="https://github.com/" />
+<remote  name="private"
+         fetch="ssh://git@github.com" />
+<remote  name="aosp"
+         fetch="https://mirrors.bfsu.edu.cn/git/AOSP"
+         review="android-review.googlesource.com"
+         revision="refs/tags/android-14.0.0_r67" />
+<default revision="refs/heads/lineage-21.0"
+         remote="github"
+         sync-c="true"
+         sync-j="4" />
+改成这样 (具体修改可以参考镜像站点的帮助文档)：
+<remote  name="github"
+         fetch="https://github.com/" />
+<!-- 新增一个指向 LineageOS 镜像的 remote -->
+<remote  name="lineage"
+         fetch="https://mirrors.bfsu.edu.cn/git/lineageOS/"
+         review="review.lineageos.org" />
+<!-- ... 其他 remote ... -->
+<remote  name="aosp"
+         fetch="https://mirrors.bfsu.edu.cn/git/AOSP"
+         review="android-review.googlesource.com"
+         revision="refs/tags/android-14.0.0_r67" />
+<!-- 把 default 的 remote 指向我们新增的 'lineage'，并可以调大 sync-j 的值（比如12）来加速召唤 -->
+<default revision="refs/heads/lineage-21.0"
+         remote="lineage"
+         sync-c="true"
+         sync-j="12" />
+然后，启动召唤法阵！
+repo sync --no-clone-bundle
+加 --no-clone-bundle 这个小咒语是为了防止某些调皮的仓库 (比如 Lineage_framework_base) 在同步时闹别扭，出现 bundle 错误。
+召唤途中可能会遇到小波折，不要慌！按下 Ctrl + C 中断仪式，然后重新念咒：
+repo sync --no-clone-bundle
+如果还不行，试试更强硬的姿态：
+repo sync --fail-fast
+但有时，会遇到极其可怕的恶性错误：
+出现错误：Fetching:  0% (7/1471) 0:05 | 14 jobs | 0:04 LineageOS/android_bionic @ bionic
+致命错误：不是 git 仓库：'/mnt/swapdisk/Android/LineageOS/.repo/projects/dalvik.git'
+platform/dalvik:
+致命错误：不是 git 仓库：'/mnt/swapdisk/Android/LineageOS/.repo/projects/dalvik.git'
+platform/dalvik: sleeping 4.0 seconds before retrying
+致命错误：不是 git 仓库：'/mnt/swapdisk/Android/LineageOS/.repo/projects/dalvik.git'
+error: Cannot fetch platform/dalvik from https://mirrors.bfsu.edu.cn/git/AOSP/platform/dalvik
+... (更多类似的报错) ...
+这是我在尝试召唤 LineageOS-22.1 时遇到的噩梦...
+遇到这种级别的错误，基本就是绝境了... (偷偷用 git clone 塞东西到 .repo/project 里面？想都别想！repo 酱会用小皮鞭严厉惩罚每一个不听话的宝宝；中途更换代码源到 googlesource 或 github？她同样会惩罚那些三心二意的宝宝，必须对选择的源保持忠贞不渝！)
+实在没办法了，可以试试这些最后的挣扎：
+强制对问题仓库进行灵魂同步：
+# 比如 dalvik 仓库出错了
+repo sync --force-sync platform/dalvik
+物理超度损坏的仓库，然后重新召唤：
+# 先删除本地缓存的问题仓库
+rm -rf .repo/projects/platform/dalvik.git # 注意路径需要根据实际错误调整(在这里使用的是相对路径)
+# 再单独召唤它
+repo sync platform/dalvik
+如果以上都不行... 终极奥义：删库重来！
+rm -rf .repo
+然后回到 Step 4，重新配置仓库 (repo init)。这次... 也许该考虑放弃国内镜像，直接拥抱官方源了 (虽然可能要经历漫长的等待... 大约 200GB 的数据量呢)。
+repo init -u https://github.com/LineageOS/android.git -b lineage-21.0 --git-lfs
+之后，就是... 泡杯茶，看几集番，或者睡一觉吧... 等待法阵完成它的工作... 直到所有星辰归位... 
+Step 7: 召唤特定设备的神秘力量 (准备 Vendor Blobs 等)
+请务必查清你家设备的代号！可以去官方文档或者XDA这样的论坛找找看。
+在 .repo 目录下创建一个叫做 local_manifests 的小文件夹。在里面新建一个文件，名字可以叫 <你的手机厂商>_manifest.xml (比如 lge_manifest.xml)。然后，参考下面的模板抄写咒语：
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <!-- 先定义好远程的神秘力量来源地，方便后面召唤 -->
+    <!-- 注释的代码可以用来参考 -->
+    <!-- <remote name="lge-qcom-dev" fetch="https://github.com/lge-qcom-dev" revision="lineage-21" /> -->
+    <remote name="<随便取个名字，比如 a_cool_repo>" fetch="<仓库地址，一定要对哦！>" revision="<仓库里对应的分支名，比如 lineage-21>" />
+    <!-- 设备专属的 Vendor 力量 -->
+    <!-- <project path="vendor/lge/alphaplus" name="proprietary_vendor_lge_alphaplus" remote="lge-qcom-dev" /> -->
+    <project path="vendor/<手机厂商>/<设备代号>" name="proprietary_vendor_<手机厂商>_<设备代号>" remote="<上面定义的名字>" />
+    <!-- 设备专属的 Device Tree (设备树) -->
+    <!-- <project path="device/lge/alphaplus" name="android_device_lge_alphaplus" remote="lge-qcom-dev" /> -->
+    <project path="device/<手机厂商>/<设备代号>" name="android_device_<手机厂商>_<设备代号>" remote="<上面定义的名字>" />
+    <!-- 同芯片平台的通用 Vendor 力量 (如果你的设备有的话) -->
+    <!-- <project path="vendor/lge/sm8150-common" name="proprietary_vendor_lge_sm8150-common" remote="lge-qcom-dev" /> -->
+    <project path="vendor/<手机厂商>/<处理器代号>-common" name="proprietary_vendor_<手机厂商>_<处理器代号>-common" remote="<上面定义的名字>" />
+    <!-- 同芯片平台的通用 Device Tree (如果你的设备有的话) -->
+    <!-- <project path="device/lge/sm8150-common" name="android_device_lge_sm8150-common" remote="lge-qcom-dev" /> -->
+    <project path="device/<手机厂商>/<处理器代号>-common" name="android_device_<手机厂商>_<处理器代号>-common" remote="<上面定义的名字>" />
+</manifest>
+那么，这些神秘力量的地址在哪里找呢？
+很简单！去 GitHub 这个大宝库里搜索关键词，比如：
+proprietary_vendor <手机厂商> <设备代号>
+android_device <手机厂商> <设备代号>
+proprietary_vendor <手机厂商> <处理器代号> common (建议有)
+android_device <手机厂商> <处理器代号> common (建议有)
+很多机型的这些宝贝都可以在 TheMuppets (木偶大佬！) 的 GitHub 仓库下找到 (但不一定是最新的哦)。想要最新鲜的？直接在 GitHub 搜索框里搜，
+点进搜索结果，找到看起来最靠谱的仓库(数量不多的话也可以依次查看，顺便看看作者有没有其他的库)，然后去看看它的 Branches (分支) 页面：
+选择与你的 LineageOS 版本 (比如 lineage-21) 相对应的那个分支，把仓库地址和分支名填到我们刚才的 .xml 文件里。
+保存好 .xml 文件后，再次执行召唤仪式！
+repo sync --no-clone-bundle
+Step 8: 与 Android 酱共进早餐 (最终准备与编译)
+现在呢...
+呐~ 你吃早餐了吗？要不要和可爱的 Android 酱共进早餐呢？
+诶？同意了嘛？那... 把你手机的代号作为用餐券交给 Android 酱吧~
+欸嘿，别忘了问 Android 酱的联系方式哦~ (虽然她可能不会直接告诉你)
+# 问一下 Android 酱的联系方式
+source build/envsetup.sh
+嗯... 果然，傲娇的 Android 酱没有直接回应... 但没关系，我们可以用刚才的“用餐券”来正式邀请她共进早餐啦！
+# 使用你的设备代号作为“用餐券”
+breakfast <你的设备代号>
+如果是第一次约 Android 酱吃早餐，她可能会需要从 GitHub 上拉取一些专属于你设备的材料 (device, hardware, kernel 等)。这时候可能需要你的魔法上网工具助力！如果开了代理(全局)还是卡住不动，就按 Ctrl + C 强制取消，然后重新邀请她吃早餐 (多试几次可能就好了)。
+早餐过后，就是激动人心的早午餐 (Brunch) 时间！这才是正餐！
+# 和 Android 酱享用早午餐 (开始编译！)
+brunch <你的设备代号>
+接下来，就是漫长而又悲壮的炼成时间... 期间你可能会经历：
+出现奇怪的编译错误
+仿佛永无止境的编译时间...
+CPU 君发出的痛苦咆哮
+内存酱被 Buffer/Cache 填满到几乎窒息
+Swap 结界被无情地挤占
+硬盘空间以肉眼可见的速度消失 (尤其最后 10%-15%，请务必留足至少 50GB 的空间！)
+甚至... 电脑直接累晕过去
+不过不用太担心！即使编译中途电脑不幸牺牲，直接强制重启后，回到源码目录，重新执行 source build/envsetup.sh 和 brunch <你的设备代号>，编译大法师会从上次中断的地方继续施法 (有点像断点续传，超神奇！)。
+坚持住！胜利的 BGM 终将奏响！—— 编译成功！
+我们亲手炼成的 ROM 包就静静地躺在 ./out/target/product/<你的设备代号>/ 这个目录下。
+好啦！快去把这份带着你心血和汗水的 ROM 刷入你的爱机吧！享受这份亲手创造的喜悦！(≧∇≦)
+
+
+如何编译lineageOS并刷机【etc Pixel 4 + LineageOS 10 】
+作者通过自己踩坑发现网上并没有一份很完美的编译lineageOS的教程，作者结合官网和踩坑之后，出一份详细的编译记录，帮助各个苦苦寻找好用的lineage编译文章。遇到问题一定要看清楚文字各位亲们。
+环境
+编译主机 ubuntu 20.04 真的别用其他的版本，坑太多了。如果你的ubuntu是其他版本，建议自己去lineage官网查看安装需要的库。
+设备是 flame，编译lineageOS18版本。其他版本也可以参考本文章，反正写的够详细，能踩得坑都记录下来了。
+步骤
+安装platform-tools
+一定要记住platform-tools的安装目录，作者安装在了 ~/android/platform-tools 目录中
+mkdir -p ~/android/platform-tools
+cd ~/android/platform-tools
+wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+然后将platform-tools添加到环境变量中，作者喜欢用vim去编辑
+vim ~/.profile
+然后将下面的内容添加到~/.profile的最下面，这里记得改成你的platform-tools的路径
+# add Android SDK platform tools to path
+if [ -d "$HOME/platform-tools" ] ; then
+    PATH="$HOME/platform-tools:$PATH"
+fi
+添加成功之后，刷新环境，然后看看adb有没有成功添加到环境变量中，如果没有说明上一步的路径有问题
+source ~/.profile
+安装构建软件包
+这里的软件包容易踩坑，官网的给的软件包并不合适，所以作者用的下面的能够成功去编译
+sudo apt-get update
+sudo apt-get install bc bison build-essential ccache curl flex g++-multilib gcc-multilib git git-lfs gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev m4
+JDK&python
+18的话用OpenJDK 11，直接安装就好，安装好了之后运行 java --version 检查有没有安装成功
+sudo apt update
+sudo apt install openjdk-11-jdk	
+python可以直接将系统的python3软连接成python就可以了
+sudo ln -s /usr/bin/python3 /usr/bin/python
+创建项目目录
+创建项目的根目录，准备拉取指定的源码了。~/bin为了放repo，~/android/lineage放安卓源码
+mkdir -p ~/bin
+mkdir -p ~/android/lineage
+安装repo并设置环境变量
+进入 ~/bin 目录中
+cd ~/bin 
+curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+chmod a+x ~/bin/repo
+然后将repo目录添加到环境变量中
+vim ~/.profile
+将下面的内容添加到上面的文件中的最下面，注意要对应自己的repo所在的目录中
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+然后运行 source ~/.profile 刷新环境变量
+source ~/.profile
+配置git
+随便填
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+开启缓存
+开启缓存加快同步代码的速度，如果你的硬盘足够大，超过500G，ccache指定的大小可以是100G，如果没有就指定50G
+export USE_CCACHE=1
+export CCACHE_EXEC=/usr/bin/ccache
+ccache -M 100G
+ccache -o compression=true
+初始化lineageos源存库
+cd ~/android/lineage
+repo init -u https://github.com/LineageOS/android.git -b lineage-18.1 --git-lfs --no-clone-bundle
+执行下面的命令是下载源码，你可以根据当前ubuntu的CPU核心数量去指定线程数量，一般是核心数量的2倍。作者的核心数量是10，所以指定20线程。注意，同步过程中有报错是正常的，因为官方会限制短期的请求数量，不用管继续等就好了。
+repo sync -j 20
+这条命令执行完毕之后，记得再执行 repo status 查看当前的同步状态，如果出现nothing to commit这种字眼说明同步完成了，可以不用看下面的注意了。同步完成之后，就是源代码拉去完毕了，可以进行下一个步骤了。
+注意， 没有出现上面提到的字眼就是失败了，失败的话建议执行 repo sync 命令去补全，注意最好不要指定多线程。
+repo sync
+准备特定于设备的代码
+进入到安卓源码项目的根目录，然后运行下面的命令用来下载设备的特定配置和内核。这里的flame是我的设备代号，其他的设备代号需要自己查然后把flame替换成自己的设备代号
+cd ~/android/lineage
+source build/envsetup.sh
+breakfast flame
+第一次运行breakfast 命令，会出现下面的错误，我觉得这里是最大的坑
+kerneldev@ubuntu:~/android/lineage$ breakfast flame
+In file included from build/make/core/config.mk:291:
+In file included from build/make/core/envsetup.mk:266:
+device/google/coral/device-lineage.mk:113: error: _nic.PRODUCTS.[[device/google/coral/lineage_flame.mk]]: "vendor/google/flame/flame-vendor.mk" does not exist.
+19:31:40 dumpvars failed with: exit status 1
+Device flame not found. Attempting to retrieve device repository from LineageOS Github (http://github.com/LineageOS).
+Found repository: android_device_google_flame
+Default revision: lineage-18.1
+Checking branch info
+Checking if device/google/flame is fetched from android_device_google_flame
+LineageOS/android_device_google_flame already fetched to device/google/flame
+Syncing repository to retrieve project.
+Fetching: 100% (1/1), done in 0.511s
+Checking out: 100% (1/1), done in 0.001s
+repo sync has finished successfully.
+Repository synced!
+Looking for dependencies in device/google/flame
+Looking for dependencies in device/google/coral
+Looking for dependencies in kernel/google/coral
+kernel/google/coral has no additional dependencies.
+Looking for dependencies in packages/apps/ElmyraService
+packages/apps/ElmyraService has no additional dependencies.
+Done
+In file included from build/make/core/config.mk:291:
+In file included from build/make/core/envsetup.mk:266:
+device/google/coral/device-lineage.mk:113: error: _nic.PRODUCTS.[[device/google/coral/lineage_flame.mk]]: "vendor/google/flame/flame-vendor.mk" does not exist.
+19:31:43 dumpvars failed with: exit status 1
+In file included from build/make/core/config.mk:291:
+In file included from build/make/core/envsetup.mk:266:
+device/google/coral/device-lineage.mk:113: error: _nic.PRODUCTS.[[device/google/coral/lineage_flame.mk]]: "vendor/google/flame/flame-vendor.mk" does not exist.
+19:31:44 dumpvars failed with: exit status 1
+** Don't have a product spec for: 'lineage_flame'
+** Do you have the right repo manifest?
+关键的字眼就是 "vendor/google/flame/flame-vendor.mk" does not exist. 这个内容，原因是这个时候设备的特定内容还没有被拉取到当前的项目中，所以构建设备镜像的时候出现这个错误。下面是解决方案
+解决 breakfast 的错误
+官网提供了两种解决方式，但是我觉得官网提供的两种方式都不方便，所以这里用作者自己摸索出来的解决方案，因为操作起来是真的简单
+首先创建 ~/android/system_dump/ 目录然后进入
+mkdir ~/android/system_dump/
+cd ~/android/system_dump/
+因为这个问题出现的原因是当前的项目中缺少了指定设备的特定内容，所以不给我们构建，那么我们可以自己去提取现成的特定内容
+提取设备特定内容
+这个时候需要你进入到 https://lineage-archive.timschumi.net/ 这个网站中，然后去找到自己对应型号对应版本的包下载下来，注意他一个型号一个版本可能会有多个包，随便下载一个就可以，下载好之后把里面的 payload.bin 文件解压出来。
+windows电脑使用 https://pan.quark.cn/s/bf6a4ce548aa 工具，首先把payload.bin放进这个工具的目录中然后双击 打开CMD命令行.bat 文件就可以了，然后按 a 全部提取出来。全部提取出来的镜像保存在当前的目录的 img 目录中
+linux电脑使用 https://pan.quark.cn/s/318bd8bf5fe1 工具，直接 payload-dumper-go payload.bin
+执行就好。
+然后把提取出来的镜像全部拷贝到 ~/android/system_dump/ 目录中，对于lineageOS18系统，需要挂载下面这些镜像，其他的可以参考自己解包内容是否含有这些镜像，然后去挂载。高版本会有更多的镜像，作者也没办法去具体判断需要挂在哪些，但是作者能够给到一个技巧，就是如果这里你挂载的不够，那么在 编译 部分会出现文件找不到的问题，如果你确认了报错的文件在项目中没有，那说明这里少挂载了。
+cd ~/android/system_dump/
+mkdir system/
+sudo mount -o ro system.img system/
+sudo mount -o ro vendor.img vendor/
+sudo mount -o ro product.img product/
+sudo mount -o ro system_ext.img system_ext/
+下一步是进入到自己的设备的指定目录中，然后执行下面的命令
+cd ~/android/lineage/device/google/flame
+./extract-files.sh ~/android/system_dump/
+运行这个命令的时候也会出现错误，原因是./extract-files.sh脚本中记录的文件路径有问题，需要自己修改，按照错误提示的文件，然后去找到文件的正确路径修改好就可以了，我是用find命令找的错误路径的文件，改好之后运行上面的内容就能够成功提取到了。
+编译
+编译的过程中可能会出现中断的操作，虽然有错误但是大概率是交换分区不够大导致的，建议一开始就修改交换分区，大小就改成内存大小，下面是修改交换分区的命令
+sudo swapoff /swapfile
+sudo rm /swapfile
+sudo dd if=/dev/zero of=/swapfile bs=1M count=32768 status=progress  # 设置32G大小
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile	
+sudo swapon /swapfile
+为了每次系统重启后自动挂载交换分区，需要执行下面的命令
+sudo vim /etc/fstab
+# 在最下面一行加上 /swapfile none swap sw 0 0  内容
+然后运行 swapon --show 去验证交换分区大小，看到是自己指定的大小就可以了
+到这个时间点，设备的特定内容已经提取到当前的项目中了，然后可以去准备编译了，下面是作者自己的编译方式，因为作者需要用到一个OTA的包，并且最推荐使用这种方式。
+注意，作者这里编译的是user版本的镜像，如果不考虑什么版本，在运行 source build/envsetup.sh 之后可以直接运行 brunch flame 命令，这样他会自己直接去编译userdebug版本的镜像。
+cd ~/android/lineage
+source build/envsetup.sh
+lunch lineage_flame-user           # 编译user版本镜像  
+m																	 # 全速编译
+全速编译完成之后，再执行 make otapackage 命令生成OTA的包，生成的OTA的包和在前面的网站下载的包的格式一摸一样，这个作为作者的系统刷机包
+make otapackage
+刷机
+你可以使用其他的方式去完成刷机，作者比较喜欢下面的方式去完成刷机。
+编译完成之后，需要把OTA中的boot.img提取出来，然后boot.img和OTA两个内容作为刷机材料
+你的设备在刷机之前需要先刷对应安卓版本的谷歌官方的系统，然后才可以按照下面的步骤去刷
+adb reboot bootloader 
+fastboot flash boot boot.img
+按音量下键进入到recovery模式中，在recovery模式中先Factory reset -> Format data/factory reset清掉当前的数据
+然后返回，进入到Apply update -> Apply from ADB 中执行下面的命令完成刷机，这个过程比较长，等刷完之后可以重启手机，开机之后就会发现已经来到了lineageOS中了
+adb sideload 编译得到的ota包
+构建开发环境
+源码导入androidstudio
+cd ~/android/lineage/
+source build/envsetup.sh
+mmm development/tools/idegen/
+development/tools/idegen/idegen.sh
+执行之后在项目根目录中生成 Android.ipr 文件，这个是用来被导入的文件
+源码导入clion
+cd ~/android/lineage/
+source build/envsetup.sh
+export SOONG_GEN_CMAKEFILES=1
+export SOONG_GEN_CMAKEFILES_DEBUG=1
+lunch lineage_flame-user
+m
+CMakeLists.txt会生成在out/development/ide/clion/art/runtime/libart-arm64-android/CMakeLists.txt
+用Clion打开CMakeLists.txt
+tools--->cmake-->Change Project Root
+选择aosp源码根路径，等解析完
+
+
+Lineageos14.1编译教程
+源码下载需要翻墙，请按照此贴翻墙 https://laod.cn/7099.html
+一、环境搭建
+1、安装64位Ubuntu14.04系统（实体安装、虚拟机安装均可）
+注意：要求机器至少8G内存，建议16G。（虚拟机至少分配8G内存），如果实体机只有8G又想编译，请将虚拟内存（swap）设置8G，这样实体8G+虚拟8G=16G（安装Ubuntu时设置，具体百度），我这里分了一个盘大概200G，系统加源码，剩余可用空间在130G，，请分配好空间。
+终端调用是（同时按下键盘Ctrl+Alt+T）
+2、更新系统至最新版本，在终端下输入
+sudo apt-get update sudo apt-get upgrade
+3、安装编译必需软件包
+sudo apt-get install bison build-essential curl flex git gnupg gperf libesd0-dev libncurses5-dev libsdl1.2-dev libwxgtk2.8-dev libxml2 libxml2-utils lzop openjdk-8-jdk openjdk-8-jre pngcrush schedtool squashfs-tools xsltproc zip zlib1g-dev g++-multilib gcc-multilib lib32ncurses5-dev lib32readline-gplv2-dev lib32z1-de
+Ubuntu 16.04 及以上系统, 替换:
+libwxgtk2.8-dev → libwxgtk3.0-dev
+注：无法安装JDK8（方法见下面网址）
+sudo apt-get install openjdk-8-jre openjdk-8-jdk
+网址： http://ubuntuhandbook.org/index.php/2015/01/install-openjdk-8-ubuntu-14-04-12-04-lts/
+4、建立repo命令
+mkdir -p ~/bin curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo chmod a+x ~/bin/repo echo "export PATH=~/bin☺PATH" >> ~/.bashrc
+将 ~/bin 加进path 环境中
+你可以检查以下代码是否在 .profile，如果不在请添加:
+（注意： .profile 或 .bashrc 在HOME目录下按 Ctrl+ H 打开隐藏文件）
+# set PATH so it includes user's private bin if it exists if [ -d "$HOME/bin" ] ; then PATH="$HOME/bin☺PATH" fi
+然后运行 source ~/.profile 来更新环境。
+二、安装SDK
+如果你没安装 adb 和 fastboot工具, 你可以从这里下载。将下载的文件解压到home下
+安装lineageos指定SDK adb 和 fastboot工具
+链接： http://pan.baidu.com/s/1dEAwJ8d 密码：1yeq
+现在添加 adb 和 fastboot 到我们的path。打开 ~/.profile 添加如下代码：
+# add Android SDK platform tools to path if [ -d "$HOME/platform-tools" ] ; then PATH="$HOME/platform-tools☺PATH" fi
+然后终端运行 source ~/.profile 来更新我们的环境变量
+三、建立LineageOS目录并同步源码和依赖
+1、建立机型目录并进入
+mkdir ~/LineageOS && cd ~/LineageOS
+2、设置的你Github用户名和邮箱（提前注册github账户）
+git config --global user.email "你的邮箱" git config --global user.name "你的用户"
+3、安装Lineageos的repo
+repo init -u git://github.com/LineageOSy/android.git -b cm-14.1
+4、同步代码
+repo sync -f --force-sync--no-clone-bundle
+注意同步的代码大概有25GB左右，需要4小时甚至更多，看你的网速了。如果你的网速较慢，可能会同步失败，如果失败就再次执行$repo sync，会继续下载，直到完成，可断点续传
+5、同步完成后执行
+这步是同步你的手机相关代码，不过完成后需要加入你机器的厂商vendor文件，可以从手机上获取，
+手机获取文件方法：
+将你的oneplus 3连接上电脑并打开 USB 开发者选项, 同意开启的弹窗
+进入目录：
+cd ~lineageos/device/oneplus/oneplus3
+然后终端运行
+命令：
+./extract-files.sh
+也可以在这里找到 https://github.com/TheMuppets
+按照下面格式(name=”github路径” path=”本地路径”)把他加入
+~/LineageOS/.repo/local_manifests/roomservice.xml中，之后输入命令：
+repo sync
+就会把这些文件同步到vendor/oneplus文件夹中
+四、编译前
+1、编译前准备
+先设定缓存加快编译、方便下次编译提升速度
+终端输入：
+export USE_CCACHE=1
+添加到 ~/.bashrc
+然后：
+prebuilts/misc/linux-x86/ccache/ccache -M 50G
+export CCACHE_COMPRESS=1
+添加到 ~/.bashrc
+我之前一直编译错误，Google后发现是JACK默认限制使用的内存太小（来源），所以先执行
+export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
+2、出错解决
+# 如果编译前没有执行上面export命令，编译出错后再执行export，需要用下面命令重启jack
+out/host/linux-x86/bin/jack-admin kill-server out/host/linux-x86/bin/jack-admin start-server
+五、编译
+1、终端进入
+lineageos源码目录
+cd ~/LineageOS . build/envsetup.sh brunch oneplus3
+之后将开始编译程序，请耐心等待，大概一加三编译时间在2小时。（不同机型时间不同）
+如果编译成功，终端会出现一行绿色的字。
+Zip包可以在
+~/LineageOS/out/target/product/
+中找到；将编译的包复制到手机就可以刷了，同时会生成md5校验文件，可以一同复制，防止出错
+下次编译前请清理上次的编译文件，在lineagos目录下输入：
+make clobber
+再次按执行编译代码编译
+注：
+LineageOS默认取消了ROOT，如果希望编译的ROM自带ROOT，需要加入环境变量
+export WITH_SU=true
+
+LineageOS源码下载和编译（Xiaomi Mi 6X，wayne）
+源码下载
+LineageOS官网：https://lineageos.org/
+LineageOS源码 github 地址：https://github.com/LineageOS/android
+LineageOS源码国内镜像地址：https://mirrors.tuna.tsinghua.edu.cn/help/lineageOS/
+源码大概需要150GB的硬盘空间，编译完成差不多300G
+1. 配置git
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
+2. 安装 repo
+mkdir ~/bin
+PATH=~/bin:$PATH
+curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+chmod a+x ~/bin/repo
+3. 安装 Git LFS
+sudo apt install git-lfs
+git lfs install
+4. 安装 Android SDK Platform-Tools
+在 Linux 中配置 Android SDK Platform-Tools，可以按照以下步骤进行
+4.1 下载 Android SDK Platform-Tools：
+# cd 到存放 platform-tools 的目录
+cd /mnt/case_sensitive
+# 下载 platform-tools
+wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+# 解压 platform-tools
+unzip platform-tools-latest-linux.zip
+4.2 配置环境变量：
+为了在任何地方都能使用 adb 和 fastboot 命令，你需要将 platform-tools 目录添加到你的 PATH 中。
+编辑 ~/.bashrc 文件
+nano ~/.bashrc
+在文件末尾添加以下行
+export PATH=$PATH:/mnt/case_sensitive/platform-tools
+然后重新加载 .bashrc 文件
+source ~/.bashrc
+4.3 验证配置
+你可以通过以下命令检查 adb 是否配置成功
+adb version
+测试连接设备，确保你的 Android 设备已经通过 USB 连接，并且启用了开发者模式和 USB 调试。
+adb devices
+这将列出已连接的设备。
+5. 镜像设置
+找到 repo 所在路径
+which repo
+编辑 repo
+nano /home/cyrus/bin/repo
+可以看到repo会优先取环境变量中的REPO_URL，否则默认使用googlesource
+Ctrl +X 退出nano
+通过下面的脚本设置 REPO_URL 环境变量的值为清华大学镜像源，解决国内访问不了 googlesource 问题，并且修改 .gitconfig，把访问 LineageOS 仓库的 url 替换为使用清华大学镜像源。
+add_mirrors.sh（设置镜像）
+#!/bin/bash
+export REPO_URL=https://mirrors.tuna.tsinghua.edu.cn/git/git-repo/
+echo "REPO_URL="$REPO_URL
+# 定义要添加的配置
+config=$(cat <<EOF
+[url "https://mirrors.tuna.tsinghua.edu.cn/git/git-repo"]
+    insteadof = https://gerrit.googlesource.com/git-repo
+[url "https://mirrors.tuna.tsinghua.edu.cn/git/lineageOS/"]
+    insteadof = https://review.lineageos.org/
+[url "https://mirrors.tuna.tsinghua.edu.cn/git/AOSP/"]
+    insteadof = https://android.googlesource.com/
+[url "https://mirrors.tuna.tsinghua.edu.cn/git/lineageOS/LineageOS/"]
+    insteadof = https://github.com/LineageOS/
+EOF
+)
+# 检查配置是否已存在于 ~/.gitconfig
+if grep -q "https://mirrors.tuna.tsinghua.edu.cn/git/git-repo" ~/.gitconfig; then
+    echo "URL替换已经存在，未进行重复添加。"
+else
+    # 如果配置不存在，添加到 ~/.gitconfig
+    echo "$config" >> ~/.gitconfig
+    echo "URL替换已添加到 ~/.gitconfig"
+fi
+cat ~/.gitconfig
+remove_mirrors.sh（移除镜像）
+#!/bin/bash
+unset REPO_URL
+echo "REPO_URL="$REPO_URL
+# 使用sed命令删除整个URL配置块，包括URL和相关的instedof行
+sed -i '/\[url "https:\/\/mirrors\.tuna\.tsinghua\.edu\.cn\/git\/git-repo"\]/,+1d' ~/.gitconfig
+sed -i '/\[url "https:\/\/mirrors\.tuna\.tsinghua\.edu\.cn\/git\/lineageOS\/"\]/,+1d' ~/.gitconfig
+sed -i '/\[url "https:\/\/mirrors\.tuna\.tsinghua\.edu\.cn\/git\/AOSP"\]/,+1d' ~/.gitconfig
+sed -i '/\[url "https:\/\/mirrors\.tuna\.tsinghua\.edu\.cn\/git\/lineageOS\/LineageOS"\]/,+1d' ~/.gitconfig
+echo "URL替换已从 ~/.gitconfig 中移除"
+cat ~/.gitconfig
+给脚本文件增加执行权限
+chmod +x add_mirrors.sh remove_mirrors.sh
+设置使用镜像 ./add_mirrors.sh
+6. 下载源码
+创建目录
+mkdir lineage-17.1
+进入到 lineageos 目录
+cd lineage-17.1
+如果可正常访问 github，使用下面的命令初始化 repo
+repo init -u https://github.com/LineageOS/android.git -b lineage-17.1 --git-lfs --depth=1
+否则，使用清华大学镜像初始化 repo，并修改 default.xml
+repo init -u https://mirrors.tuna.tsinghua.edu.cn/git/lineageOS/LineageOS/android.git -b lineage-17.1 --git-lfs --depth=1\
+最后，同步源码
+repo sync
+或者使用下面命令下载浅克隆的源码
+repo sync --no-clone-bundle --current-branch --no-tags -j$(nproc)
+这会浅克隆当前分支最新的 LineageOS 源码，节省下载时间和空间。
+7. 解决 webview 同步失败问题
+error: Unable to fully sync the tree
+error: Checking out local projects failed.
+Failing repos:
+external/chromium-webview/prebuilt/arm
+external/chromium-webview/prebuilt/arm64
+external/chromium-webview/prebuilt/x86
+external/chromium-webview/prebuilt/x86_64
+Try re-running with "-j1 --fail-fast" to exit at the first error.
+================================================================================
+Repo command failed due to the following `SyncError` errors:
+Cannot initialize work tree for LineageOS/android_external_chromium-webview_prebuilt_arm
+Cannot initialize work tree for LineageOS/android_external_chromium-webview_prebuilt_arm64
+Cannot initialize work tree for LineageOS/android_external_chromium-webview_prebuilt_x86
+Cannot initialize work tree for LineageOS/android_external_chromium-webview_prebuilt_x86_64
+从镜像地址同步 weview 一直失败
+删除 chromium-webview/prebuilt
+rm -rf external/chromium-webview/prebuilt/*
+执行 remove_mirrors.sh 移除镜像，开启代理，重新从 github 同步就可以了。
+repo sync --no-clone-bundle --current-branch --no-tags -j$(nproc)
+8. 手动添加设备仓库
+在 .repo/local_manifests 创建 wayne.xml，手动添加 wayne（小米 6x）的设备配置仓库。
+执行 nano .repo/local_manifests/wayne.xml 命令
+mkdir .repo/local_manifests
+nano .repo/local_manifests/wayne.xml
+配置 Device tree、Common tree、Kernel、Vendor 仓库
+<manifest>
+<remote  name="real_github"
+           fetch="https://github.com" />
+<project name="LineageOS-MI-A2-MI-6X/android_device_xiaomi_wayne" path="device/xiaomi/wayne" remote="real_github" revision="lineageos-17.1"/>
+<project name="LineageOS-MI-A2-MI-6X/android_device_xiaomi_sdm660-common" path="device/xiaomi/sdm660-common" remote="real_github" revision="lineageos-17.1"/>
+<project name="LineageOS-MI-A2-MI-6X/android_kernel_xiaomi_sdm660" path="kernel/xiaomi/sdm660" remote="real_github" revision="master"/>
+<project name="LineageOS-MI-A2-MI-6X/android_vendor_xiaomi_sdm660-common" path="vendor/xiaomi/sdm660-common" remote="real_github" revision="master"/>
+<project name="LineageOS-MI-A2-MI-6X/android_vendor_xiaomi_wayne-common" path="vendor/xiaomi/wayne-common" remote="real_github" revision="master"/>
+</manifest>
+其中：
+name="GitHub 用户名/仓库名称"
+path 是存放代码的位置。
+Kernel：内核是操作系统的核心，负责硬件与软件的交互。Android 内核是基于 Linux 内核开发的，负责管理设备的资源和硬件驱动。
+Device Tree：设备树是一种硬件描述文件，用来告诉操作系统设备的硬件布局，避免内核代码与具体硬件的紧耦合。设备树通常位于 device/ 目录中，包含设备特定的配置。
+Common Tree：通用树包含多个设备共享的通用代码和配置。例如，某些设备共享相同的硬件平台（如 sm7250），这些配置放在 Common Tree 中，避免重复代码。
+Vendor Tree：Vendor Tree 包含特定设备或硬件供应商（如 Qualcomm、Xiaomi）提供的专有二进制驱动程序、库和其他软件组件。这些组件是设备能够正确运行的关键部分，特别是涉及专有硬件（如调制解调器、相机、GPU等）的功能。
+Vendor Tree 通常包含在 vendor/ 目录中，是设备厂商提供的闭源组件。与 Kernel 和 Device Tree 不同，它涉及硬件相关的二进制文件和库，而不是内核或硬件描述。
+完成后，运行 repo sync 同步源码
+repo sync --no-clone-bundle --current-branch --no-tags -j$(nproc)
+或者手动去 clone 一下
+git clone https://github.com/LineageOS-MI-A2-MI-6X/android_device_xiaomi_wayne.git device/xiaomi/wayne
+git clone https://github.com/LineageOS-MI-A2-MI-6X/android_device_xiaomi_sdm660-common.git device/xiaomi/sdm660-common
+git clone https://github.com/LineageOS-MI-A2-MI-6X/android_kernel_xiaomi_sdm660.git kernel/xiaomi/sdm660
+git clone https://github.com/LineageOS-MI-A2-MI-6X/android_vendor_xiaomi_sdm660-common.git vendor/xiaomi/sdm660-common
+git clone https://github.com/LineageOS-MI-A2-MI-6X/android_vendor_xiaomi_wayne-common.git vendor/xiaomi/wayne-common
+代理设置
+由于在编译过程需要连接 github 下载设备树和内核，所以需要先设置一下代理。
+关于Linux下代理设置可以参考这篇文章[https://cyrus-studio.github.io/blog/posts/linux%E4%B8%8B%E4%BB%A3%E7%90%86%E8%AE%BE%E7%BD%AE/]。
+设置缓存
+创建缓存目录
+mkdir -p /mnt/case_sensitive/ccache
+把缓存配置添加到环境变量配置文件.bashrc结尾
+cat >> ~/.bashrc <<EOF
+# 使用缓存
+export USE_CCACHE=1
+# ccache文件路径
+export CCACHE_EXEC=/usr/bin/ccache
+# 设置缓存目录
+export CCACHE_DIR=/mnt/case_sensitive/ccache
+EOF
+执行下面命令使配置生效
+source ~/.bashrc
+设置最大缓存空间为 50GB
+ccache -M 50G
+启用 ccache 的压缩功能，可以减少缓存文件所占用的磁盘空间
+ccache -o compression=true
+源码编译
+1. 初始化编译环境
+# 初始化编译环境
+source build/envsetup.sh
+# 设置编译目标
+# 如果本地没有设备仓库将会从LineageOS仓库中下载设备的Device tree和Kernel
+breakfast wayne
+2. 补充厂商文件
+由于厂商文件是闭源的，而且版权原因不能直接放进去， Lineageos 没有直接提供厂商文件。
+执行 breakfast 命令后如果提示缺少 vendor
+In file included from build/make/core/config.mk:291:
+In file included from build/make/core/envsetup.mk:266:
+vendor/xiaomi/wayne-common/wayne-common-vendor.mk:782: error: _nic.PRODUCTS.[[device/xiaomi/wayne/lineage_wayne.mk]]: "vendor/xiaomi/wayne/wayne-vendor.mk" does not exist.
+16:24:01 dumpvars failed with: exit status 1
+In file included from build/make/core/config.mk:291:
+In file included from build/make/core/envsetup.mk:266:
+vendor/xiaomi/wayne-common/wayne-common-vendor.mk:782: error: _nic.PRODUCTS.[[device/xiaomi/wayne/lineage_wayne.mk]]: "vendor/xiaomi/wayne/wayne-vendor.mk" does not exist.
+16:24:01 dumpvars failed with: exit status 1
+根据错误提示可以通过以下2种方式之一补充对应的 vendor 文件
+2.1 使用 TheMuppets 的厂商仓库
+在 LineageOS 项目中，部分设备的厂商文件已经由社区维护，并保存在名为TheMuppets 的仓库中。
+仓库地址：https://github.com/orgs/TheMuppets/repositories
+把 vendor 仓库 clone 到本地
+git clone https://github.com/TheMuppets/proprietary_vendor_xiaomi_sdm660-common.git vendor/xiaomi/sdm660-common
+git clone https://github.com/TheMuppets/proprietary_vendor_xiaomi_wayne-common.git vendor/xiaomi/wayne-common
+git clone https://github.com/TheMuppets/proprietary_vendor_xiaomi_wayne.git vendor/xiaomi/wayne
+2.2 从设备中提取
+注意：此步骤要求设备已经安装当前编译分支对应的 LineageOS。（可以先刷机再提取）
+现在确保你的设备通过 USB 线连接到计算机，并启用 adb调试和 root，并且位于 device/xiaomi/wayne 目录下
+在这个目录下，通常可以找到两个关键文件：
+extract-files.sh: 用于从设备或固件中提取厂商文件的脚本。
+proprietary-files.txt: 该文件列出了设备所需的所有厂商文件。
+运行 ​​extract-files.sh 脚本 ./extract-files.sh 厂商驱动文件将会自动拉取到 vendor/xiaomi 文件夹中。
+3. 开始编译
+# 回到 Android 源码树的根目录
+croot
+# 开始编译
+brunch wayne
+解决WSL中编译提示文件系统不支持大小写敏感问题
+21:38:08 ************************************************************
+21:38:08 You are building on a case-insensitive filesystem.
+21:38:08 Please move your source tree to a case-sensitive filesystem.
+21:38:08 ************************************************************
+21:38:08 Case-insensitive filesystems not supported
+1. 创建一个区分大小写的文件系统
+创建一个大小为300GB的ext4文件系统映像文件，并将其挂载到/mnt/case_sensitive，以提供一个区分大小写的文件系统
+# 创建一个大小为300GB的空文件
+dd if=/dev/zero of=/mnt/e/case_sensitive.img bs=1G count=300
+# 将这个文件格式化为ext4文件系统
+mkfs.ext4 /mnt/e/case_sensitive.img
+# 创建一个新的挂载点目录
+sudo mkdir /mnt/case_sensitive
+# 将格式化后的文件挂载到新创建的挂载点
+sudo mount /mnt/e/case_sensitive.img /mnt/case_sensitive
+# 将你的LineageOS源码目录复制到新挂载的虚拟磁盘上
+# -a: 归档模式，意味着递归复制目录，并且保留符号链接、权限、时间戳、拥有者等信息。
+# -v: 显示详细信息。
+# --progress: 显示文件传输进度。
+sudo rsync -av --progress /mnt/e/android_source_code/lineageos/ /mnt/case_sensitive/lineageos/
+# 或
+# 将你的LineageOS源码目录移动到新挂载的虚拟磁盘上
+sudo mv /mnt/e/android_source_code/lineageos /mnt/case_sensitive/
+cd /mnt/case_sensitive/lineageos
+为了确保 case_sensitive.img 在每次系统启动时自动挂载到 /mnt/case_sensitive。 1. 打开 /etc/fstab 文件
+sudo nano /etc/fstab
+2. 添加以下行 /mnt/e/case_sensitive.img /mnt/case_sensitive ext4 loop 0 0
+2. 在windows下访问case_sensitive
+\wsl.localhost\Ubuntu\mnt\case_sensitive\lineageos
+确保 Windows 用户对该目录有足够的权限。你可能需要在 WSL 中设置一些权限
+sudo chmod -R 777 /mnt/case_sensitive
+这样，你应该可以在 Windows 中访问和使用 WSL 中的大小写敏感文件系统。
+3. 如果case_sensitive.img空间不够用如何扩容？
+1. 卸载文件系统
+sudo umount /mnt/case_sensitive
+这一行命令卸载当前挂载的 case_sensitive.img 文件系统，以确保文件系统在扩展过程中不被使用。
+2. 增加镜像文件的大小
+dd if=/dev/zero bs=1G count=100 >> /mnt/e/case_sensitive.img
+参数说明：
+dd 命令用于向 case_sensitive.img 文件追加 100GB 空间。
+if=/dev/zero：表示输入文件是 /dev/zero，一个无限输出零字节的设备文件。
+bs=1G：表示块大小为 1GB。
+count=100：表示写入 100 个 1GB 的块。
+>> /mnt/e/case_sensitive.img：表示将输出追加到现有的 case_sensitive.img 文件。
+3. 检查和修复文件系统
+sudo e2fsck -f /mnt/e/case_sensitive.img
+参数说明：
+e2fsck 命令用于检查和修复 ext2/ext3/ext4 文件系统。
+-f 选项强制进行文件系统检查，即使文件系统看起来是干净的。
+4. 调整文件系统大小
+sudo resize2fs /mnt/e/case_sensitive.img
+resize2fs 命令用于调整 ext2/ext3/ext4 文件系统的大小以适应新的镜像文件大小。
+5. 检查分区表 首先，需要使用 parted 来检查并调整分区表。
+sudo parted /mnt/e/case_sensitive.img
+在 parted 中执行以下命令
+(parted) print
+这将打印出当前的分区信息。然后，使用以下命令调整分区大小
+(parted) resizepart 1 100%
+退出 parted
+(parted) quit
+6. 重新挂载文件系统
+sudo mount /mnt/e/case_sensitive.img /mnt/case_sensitive
+通过这些步骤，你可以扩展 case_sensitive.img 的空间而不影响现有数据。
+解决编译提示内存不足
+21:38:07 You are building on a machine with 7.62GB of RAM
+21:38:07
+21:38:07 The minimum required amount of free memory is around 16GB,
+21:38:07 and even with that, some configurations may not work.
+21:38:07
+21:38:07 If you run into segfaults or other errors, try reducing your
+21:38:07 -j value.
+21:38:07 ************************************************************
+创建虚拟内存
+# 创建一个大小为8GB的文件，路径为/mnt/case_sensitive/swapfile。fallocate是一个快速创建大文件的工具。
+sudo fallocate -l 8G /mnt/case_sensitive/swapfile
+# 更改/swapfile的权限，使其只有所有者（root）有读写权限。这是为了安全，防止其他用户访问交换文件。
+sudo chmod 600 /mnt/case_sensitive/swapfile
+# 将/mnt/case_sensitive/swapfile初始化为交换空间。这个命令会设置文件系统标记，使操作系统知道这是一个交换文件。
+sudo mkswap /mnt/case_sensitive/swapfile
+# 启用/mnt/e/swapfile作为交换空间。这个命令会激活交换文件，使其可以被系统使用。
+sudo swapon /mnt/case_sensitive/swapfile
+# 查看交换空间的使用情况
+swapon --show
+如何内存还不够？ 将虚拟内存大小从8G改为16G
+# 关闭当前的交换文件
+sudo swapoff /mnt/case_sensitive/swapfile
+# 创建一个新的16G交换文件
+sudo fallocate -l 16G /mnt/case_sensitive/swapfile
+# 将交换文件的权限设置为600，以确保只有root用户可以读取和写入该文件。
+sudo chmod 600 /mnt/case_sensitive/swapfile
+# 将交换文件格式化为swap格式
+sudo mkswap /mnt/case_sensitive/swapfile
+# 启用新的交换文件
+sudo swapon /mnt/case_sensitive/swapfile
+# 使用 swapon --show 或 free -h 命令验证新的交换文件是否已正确启用。
+swapon --show
+# 或
+free -h
+为了确保 /mnt/case_sensitive/swapfile 在重启后仍然有效，将其添加到/etc/fstab文件中
+echo '/mnt/case_sensitive/swapfile swap swap sw 0 0
+' | sudo tee -a /etc/fstab
+设置完成后再编译，如果真实物理内存没有超过16G，提示还会存在，但不影响正常编译。
+WSL默认会设置最大可用内存为真实物理内存的50%，如果想修改WSL的最大可用内存可以通过修改.wslconfig 实现：
+- [wsl2]
+- memory=16GB
+解决编译报错
+'duplicate entry for genfs entry *' at token 'genfscon'
+FAILED: out/target/product/wayne/obj/ETC/sepolicy_neverallows_intermediates/sepolicy_neverallows
+device/xiaomi/sdm660-common/sepolicy/vendor/genfs_contexts:31:ERROR 'duplicate entry for genfs entry (sysfs, /devices/soc/800f000.qcom,spmi/spmi-0/spmi0-00/800f000.qcom,spmi:qcom,pm660@0:qcom,pm660_rtc/rtc)' at token 'genfscon' on line 85793:
+# Touchscreen
+genfscon proc /nvt_wake_gesture                                 u:object_r:proc_dt2w:s0
+checkpolicy:  error(s) encountered while parsing configuration
+在 sepolicy 配置文件中存在重复的 genfscon 条目。
+路径 /devices/soc/800f000.qcom,spmi/spmi-0/spmi0-00/800f000.qcom,spmi:qcom,pm660@0:qcom,pm660_rtc/rtc 被定义了两次。
+在 device/xiaomi/sdm660-common/sepolicy/vendor/genfs_contexts 文件中找到并移除重复定义的那一行。
+清理缓存并重新编译
+make clean
+brunch wayne
+编译完成
+编译完成后可以在 out/target/product/wayne 目录下看到下面两个zip文件：
+lineage-17.1-20240914-UNOFFICIAL-wayne.zip 是完整的 LineageOS ROM，通常用于全新安装或重刷设备。
+lineage_wayne-ota-eng.cyrus.zip 是一个 OTA 更新包，可能用于增量更新现有的 LineageOS 安装，通常不用于首次刷机。
+刷机
+进入recovery，先格式化数据，再用 adb sideload 开始刷机
+等待刷机完成，重启系统。
+详细的刷机教程可以参考这篇文章【LineageOS刷机教程】[https://cyrus-studio.github.io/blog/]。
+
+
+
+aosp源码编译
+1. source build/envsetup.sh #配置脚本环境
+2. lunch #配置源码编译参数
+3. make #编译源码
+4. emulator #运行模拟器
+
+
+OpenHarmony 6.0 Release 编译（X86 QEMU 运行）[https://gitcode.com/ohos-porting-communities/vendor_opc#x86-qemu%E8%BF%90%E8%A1%8C]
+搭建开发环境
+1.1 硬件环境
+准备一台装有 ubuntu20.04 系统 X86 主机，内存最低配置要求16G。
+1.2 下载repo脚本文件
+1. 注册码云gitee账号。
+2. 注册码云SSH公钥，请参考码云帮助中心。
+3. 安装git客户端和git-lfs并配置用户信息。
+git config --global user.name "yourname"
+git config --global user.email "your-email-address"
+git config --global credential.helper store
+4. 安装码云repo工具，可以执行如下命令。
+curl -s https://gitee.com/oschina/repo/raw/fork_flow/repo-py3 > /usr/local/bin/repo  
+pip3 install -i https://repo.huaweicloud.com/repository/pypi/simple requests
+如果没有权限，可下载至其他目录，并将其配置到环境变量中chmod a+x /usr/local/bin/repo
+mkdir ~/bin
+curl https://gitee.com/oschina/repo/raw/fork_flow/repo-py3 -o ~/bin/repo 
+chmod a+x ~/bin/repo
+pip3 install -i https://repo.huaweicloud.com/repository/pypi/simple requests
+vim ~/.bashrc               # 编辑环境变量
+export PATH=~/bin:$PATH     # 在环境变量的最后添加一行repo路径信息
+source ~/.bashrc            # 应用环境变量
+1.3 获取整合好的 OpenHarmony 标准系统源码
+通过 repo + ssh 下载（需注册公钥，请参考码云帮助中心）。
+export WORK_SPACE=/home/xxx/OpenHarmony #替换成自己定义的workspace路径
+export PROJ_ROOT=$WORK_SPACE/60b1
+mkdir $WORK_SPACE
+mkdir $PROJ_ROOT
+cd $PROJ_ROOT
+repo init -u https://gitee.com/ohos-porting-communities/manifest.git -b OpenHarmony-6.0-Release --no-repo-verify
+repo sync -c
+repo forall -c 'git lfs pull'
+1.4 获取编译工具链
+参考 OpenHamony 快速入门文档，基于命令行入门。
+sudo apt-get update && sudo apt-get install binutils git git-lfs gnupg flex bison gperf build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev ccache libgl1-mesa-dev libxml2-utils xsltproc unzip m4 bc gnutls-bin python3.8 python3-pip ruby default-jdk libssl-dev libtinfo5 genext2fs u-boot-tools mtools mtd-utils scons gcc-arm-none-eabi abootimg libelf-dev libxcursor-dev libxrandr-dev libxinerama-dev autoconf autoconf-archive automake libtool
+1.5 执行prebuilts
+在源码根目录下执行脚本，安装编译器及二进制工具。
+cd $PROJ_ROOT
+bash build/prebuilts_download.sh
+代码调整（可选）
+根据编译的机型，适当修改源码：
+代码修改举例说明：
+#香橙派5Plus因为我默认使用了5.5寸LCD触摸屏，HDMI输出会镜像触屏比例显示，显示异常的可以修改以下文件
+device/board/opc/opi5plus/kernel/build_kernel.sh
+注释掉patch -p1 < ${KERNEL_PATCH_PATH}/0001-enable-lcd.patch
+另外根据自己显示器比例修改dpi参数
+vendor/opc/opi5plus/custom_conf/window/display_manager_config.xml
+代码编译
+3.1 OpenHarmony 编译
+cd $PROJ_ROOT  
+#香橙派5Plus
+./build.sh --product-name opi5plus --ccache
+#香橙派5Ultra
+./build.sh --product-name opi5ultra --ccache
+#FILY F12
+./build.sh --product-name f12 --ccache
+#X86 general
+./build.sh --product-name x86_general --ccache
+#X86 qemu
+./build.sh --product-name x86_general --ccache --gn-args=is_qemu=true
+（第一次执行编译出现错误：
+[OHOS INFO] [GN] configure.ac:89: error: possibly undefined macro: AC_MSG_WARN
+[OHOS INFO] [GN]       If this token and others are legitimate, please use m4_pattern_allow.
+[OHOS INFO] [GN]       See the Autoconf documentation.
+[OHOS INFO] [GN] autoreconf: /usr/bin/autoconf failed with exit status: 1
+[OHOS INFO] [GN] Error during autoreconf
+……
+[OHOS ERROR] [GN] ERROR at //third_party/libnl/BUILD.gn:13:1: Script returned non-zero exit code.
+[OHOS ERROR] [GN] exec_script("install.sh", [ "$libnl_path" ])
+安装了 sudo apt-get install -y autoconf-archive ，然后在 OpenHarmony/60b1/third_party/libnl/libnl 目录下执行
+autoreconf -vi
+就可以正常编译了。）
+编译成功提示:
+post_process
+=====build opi5plus successful.
+编译生成的文件
+$PROJ_ROOT/out/opi5plus/packages/phone/images/system.img 
+$PROJ_ROOT/out/opi5plus/packages/phone/images/vendor.img
+$PROJ_ROOT/out/opi5plus/packages/phone/images/userdata.img
+$PROJ_ROOT/out/opi5plus/packages/phone/images/ramdisk.img
+3.2 额外镜像编译 编译好 OpenHarmony 的文件之后使用以下命令内核并打包手机 boot.img/ 树莓派 4B 完整镜像
+#小米POCO F1
+cd device/board/opc/beryllium/kernel
+./build_kernel.sh
+#小米6
+cd device/board/opc/sagit/kernel
+./build_kernel.sh
+#树莓派4B
+./build.sh --product-name rpi4 --ccache --build-target rpi_image
+镜像烧写
+手机镜像参考文章使用 twrp 刷入或者 bootloader 线刷
+树莓派 4B 使用 Win32DiskImager 烧录整合好的 rpi_image.img 到 microSD 卡中
+香橙派 5Plus 和 FILY F12 参考主线设备 rk3568 的说明文档使用 RKDevTool 烧写
+x86 镜像烧写
+使用U盘进行启动：
+1、准备一个8G以上高速U盘
+2、使用DiskGenius将U盘转换为GUID分区表格式
+3、使用DiskGenius分区工具分出4个分区，分区依次如下：（*新建分区时点击详细参数，删除分区名字）
+boot	500M	fat32
+system	3G	ext4
+vendor	500M	ext4
+data	5G	ext4
+4、直接复制device/board/opc/x86_general/loader文件夹内容到boot分区根目录
+5、使用Linux的dd命令烧录镜像，用df确认需要烧写的分区，也就是sdx中的x，可能是a、b、c（*Windows可以按照cmder应用实现支持dd命令）
+sudo dd if=system.img of=/dev/sdx2 bs=1M
+sudo dd if=vendor.img of=/dev/sdx3 bs=1M
+6、data分区为格式化空分区
+7、插入电脑，BIOS选择U盘启动
+X86 QEMU 运行
+1、到 qemu 官网下载并安装 qemu-w64-setup-20250422.exe 或其他版本，qemu 加速依赖 hyper-v，需自己检查是否打开
+2、使用管理员权限打开终端，输入【Set-ExecutionPolicy RemoteSigned】，打开 windows powershell
+3、新建 oh_qemu，oh_qemu/system-image 文件夹，
+将系统镜像复制到 system-image 文件夹中，
+复制 vendor/opc/x86_general/qemu_x86_run_windows.ps1 到 oh_qemu
+目录结构如下
+oh_qemu
+│  qemu_x86_run_windows.ps1
+│
+└─system-image
+        bzImage
+        eng_system.img
+        ramdisk.img
+        system.img
+        updater.img
+        userdata.img
+        vendor.img
+4、运行 oh_qemu/qemu_x86_run_windows.ps1
+#----------------------------------------------------------
+qemu-system-x86_64.exe -name OHemu `
+-accel whpx `
+-machine q35 `
+-m 4G `
+-smp 8 `
+-drive if=none,file=./system-image/updater.img,format=raw,id=updater,index=0 `
+-device virtio-blk-pci,drive=updater `
+-drive if=none,file=./system-image/system.img,format=raw,id=system,index=1 `
+-device virtio-blk-pci,drive=system `
+-drive if=none,file=./system-image/vendor.img,format=raw,id=vendor,index=2 `
+-device virtio-blk-pci,drive=vendor `
+-drive if=none,file=./system-image/userdata.img,format=raw,id=userdata,index=3 `
+-device virtio-blk-pci,drive=userdata `
+-append "loglevel=7 ip=192.168.137.1:255.255.255.0::eth0:off sn=0023456789 console=tty0 console=ttyS0 init=/bin/init ohos.boot.hardware=x86_general root=/dev/ram0 rw ohos.required_mount.system=/dev/block/vdb@/usr@ext4@ro,barrier=1@wait,required ohos.required_mount.vendor=/dev/block/vdc@/vendor@ext4@ro,barrier=1@wait,required ohos.required_mount.misc=/dev/block/vda@/misc@none@none=@wait,required" `
+-kernel ./system-image/bzImage `
+-initrd ./system-image/ramdisk.img `
+-nographic `
+-vga none `
+-device virtio-gpu-pci,xres=1280,yres=720,max_outputs=1,addr=08.0 `
+-device virtio-mouse-pci `
+-device virtio-keyboard-pci `
+-device es1370 `
+-k en-us `
+-netdev user,id=net0,hostfwd=tcp::55555-:55555 -device e1000,netdev=net0 `
+-display sdl,gl=off
+#----------------------------------------------------------
+
+
+教你签自己的系统！LineageOS Release Key 签名刷机教程
+为什么需要使用 release key
+test-key 是一个公开的、众所周知的开发测试密钥，广泛用于测试阶段。这意味着任何人都可以获取这个密钥，并用它签署自己修改的 APK 或系统文件。
+使用 test-key 签署的系统镜像通常无法通过 Google 的 CTS（兼容性测试套件）认证，Google Play 商店、Google 服务框架等应用可能无法正常运行，某些第三方应用（例如银行应用或数字版权管理应用）也可能拒绝在设备上运行。
+OTA 更新包必须使用 Release Key 来签名。签名的更新包经过验证，只有具有相同 Release Key 的设备才能接收和安装更新。
+生成 release key
+执行 nano make_keys.sh 创建脚本，内容如下
+subject='/C=US/ST=California/L=Mountain View/O=Android/OU=Android/CN=Android/emailAddress=linchaolong.dev@gmail.com'
+# 创建 keys 目录（如果不存在）
+mkdir -p keys
+for cert in bluetooth cyngn-app media networkstack nfc platform releasekey sdk_sandbox shared testcert testkey verity; do \
+    ./development/tools/make_key keys/$cert "$subject"; \
+done
+通过脚本创建 keys 目录并使用 make_key 命令生成你自己的密钥。
+运行脚本生成密钥文件。
+# 添加执行权限
+chmod +x make_keys.sh
+# 运行脚本
+./make_keys.sh
+为了避免密码解密的复杂性，生成一个未加密的私钥，防止签名过程提示输入密码。
+Enter password for 'keys/bluetooth' (blank for none; password will be visible):
+creating keys/bluetooth.pk8 with no password
+Enter password for 'keys/cyngn-app' (blank for none; password will be visible): 
+creating keys/cyngn-app.pk8 with no password
+Enter password for 'keys/media' (blank for none; password will be visible):
+creating keys/media.pk8 with no password
+Enter password for 'keys/networkstack' (blank for none; password will be visible):
+creating keys/networkstack.pk8 with no password
+Enter password for 'keys/nfc' (blank for none; password will be visible):
+creating keys/nfc.pk8 with no password
+Enter password for 'keys/platform' (blank for none; password will be visible):
+creating keys/platform.pk8 with no password
+Enter password for 'keys/releasekey' (blank for none; password will be visible):
+creating keys/releasekey.pk8 with no password
+Enter password for 'keys/sdk_sandbox' (blank for none; password will be visible):
+creating keys/sdk_sandbox.pk8 with no password
+Enter password for 'keys/shared' (blank for none; password will be visible):
+creating keys/shared.pk8 with no password
+Enter password for 'keys/testcert' (blank for none; password will be visible):
+creating keys/testcert.pk8 with no password
+Enter password for 'keys/testkey' (blank for none; password will be visible):
+creating keys/testkey.pk8 with no password
+Enter password for 'keys/verity' (blank for none; password will be visible):
+creating keys/verity.pk8 with no password
+生成的密钥都在 keys 目录下，每条命令会生成两个文件：一个 .x509.pem 公钥证书文件和一个 .pk8 私钥文件：
+releasekey：主要用于签署系统中的所有 APK 文件，确保这些 APK 来自可信任的来源。
+platform：签署系统框架和其他核心组件，确保这些组件未被篡改。
+shared：用于签署需要跨应用共享 UID 的 APK，例如具有相同签名的应用可以共享数据。
+media：专门用于签署与多媒体相关的 APK 文件。
+networkstack：用于签署与网络堆栈相关的组件和应用，确保网络功能的安全性。
+testkey：这是 Android 系统中的默认密钥，主要用于开发和测试环境下的签名，但不应在生产环境中使用。
+cyngn-priv-app：可能与 CyanogenMod 或 LineageOS 特定的私有应用签名有关。
+bluetooth：用于签署蓝牙服务或相关的 APK 文件。
+sdk_sandbox：签署与 SDK 沙箱相关的应用或组件，确保开发环境的安全。
+verity：用于签署与 Verified Boot 相关的组件，确保设备启动时的安全性。
+ls keys
+bluetooth.pk8       media.pk8              nfc.pk8            releasekey.pk8        shared.pk8         testkey.pk8
+bluetooth.x509.pem  media.x509.pem         nfc.x509.pem       releasekey.x509.pem   shared.x509.pem    testkey.x509.pem
+cyngn-app.pk8       networkstack.pk8       platform.pk8       sdk_sandbox.pk8       testcert.pk8       verity.pk8
+cyngn-app.x509.pem  networkstack.x509.pem  platform.x509.pem  sdk_sandbox.x509.pem  testcert.x509.pem  verity.x509.pem
+生成 target files
+# 初始化编译环境
+source build/envsetup.sh
+# 设置构建目标
+breakfast wayne
+# 开始编译
+mka target-files-package otatools
+签名 target files
+LineageOS 18.1 及以下版本的签名流程
+sign_target_files_apks -o -d keys \
+    $OUT/obj/PACKAGING/target_files_intermediates/*-target_files-*.zip \
+    signed-target_files.zip
+注意：对于早于 18.1 的 LineageOS 版本，您必须在 sign_target_files_apks 命令前添加 ./build/tools/releasetools/
+./build/tools/releasetools/sign_target_files_apks -o -d keys \
+    $OUT/obj/PACKAGING/target_files_intermediates/*-target_files-*.zip \
+    signed-target_files.zip
+LineageOS 19.1及以上版本的签名流程
+sign_target_files_apks -o -d keys \
+    --extra_apks AdServicesApk.apk=keys/releasekey \
+    --extra_apks FederatedCompute.apk=keys/releasekey \
+    --extra_apks HalfSheetUX.apk=keys/releasekey \
+    --extra_apks HealthConnectBackupRestore.apk=keys/releasekey \
+    --extra_apks HealthConnectController.apk=keys/releasekey \
+    --extra_apks OsuLogin.apk=keys/releasekey \
+    --extra_apks SafetyCenterResources.apk=keys/releasekey \
+    --extra_apks ServiceConnectivityResources.apk=keys/releasekey \
+    --extra_apks ServiceUwbResources.apk=keys/releasekey \
+    --extra_apks ServiceWifiResources.apk=keys/releasekey \
+    --extra_apks WifiDialog.apk=keys/releasekey \
+    --extra_apks com.android.adbd.apex=keys/com.android.adbd \
+    --extra_apks com.android.adservices.apex=keys/com.android.adservices \
+    --extra_apks com.android.adservices.api.apex=keys/com.android.adservices.api \
+    --extra_apks com.android.appsearch.apex=keys/com.android.appsearch \
+    --extra_apks com.android.art.apex=keys/com.android.art \
+    --extra_apks com.android.bluetooth.apex=keys/com.android.bluetooth \
+    --extra_apks com.android.btservices.apex=keys/com.android.btservices \
+    --extra_apks com.android.cellbroadcast.apex=keys/com.android.cellbroadcast \
+    --extra_apks com.android.compos.apex=keys/com.android.compos \
+    --extra_apks com.android.configinfrastructure.apex=keys/com.android.configinfrastructure \
+    --extra_apks com.android.connectivity.resources.apex=keys/com.android.connectivity.resources \
+    --extra_apks com.android.conscrypt.apex=keys/com.android.conscrypt \
+    --extra_apks com.android.devicelock.apex=keys/com.android.devicelock \
+    --extra_apks com.android.extservices.apex=keys/com.android.extservices \
+    --extra_apks com.android.graphics.pdf.apex=keys/com.android.graphics.pdf \
+    --extra_apks com.android.hardware.biometrics.face.virtual.apex=keys/com.android.hardware.biometrics.face.virtual \
+    --extra_apks com.android.hardware.biometrics.fingerprint.virtual.apex=keys/com.android.hardware.biometrics.fingerprint.virtual \
+    --extra_apks com.android.hardware.boot.apex=keys/com.android.hardware.boot \
+    --extra_apks com.android.hardware.cas.apex=keys/com.android.hardware.cas \
+    --extra_apks com.android.hardware.wifi.apex=keys/com.android.hardware.wifi \
+    --extra_apks com.android.healthfitness.apex=keys/com.android.healthfitness \
+    --extra_apks com.android.hotspot2.osulogin.apex=keys/com.android.hotspot2.osulogin \
+    --extra_apks com.android.i18n.apex=keys/com.android.i18n \
+    --extra_apks com.android.ipsec.apex=keys/com.android.ipsec \
+    --extra_apks com.android.media.apex=keys/com.android.media \
+    --extra_apks com.android.media.swcodec.apex=keys/com.android.media.swcodec \
+    --extra_apks com.android.mediaprovider.apex=keys/com.android.mediaprovider \
+    --extra_apks com.android.nearby.halfsheet.apex=keys/com.android.nearby.halfsheet \
+    --extra_apks com.android.networkstack.tethering.apex=keys/com.android.networkstack.tethering \
+    --extra_apks com.android.neuralnetworks.apex=keys/com.android.neuralnetworks \
+    --extra_apks com.android.ondevicepersonalization.apex=keys/com.android.ondevicepersonalization \
+    --extra_apks com.android.os.statsd.apex=keys/com.android.os.statsd \
+    --extra_apks com.android.permission.apex=keys/com.android.permission \
+    --extra_apks com.android.resolv.apex=keys/com.android.resolv \
+    --extra_apks com.android.rkpd.apex=keys/com.android.rkpd \
+    --extra_apks com.android.runtime.apex=keys/com.android.runtime \
+    --extra_apks com.android.safetycenter.resources.apex=keys/com.android.safetycenter.resources \
+    --extra_apks com.android.scheduling.apex=keys/com.android.scheduling \
+    --extra_apks com.android.sdkext.apex=keys/com.android.sdkext \
+    --extra_apks com.android.support.apexer.apex=keys/com.android.support.apexer \
+    --extra_apks com.android.telephony.apex=keys/com.android.telephony \
+    --extra_apks com.android.telephonymodules.apex=keys/com.android.telephonymodules \
+    --extra_apks com.android.tethering.apex=keys/com.android.tethering \
+    --extra_apks com.android.tzdata.apex=keys/com.android.tzdata \
+    --extra_apks com.android.uwb.apex=keys/com.android.uwb \
+    --extra_apks com.android.uwb.resources.apex=keys/com.android.uwb.resources \
+    --extra_apks com.android.virt.apex=keys/com.android.virt \
+    --extra_apks com.android.vndk.current.apex=keys/com.android.vndk.current \
+    --extra_apks com.android.vndk.current.on_vendor.apex=keys/com.android.vndk.current.on_vendor \
+    --extra_apks com.android.wifi.apex=keys/com.android.wifi \
+    --extra_apks com.android.wifi.dialog.apex=keys/com.android.wifi.dialog \
+    --extra_apks com.android.wifi.resources.apex=keys/com.android.wifi.resources \
+    --extra_apks com.google.pixel.camera.hal.apex=keys/com.google.pixel.camera.hal \
+    --extra_apks com.google.pixel.vibrator.hal.apex=keys/com.google.pixel.vibrator.hal \
+    --extra_apks com.qorvo.uwb.apex=keys/com.qorvo.uwb \
+    --extra_apex_payload_key com.android.adbd.apex=keys/com.android.adbd.pem \
+    --extra_apex_payload_key com.android.adservices.apex=keys/com.android.adservices.pem \
+    --extra_apex_payload_key com.android.adservices.api.apex=keys/com.android.adservices.api.pem \
+    --extra_apex_payload_key com.android.appsearch.apex=keys/com.android.appsearch.pem \
+    --extra_apex_payload_key com.android.art.apex=keys/com.android.art.pem \
+    --extra_apex_payload_key com.android.bluetooth.apex=keys/com.android.bluetooth.pem \
+    --extra_apex_payload_key com.android.btservices.apex=keys/com.android.btservices.pem \
+    --extra_apex_payload_key com.android.cellbroadcast.apex=keys/com.android.cellbroadcast.pem \
+    --extra_apex_payload_key com.android.compos.apex=keys/com.android.compos.pem \
+    --extra_apex_payload_key com.android.configinfrastructure.apex=keys/com.android.configinfrastructure.pem \
+    --extra_apex_payload_key com.android.connectivity.resources.apex=keys/com.android.connectivity.resources.pem \
+    --extra_apex_payload_key com.android.conscrypt.apex=keys/com.android.conscrypt.pem \
+    --extra_apex_payload_key com.android.devicelock.apex=keys/com.android.devicelock.pem \
+    --extra_apex_payload_key com.android.extservices.apex=keys/com.android.extservices.pem \
+    --extra_apex_payload_key com.android.graphics.pdf.apex=keys/com.android.graphics.pdf.pem \
+    --extra_apex_payload_key com.android.hardware.biometrics.face.virtual.apex=keys/com.android.hardware.biometrics.face.virtual.pem \
+    --extra_apex_payload_key com.android.hardware.biometrics.fingerprint.virtual.apex=keys/com.android.hardware.biometrics.fingerprint.virtual.pem \
+    --extra_apex_payload_key com.android.hardware.boot.apex=keys/com.android.hardware.boot.pem \
+    --extra_apex_payload_key com.android.hardware.cas.apex=keys/com.android.hardware.cas.pem \
+    --extra_apex_payload_key com.android.hardware.wifi.apex=keys/com.android.hardware.wifi.pem \
+    --extra_apex_payload_key com.android.healthfitness.apex=keys/com.android.healthfitness.pem \
+    --extra_apex_payload_key com.android.hotspot2.osulogin.apex=keys/com.android.hotspot2.osulogin.pem \
+    --extra_apex_payload_key com.android.i18n.apex=keys/com.android.i18n.pem \
+    --extra_apex_payload_key com.android.ipsec.apex=keys/com.android.ipsec.pem \
+    --extra_apex_payload_key com.android.media.apex=keys/com.android.media.pem \
+    --extra_apex_payload_key com.android.media.swcodec.apex=keys/com.android.media.swcodec.pem \
+    --extra_apex_payload_key com.android.mediaprovider.apex=keys/com.android.mediaprovider.pem \
+    --extra_apex_payload_key com.android.nearby.halfsheet.apex=keys/com.android.nearby.halfsheet.pem \
+    --extra_apex_payload_key com.android.networkstack.tethering.apex=keys/com.android.networkstack.tethering.pem \
+    --extra_apex_payload_key com.android.neuralnetworks.apex=keys/com.android.neuralnetworks.pem \
+    --extra_apex_payload_key com.android.ondevicepersonalization.apex=keys/com.android.ondevicepersonalization.pem \
+    --extra_apex_payload_key com.android.os.statsd.apex=keys/com.android.os.statsd.pem \
+    --extra_apex_payload_key com.android.permission.apex=keys/com.android.permission.pem \
+    --extra_apex_payload_key com.android.resolv.apex=keys/com.android.resolv.pem \
+    --extra_apex_payload_key com.android.rkpd.apex=keys/com.android.rkpd.pem \
+    --extra_apex_payload_key com.android.runtime.apex=keys/com.android.runtime.pem \
+    --extra_apex_payload_key com.android.safetycenter.resources.apex=keys/com.android.safetycenter.resources.pem \
+    --extra_apex_payload_key com.android.scheduling.apex=keys/com.android.scheduling.pem \
+    --extra_apex_payload_key com.android.sdkext.apex=keys/com.android.sdkext.pem \
+    --extra_apex_payload_key com.android.support.apexer.apex=keys/com.android.support.apexer.pem \
+    --extra_apex_payload_key com.android.telephony.apex=keys/com.android.telephony.pem \
+    --extra_apex_payload_key com.android.telephonymodules.apex=keys/com.android.telephonymodules.pem \
+    --extra_apex_payload_key com.android.tethering.apex=keys/com.android.tethering.pem \
+    --extra_apex_payload_key com.android.tzdata.apex=keys/com.android.tzdata.pem \
+    --extra_apex_payload_key com.android.uwb.apex=keys/com.android.uwb.pem \
+    --extra_apex_payload_key com.android.uwb.resources.apex=keys/com.android.uwb.resources.pem \
+    --extra_apex_payload_key com.android.virt.apex=keys/com.android.virt.pem \
+    --extra_apex_payload_key com.android.vndk.current.apex=keys/com.android.vndk.current.pem \
+    --extra_apex_payload_key com.android.vndk.current.on_vendor.apex=keys/com.android.vndk.current.on_vendor.pem \
+    --extra_apex_payload_key com.android.wifi.apex=keys/com.android.wifi.pem \
+    --extra_apex_payload_key com.android.wifi.dialog.apex=keys/com.android.wifi.dialog.pem \
+    --extra_apex_payload_key com.android.wifi.resources.apex=keys/com.android.wifi.resources.pem \
+    --extra_apex_payload_key com.google.pixel.camera.hal.apex=keys/com.google.pixel.camera.hal.pem \
+    --extra_apex_payload_key com.google.pixel.vibrator.hal.apex=keys/com.google.pixel.vibrator.hal.pem \
+    --extra_apex_payload_key com.qorvo.uwb.apex=keys/com.qorvo.uwb.pem \
+    $OUT/obj/PACKAGING/target_files_intermediates/*-target_files*.zip \
+    signed-target_files.zip
+生成安装包
+ota_from_target_files -k keys/releasekey \
+    --block --backup=true \
+    signed-target_files.zip \
+    signed-ota_update.zip
+注意：对于早于 18.1 的 LineageOS 版本，必须在 ota_from_target_files 命令前添加 ./build/tools/releasetools/
+./build/tools/releasetools/ota_from_target_files -k keys/releasekey \
+    --block --backup=true \
+    signed-target_files.zip \
+    signed-ota_update.zip
+执行完成后，在当前目录下生成的 signed-ota_update.zip 就是签名后的刷机包
+Android.bp    android.ipr~    build        external    libnativehelper  pdk                    signed-target_files.zip
+Makefile      android.iws     cts          frameworks  lineage          platform_testing       system
+android       art             dalvik       hardware    lineage-sdk      prebuilts              test
+android.iml   bionic          developers   kernel      make_keys.sh     sdk                    toolchain
+android.iml~  bootable        development  keys        out              sign_ota_wayne.sh      tools
+android.ipr   bootstrap.bash  device       libcore     packages         signed-ota_update.zip  vendor
+自动化脚本
+以 LineageOS17.1（wayne） 为例，nano sign_ota_wayne.sh 创建脚本，内容如下
+source build/envsetup.sh
+# 设置构建目标
+breakfast wayne
+# target files
+mka target-files-package otatools
+# sign target files
+./build/tools/releasetools/sign_target_files_apks -o -d keys \
+    $OUT/obj/PACKAGING/target_files_intermediates/*-target_files-*.zip \
+    signed-target_files.zip
+# sign ota package
+./build/tools/releasetools/ota_from_target_files -k keys/releasekey \
+    --block --backup=true \
+    signed-target_files.zip \
+    signed-ota_update.zip
+通过脚本把生成自定义签名安装包的流程自动化。
+# 添加执行权限
+chmod +x signing_ota_wayne.sh
+# 执行脚本
+./sign_ota_wayne.sh
+复制
+刷机
+进入recovery模式（或者同时按住【音量+】和【开机键】）
+fastboot reboot recovery
+复制
+注意：如果目前设备安装包签名和现在刷的安装包不一样，需要格式化 system 分区。格式化流程：【Factory reset】【Format system partition】。
+【Apply update】【Apply from adb】开启 adb sideload
+开始刷机
+adb sideload E:\lineageos\signed-ota_update.zip
+复制
+等待刷机完成重启系统。
+
+
+深入理解 Android 热修复机制：掌握 dexElements 注入技巧
+dexElements
+Android 的 ClassLoader（如 PathClassLoader、DexClassLoader）内部结构如下：
+BaseDexClassLoader
+ └── pathList : DexPathList
+       └── dexElements : Array<DexPathList.Element>
+DexPathList 是 BaseDexClassLoader 用来管理 .dex 文件、.apk 和 .jar 的内部类，负责构建和维护类加载搜索路径。
+word/media/image1.pnghttp://aospxref.com/android-10.0.0_r47/xref/libcore/dalvik/src/main/java/dalvik/system/BaseDexClassLoader.java#51
+dexElements 是 DexPathList 中用于保存所有 .dex 文件对应的元素数组，每个 Element 表示一个可用于加载类和资源的路径项，类加载时会依次查找这些元素。
+http://aospxref.com/android-10.0.0_r47/xref/libcore/dalvik/src/main/java/dalvik/system/DexPathList.java#69
+findClass 方法迭代 dexElements 数组查找类
+http://aospxref.com/android-10.0.0_r47/xref/libcore/dalvik/src/main/java/dalvik/system/DexPathList.java
+热修复原理
+合并多个 dexElements 数组是插件化框架或热修复系统中的常见操作。你可以通过反射将多个 dex 元素合并成一个新的数组，然后注入回去。
+这就是热修复的原理，把 新的 dex 添加到 dexElements 前面，那么 findClass 的时候就会优先使用最新的 dex 中的类
+代码实现
+通过反射拿到 ClassLoader 中的 dexElements 数组
+fun getDexElementsFrom(classLoader: ClassLoader): Array<Any>? {
+    return try {
+        // 1. 拿到 pathList 字段
+        val baseDexClassLoaderClass = Class.forName("dalvik.system.BaseDexClassLoader")
+        val pathListField = baseDexClassLoaderClass.getDeclaredField("pathList")
+        pathListField.isAccessible = true
+        val pathList = pathListField.get(classLoader)
+        // 2. 拿到 dexElements 字段
+        val pathListClass = pathList.javaClass
+        val dexElementsField = pathListClass.getDeclaredField("dexElements")
+        dexElementsField.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        dexElementsField.get(pathList) as? Array<Any>
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+合并两个 ClassLoader 中的 dexElements 数组
+fun mergeDexElements(first: Array<Any>, second: Array<Any>): Array<Any> {
+    val elementClass = first.javaClass.componentType ?: throw IllegalArgumentException("first is not an array")
+    val totalLength = first.size + second.size
+    val result = java.lang.reflect.Array.newInstance(elementClass, totalLength) as Array<Any>
+    // 拷贝数组
+    System.arraycopy(first, 0, result, 0, first.size)
+    System.arraycopy(second, 0, result, first.size, second.size)
+    return result
+}
+替换掉 PathClassLoader 中的 dexElements
+@SuppressLint("DiscouragedPrivateApi")
+fun injectDexElementsToClassLoader(classLoader: ClassLoader, newDexElements: Array<Any>) {
+    try {
+        val pathListField = Class.forName("dalvik.system.BaseDexClassLoader")
+            .getDeclaredField("pathList").apply { isAccessible = true }
+        val pathList = pathListField.get(classLoader)
+        val dexElementsField = pathList.javaClass
+            .getDeclaredField("dexElements").apply { isAccessible = true }
+        dexElementsField.set(pathList, newDexElements)
+        Log.d(TAG, "✅ dexElements successfully replaced!")
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Log.d(TAG,"❌ Failed to inject dexElements")
+    }
+}
+示例代码
+创建一个 Activity ，有两个按钮：
+热修复：加载 sdcard 上的 apk 文件，执行热修复逻辑
+PluginClass.getString：通过 Class.forName 加载 com.cyrus.example.plugin.PluginClass 类 创建对象并调用 getString方法，并显示结果
+1. plugin
+创建 plugin 工程主要包含这两个类：
+PluginClass 类源码如下：
+package com.cyrus.example.plugin
+class PluginClass {
+    fun getString(): String {
+        return "String from plugin."
+    }
+}
+编译 apk
+把 apk 推送到设备 sdcard
+adb push plugin-debug.apk /sdcard/Android/data/com.cyrus.example/files/plugin-debug.apk
+2. app
+app 工程也有一个 PluginClass，但是 getString 方法返回结果不一样。
+package com.cyrus.example.plugin
+class PluginClass {
+    fun getString(): String {
+        return "String from app."
+    }
+}
+热修复代码：
+val pathClassLoader = classLoader
+// 1. 创建自定义 ClassLoader 实例，加载 sdcard 上的 apk
+val classLoader = DexClassLoader(
+    apkPath,
+    null,
+    this.packageResourcePath,
+    pathClassLoader.parent
+)
+// 2. 通过反射拿到 ClassLoader 中的 dexElements 数组
+val baseDexElements = getDexElementsFrom(pathClassLoader)
+val pluginDexElements = getDexElementsFrom(classLoader)
+// 3. 合并两个 ClassLoader 中的 dexElements 数组
+val merged = mergeDexElements(pluginDexElements!!, baseDexElements!!)
+// 4. 替换掉 PathClassLoader 中的 dexElements
+injectDexElementsToClassLoader(pathClassLoader, merged)
+通过 Class.forName 加载 com.cyrus.example.plugin.PluginClass 类 创建对象并调用 getString方法，并显示结果
+try {
+    val clazz = Class.forName("com.cyrus.example.plugin.PluginClass")
+    val obj = clazz.getDeclaredConstructor().newInstance()
+    val method: Method = clazz.getDeclaredMethod("getString")
+    method.invoke(obj) as String
+} catch (e: Exception) {
+    "调用失败: ${e.message}"
+}
+点击 PluginClass.getString 按钮结果显示 String from app.
+点击热修复按钮
+再点击 PluginClass.getString 按钮结果显示 String from plugin.
+Frida 打印 ClassLoader
+通过 Frida 打印热修复后的 app 中所有 ClassLoader。
+相关文章：一文搞懂如何使用 Frida Hook Android App
+classloader_utils.js
+function printAllClassLoaders() {
+    Java.perform(() => {
+        Java.enumerateClassLoaders({
+            onMatch: function (loader) {
+                const desc = loader.toString();
+                const parent = loader.getParent();
+                console.log('ClassLoader:', desc);
+                console.log('  ↳ Parent:', parent);
+            },
+            onComplete: function () {
+                console.log('=== Finished enumerating ClassLoaders ===');
+            }
+        });
+    });
+}
+执行脚本
+frida -H 127.0.0.1:1234 -F -l classloader_utils.js
+枚举所有存在的 ClassLoader 实例
+printAllClassLoaders()
+日志输出如下：
+[Remote::AndroidExample]-> printAllClassLoaders()
+ClassLoader: dalvik.system.PathClassLoader[DexPathList[[directory "."],nativeLibraryDirectories=[/system/lib64, /system/product/lib64, /system/lib64, /system/product/lib64]]]
+  ↳ Parent: java.lang.BootClassLoader@96b2bbd
+ClassLoader: java.lang.BootClassLoader@96b2bbd
+  ↳ Parent: null
+ClassLoader: dalvik.system.PathClassLoader[DexPathList[[zip file "/sdcard/Android/data/com.cyrus.example/files/plugin-debug.apk", zip file "/data/ap
+p/com.cyrus.example-aFNKPWnZMdeRCd6UR_DPaA==/base.apk"],nativeLibraryDirectories=[/data/app/com.cyrus.example-aFNKPWnZMdeRCd6UR_DPaA==/lib/arm64, /data/app/com.cyrus.example-aFNKPWnZMdeRCd6UR_DPaA==/base.apk!/lib/arm64-v8a, /system/lib64, /system/product/lib64]]]
+  ↳ Parent: java.lang.BootClassLoader@96b2bbd
+=== Finished enumerating ClassLoaders ===
+从日志可以看到 PathClassLoader 的 DexPathList 中 目前有两个 Element：plugin-debug.apk 和 base.apk，而且 plugin-debug.apk 前面所以会优先找到 plugin 中的 PluginClass
+完整源码
+开源地址：https://github.com/CYRUS-STUDIO/AndroidExample
+
+
+如何变形一个 MD5 算法
+MD5是一种哈希函数，用于将任意长度的数据映射为一个固定长度的哈希值。它由 Ron Rivest 在 1991 年设计，是继 MD4 之后的改进版本。
+MD5 的基本特征：
+固定长度输出：将任意长度的数据转换为 128 位（16 字节） 的哈希值，通常以 32 位十六进制 字符串表示。
+不可逆性：无法从哈希值反推原始数据。
+雪崩效应：输入的微小变化会导致哈希值完全不同。
+抗碰撞性较弱：不同输入产生相同哈希值的概率较低，但已存在有效的碰撞攻击。
+计算速度快：采用简单的位运算，处理速度快，适合大数据量。
+标准 MD5
+标准 MD5 的 C++ 实现如下：
+md5.h
+#ifndef __MD5_INCLUDE__
+/* typedef a 32-bit type */
+#ifdef _LP64
+typedef unsigned int UINT4;
+typedef int          INT4;
+#else
+typedef unsigned long UINT4;
+typedef long          INT4;
+#endif
+#define _UINT4_T
+/* Data structure for MD5 (Message-Digest) computation */
+typedef struct {
+    UINT4 i[2];                   /* number of _bits_ handled mod 2^64 */
+    UINT4 buf[4];                                    /* scratch buffer */
+    unsigned char in[64];                              /* input buffer */
+    unsigned char digest[16];     /* actual digest after MD5Final call */
+} MD5_CTX;
+void MD5_Init (MD5_CTX *mdContext);
+void MD5_Update (MD5_CTX *mdContext, unsigned char *inBuf, unsigned int inLen);
+void MD5_Final (unsigned char hash[], MD5_CTX *mdContext);
+#define __MD5_INCLUDE__
+#endif /* __MD5_INCLUDE__ */
+md5.cpp
+#include <string>
+#include "md5.h"
+/* forward declaration */
+static void Transform(UINT4 *buf, UINT4 *in);
+static unsigned char PADDING[64] = {
+        0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+/* F, G, H and I are basic MD5 functions */
+#define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
+#define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
+#define H(x, y, z) ((x) ^ (y) ^ (z))
+#define I(x, y, z) ((y) ^ ((x) | (~z)))
+/* ROTATE_LEFT rotates x left n bits */
+#define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
+/* FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4 */
+/* Rotation is separate from addition to prevent recomputation */
+#define FF(a, b, c, d, x, s, ac) \
+  {(a) += F ((b), (c), (d)) + (x) + (UINT4)(ac); \
+   (a) = ROTATE_LEFT ((a), (s)); \
+   (a) += (b); \
+  }
+#define GG(a, b, c, d, x, s, ac) \
+  {(a) += G ((b), (c), (d)) + (x) + (UINT4)(ac); \
+   (a) = ROTATE_LEFT ((a), (s)); \
+   (a) += (b); \
+  }
+#define HH(a, b, c, d, x, s, ac) \
+  {(a) += H ((b), (c), (d)) + (x) + (UINT4)(ac); \
+   (a) = ROTATE_LEFT ((a), (s)); \
+   (a) += (b); \
+  }
+#define II(a, b, c, d, x, s, ac) \
+  {(a) += I ((b), (c), (d)) + (x) + (UINT4)(ac); \
+   (a) = ROTATE_LEFT ((a), (s)); \
+   (a) += (b); \
+  }
+#ifdef __STDC__
+#define UL(x)    x##U
+#else
+#define UL(x)   x
+#endif
+/* The routine MD5_Init initializes the message-digest context
+   mdContext. All fields are set to zero.
+ */
+void MD5_Init(MD5_CTX *mdContext) {
+    mdContext->i[0] = mdContext->i[1] = (UINT4) 0;
+/* Load magic initialization constants.
+ */
+    mdContext->buf[0] = (UINT4) 0x67452301;
+    mdContext->buf[1] = (UINT4) 0xefcdab89;
+    mdContext->buf[2] = (UINT4) 0x98badcfe;
+    mdContext->buf[3] = (UINT4) 0x10325476;
+}
+/* The routine MD5Update updates the message-digest context to
+   account for the presence of each of the characters inBuf[0..inLen-1]
+   in the message whose digest is being computed.
+ */
+void MD5_Update(MD5_CTX *mdContext, unsigned char *inBuf, unsigned int inLen) {
+    UINT4 in[16];
+    int mdi;
+    unsigned int i, ii;
+    /* compute number of bytes mod 64 */
+    mdi = (int) ((mdContext->i[0] >> 3) & 0x3F);
+    /* update number of bits */
+    if ((mdContext->i[0] + ((UINT4) inLen << 3)) < mdContext->i[0])
+        mdContext->i[1]++;
+    mdContext->i[0] += ((UINT4) inLen << 3);
+    mdContext->i[1] += ((UINT4) inLen >> 29);
+    while (inLen--) {
+    /* add new character to buffer, increment mdi */
+        mdContext->in[mdi++] = *inBuf++;
+    /* transform if necessary */
+        if (mdi == 0x40) {
+            for (i = 0, ii = 0; i < 16; i++, ii += 4)
+                in[i] = (((UINT4) mdContext->in[ii + 3]) << 24) |
+                        (((UINT4) mdContext->in[ii + 2]) << 16) |
+                        (((UINT4) mdContext->in[ii + 1]) << 8) |
+                        ((UINT4) mdContext->in[ii]);
+            Transform(mdContext->buf, in);
+            mdi = 0;
+        }
+    }
+}
+/* The routine MD5Final terminates the message-digest computation and
+   ends with the desired message digest in mdContext->digest[0...15].
+ */
+void MD5_Final(unsigned char hash[], MD5_CTX *mdContext) {
+    UINT4 in[16];
+    int mdi;
+    unsigned int i, ii;
+    unsigned int padLen;
+    /* save number of bits */
+    in[14] = mdContext->i[0];
+    in[15] = mdContext->i[1];
+    /* compute number of bytes mod 64 */
+    mdi = (int) ((mdContext->i[0] >> 3) & 0x3F);
+    /* pad out to 56 mod 64 */
+    padLen = (mdi < 56) ? (56 - mdi) : (120 - mdi);
+    MD5_Update(mdContext, PADDING, padLen);
+    /* append length in bits and transform */
+    for (i = 0, ii = 0; i < 14; i++, ii += 4)
+        in[i] = (((UINT4) mdContext->in[ii + 3]) << 24) |
+                (((UINT4) mdContext->in[ii + 2]) << 16) |
+                (((UINT4) mdContext->in[ii + 1]) << 8) |
+                ((UINT4) mdContext->in[ii]);
+    Transform(mdContext->buf, in);
+    /* store buffer in digest */
+    for (i = 0, ii = 0; i < 4; i++, ii += 4) {
+        mdContext->digest[ii] = (unsigned char) (mdContext->buf[i] & 0xFF);
+        mdContext->digest[ii + 1] =
+                (unsigned char) ((mdContext->buf[i] >> 8) & 0xFF);
+        mdContext->digest[ii + 2] =
+                (unsigned char) ((mdContext->buf[i] >> 16) & 0xFF);
+        mdContext->digest[ii + 3] =
+                (unsigned char) ((mdContext->buf[i] >> 24) & 0xFF);
+    }
+    memcpy(hash, mdContext->digest, 16);
+}
+/* Basic MD5 step. Transforms buf based on in.
+ */
+static void Transform(UINT4 *buf, UINT4 *in) {
+    UINT4 a = buf[0], b = buf[1], c = buf[2], d = buf[3];
+/* Round 1 */
+#define S11 7
+#define S12 12
+#define S13 17
+#define S14 22
+    FF (a, b, c, d, in[0], S11, UL(3614090360)); /* 1 */
+    FF (d, a, b, c, in[1], S12, UL(3905402710)); /* 2 */
+    FF (c, d, a, b, in[2], S13, UL(606105819)); /* 3 */
+    FF (b, c, d, a, in[3], S14, UL(3250441966)); /* 4 */
+    FF (a, b, c, d, in[4], S11, UL(4118548399)); /* 5 */
+    FF (d, a, b, c, in[5], S12, UL(1200080426)); /* 6 */
+    FF (c, d, a, b, in[6], S13, UL(2821735955)); /* 7 */
+    FF (b, c, d, a, in[7], S14, UL(4249261313)); /* 8 */
+    FF (a, b, c, d, in[8], S11, UL(1770035416)); /* 9 */
+    FF (d, a, b, c, in[9], S12, UL(2336552879)); /* 10 */
+    FF (c, d, a, b, in[10], S13, UL(4294925233)); /* 11 */
+    FF (b, c, d, a, in[11], S14, UL(2304563134)); /* 12 */
+    FF (a, b, c, d, in[12], S11, UL(1804603682)); /* 13 */
+    FF (d, a, b, c, in[13], S12, UL(4254626195)); /* 14 */
+    FF (c, d, a, b, in[14], S13, UL(2792965006)); /* 15 */
+    FF (b, c, d, a, in[15], S14, UL(1236535329)); /* 16 */
+/* Round 2 */
+#define S21 5
+#define S22 9
+#define S23 14
+#define S24 20
+    GG (a, b, c, d, in[1], S21, UL(4129170786)); /* 17 */
+    GG (d, a, b, c, in[6], S22, UL(3225465664)); /* 18 */
+    GG (c, d, a, b, in[11], S23, UL(643717713)); /* 19 */
+    GG (b, c, d, a, in[0], S24, UL(3921069994)); /* 20 */
+    GG (a, b, c, d, in[5], S21, UL(3593408605)); /* 21 */
+    GG (d, a, b, c, in[10], S22, UL(38016083)); /* 22 */
+    GG (c, d, a, b, in[15], S23, UL(3634488961)); /* 23 */
+    GG (b, c, d, a, in[4], S24, UL(3889429448)); /* 24 */
+    GG (a, b, c, d, in[9], S21, UL(568446438)); /* 25 */
+    GG (d, a, b, c, in[14], S22, UL(3275163606)); /* 26 */
+    GG (c, d, a, b, in[3], S23, UL(4107603335)); /* 27 */
+    GG (b, c, d, a, in[8], S24, UL(1163531501)); /* 28 */
+    GG (a, b, c, d, in[13], S21, UL(2850285829)); /* 29 */
+    GG (d, a, b, c, in[2], S22, UL(4243563512)); /* 30 */
+    GG (c, d, a, b, in[7], S23, UL(1735328473)); /* 31 */
+    GG (b, c, d, a, in[12], S24, UL(2368359562)); /* 32 */
+/* Round 3 */
+#define S31 4
+#define S32 11
+#define S33 16
+#define S34 23
+    HH (a, b, c, d, in[5], S31, UL(4294588738)); /* 33 */
+    HH (d, a, b, c, in[8], S32, UL(2272392833)); /* 34 */
+    HH (c, d, a, b, in[11], S33, UL(1839030562)); /* 35 */
+    HH (b, c, d, a, in[14], S34, UL(4259657740)); /* 36 */
+    HH (a, b, c, d, in[1], S31, UL(2763975236)); /* 37 */
+    HH (d, a, b, c, in[4], S32, UL(1272893353)); /* 38 */
+    HH (c, d, a, b, in[7], S33, UL(4139469664)); /* 39 */
+    HH (b, c, d, a, in[10], S34, UL(3200236656)); /* 40 */
+    HH (a, b, c, d, in[13], S31, UL(681279174)); /* 41 */
+    HH (d, a, b, c, in[0], S32, UL(3936430074)); /* 42 */
+    HH (c, d, a, b, in[3], S33, UL(3572445317)); /* 43 */
+    HH (b, c, d, a, in[6], S34, UL(76029189)); /* 44 */
+    HH (a, b, c, d, in[9], S31, UL(3654602809)); /* 45 */
+    HH (d, a, b, c, in[12], S32, UL(3873151461)); /* 46 */
+    HH (c, d, a, b, in[15], S33, UL(530742520)); /* 47 */
+    HH (b, c, d, a, in[2], S34, UL(3299628645)); /* 48 */
+/* Round 4 */
+#define S41 6
+#define S42 10
+#define S43 15
+#define S44 21
+    II (a, b, c, d, in[0], S41, UL(4096336452)); /* 49 */
+    II (d, a, b, c, in[7], S42, UL(1126891415)); /* 50 */
+    II (c, d, a, b, in[14], S43, UL(2878612391)); /* 51 */
+    II (b, c, d, a, in[5], S44, UL(4237533241)); /* 52 */
+    II (a, b, c, d, in[12], S41, UL(1700485571)); /* 53 */
+    II (d, a, b, c, in[3], S42, UL(2399980690)); /* 54 */
+    II (c, d, a, b, in[10], S43, UL(4293915773)); /* 55 */
+    II (b, c, d, a, in[1], S44, UL(2240044497)); /* 56 */
+    II (a, b, c, d, in[8], S41, UL(1873313359)); /* 57 */
+    II (d, a, b, c, in[15], S42, UL(4264355552)); /* 58 */
+    II (c, d, a, b, in[6], S43, UL(2734768916)); /* 59 */
+    II (b, c, d, a, in[13], S44, UL(1309151649)); /* 60 */
+    II (a, b, c, d, in[4], S41, UL(4149444226)); /* 61 */
+    II (d, a, b, c, in[11], S42, UL(3174756917)); /* 62 */
+    II (c, d, a, b, in[2], S43, UL(718787259)); /* 63 */
+    II (b, c, d, a, in[9], S44, UL(3951481745)); /* 64 */
+    buf[0] += a;
+    buf[1] += b;
+    buf[2] += c;
+    buf[3] += d;
+}
+std::string bytesToHex(const uint8_t *bytes, size_t length) {
+    char hexStr[33];
+    for (size_t i = 0; i < length; i++) {
+        sprintf(&hexStr[i * 2], "%02x", bytes[i]);
+    }
+    hexStr[32] = '\0';
+    return hexStr;
+}
+参考：https://cs.android.com/android/platform/superproject/+/master:external/ppp/pppd/md5.c;l=92
+kotlin 层声明 md5 native 方法
+package com.cyrus.example.md5
+class MD5Utils {
+    companion object {
+        // 加载 native 库
+        init {
+            System.loadLibrary("md5")
+        }
+        // 声明 native 静态方法
+        @JvmStatic
+        external fun md5(input: String): String
+    }
+}
+在 cpp 中实现 native 方法，调用 MD5_Init、MD5_Update、MD5_Final 完成 MD5 的计算并返回结果。
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_cyrus_example_md5_MD5Utils_md5(JNIEnv *env, jclass, jstring input) {
+    const char *inputChars = env->GetStringUTFChars(input, nullptr);
+    if (!inputChars) return nullptr;
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, (unsigned char *) inputChars, strlen(inputChars));
+    uint8_t digest[16];
+    MD5_Final(digest, &ctx);
+    env->ReleaseStringUTFChars(input, inputChars);
+    std::string md5Hash = bytesToHex(digest, 16);
+    return env->NewStringUTF(md5Hash.c_str());
+}
+MD5Init
+初始化上下文，包括计数器和状态缓冲区。
+魔数初始化：这四个固定的 32 位数用于 MD5 的初始状态。
+我们可以修改这四个魔数的初始值实现 MD5 算法的变形，比如修改如下：
+void MD5_Init2(MD5_CTX *mdContext) {
+    mdContext->i[0] = mdContext->i[1] = (UINT4) 0;
+    mdContext->buf[0] = (UINT4) 0xaa452301;
+    mdContext->buf[1] = (UINT4) 0xbbcdab89;
+    mdContext->buf[2] = (UINT4) 0xccbadcfe;
+    mdContext->buf[3] = (UINT4) 0xdd325476;
+}
+增加 changeMD5Init 方法
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_cyrus_example_md5_MD5Utils_changeMD5Init(JNIEnv *env, jclass, jstring input) {
+    const char *inputChars = env->GetStringUTFChars(input, nullptr);
+    if (!inputChars) return nullptr;
+    MD5_CTX ctx;
+    MD5_Init2(&ctx);
+    MD5_Update(&ctx, (unsigned char *) inputChars, strlen(inputChars));
+    uint8_t digest[16];
+    MD5_Final(digest, &ctx);
+    env->ReleaseStringUTFChars(input, inputChars);
+    std::string md5Hash = bytesToHex(digest, 16);
+    return env->NewStringUTF(md5Hash.c_str());
+}
+MD5_Update
+每次调用 MD5_Update 时，它会将数据追加到 ctx->buffer。MD5_Update 可以多次调用。
+我们可以通过调用 MD5_Update 去拼接自定义的字符串实现 MD5 变形，比如：
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_cyrus_example_md5_MD5Utils_changeMD5Update(JNIEnv *env, jclass, jstring input) {
+    const char *inputChars = env->GetStringUTFChars(input, nullptr);
+    if (!inputChars) return nullptr;
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, (unsigned char *) "cyrus", strlen(inputChars));
+    MD5_Update(&ctx, (unsigned char *) "studio", strlen(inputChars));
+    MD5_Update(&ctx, (unsigned char *) inputChars, strlen(inputChars));
+    uint8_t digest[16];
+    MD5_Final(digest, &ctx);
+    env->ReleaseStringUTFChars(input, inputChars);
+    std::string md5Hash = bytesToHex(digest, 16);
+    return env->NewStringUTF(md5Hash.c_str());
+}
+相当于 md5 ( cyrus + studio + inputChars )
+宏 FF、GG、HH、II
+在 MD5 中，FF、GG、HH 和 II 是四个核心的轮函数（Round Functions），它们负责对数据块进行不同形式的混淆和非线性操作。每一轮都包含 16 次操作，共 64 次。
+FF 宏（Round 1）
+#define FF(a, b, c, d, x, s, ac) \
+  {(a) += F ((b), (c), (d)) + (x) + (UINT4)(ac); \
+   (a) = ROTATE_LEFT ((a), (s)); \
+   (a) += (b); \
+  }
+参数解释：
+a, b, c, d：四个 32 位寄存器变量。
+x：当前数据块中的 32 位输入。
+s：左旋转的位数。
+ac：加法常数（T[i]）。
+F函数：
+#define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
+逻辑解析：
+F(x, y, z) 实现了一个选择函数。
+如果 x 的某位为 1，选择 y；否则选择 z。
+这是一个条件赋值的模拟：x ? y : z。
+作用：
+FF 是一种条件性操作，它将输入数据和常数通过逻辑函数 F 混淆后，再执行旋转和累加操作。
+Round 1 的特点是对输入数据的直接非线性处理。
+GG 宏（Round 2）
+#define GG(a, b, c, d, x, s, ac) \
+  {(a) += G ((b), (c), (d)) + (x) + (UINT4)(ac); \
+   (a) = ROTATE_LEFT ((a), (s)); \
+   (a) += (b); \
+  }
+G函数：
+#define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
+逻辑解析：
+G(x, y, z) 是一种少见的位运算，选择不同的输入进行混淆。
+如果 z 的某位为 0，选择 x；否则选择 y。
+作用：
+GG 在第二轮中使用了不同的逻辑函数 G，进一步打乱数据。
+它的特点是强调输入数据与寄存器的非线性关系。
+HH 宏（Round 3）
+#define HH(a, b, c, d, x, s, ac) \
+  {(a) += H ((b), (c), (d)) + (x) + (UINT4)(ac); \
+   (a) = ROTATE_LEFT ((a), (s)); \
+   (a) += (b); \
+  }
+H函数：
+#define H(x, y, z) ((x) ^ (y) ^ (z))
+逻辑解析：
+H(x, y, z) 是简单的按位异或操作。
+异或操作具有混淆性强的特点，不可逆。
+作用：
+HH 使用异或操作对数据进行进一步的随机化。
+它减少了数据之间的线性关系，增强了哈希的安全性。
+II 宏（Round 4）
+#define II(a, b, c, d, x, s, ac) \
+  {(a) += I ((b), (c), (d)) + (x) + (UINT4)(ac); \
+   (a) = ROTATE_LEFT ((a), (s)); \
+   (a) += (b); \
+  }
+I函数：
+#define I(x, y, z) ((y) ^ ((x) | (~z)))
+逻辑解析：
+I(x, y, z) 通过 OR 和 NOT 操作形成复杂的非线性映射。
+这种逻辑是为了确保输入数据对输出的影响最大化。
+作用：
+II 是最后一轮变换，用于进一步打乱数据并确保不可逆性。
+它将前几轮的结果进一步混淆，确保哈希值的独特性。
+四轮计算：
+Round 1：使用 FF，主要作用是与原始输入数据紧密结合。
+Round 2：使用 GG，引入更多的非线性关系。
+Round 3：使用 HH，通过异或增加数据的混淆性。
+Round 4：使用 II，确保最终输出的不可预测性。
+修改宏的常数实现 MD5 变形
+我们可以通过修改宏的常数实现 MD5 变形，比如我这里改了 FF 中 1、2、3的常数：
+/* Round 1 */
+#define S11 7
+#define S12 12
+#define S13 17
+#define S14 22
+	FF (a, b, c, d, in[0], S11, UL(1114090360)); /* 1 */
+	FF (d, a, b, c, in[1], S12, UL(2205402710)); /* 2 */
+	FF (c, d, a, b, in[2], S13, UL(336105819)); /* 3 */
+	FF (b, c, d, a, in[3], S14, UL(3250441966)); /* 4 */
+	FF (a, b, c, d, in[4], S11, UL(4118548399)); /* 5 */
+	FF (d, a, b, c, in[5], S12, UL(1200080426)); /* 6 */
+	FF (c, d, a, b, in[6], S13, UL(2821735955)); /* 7 */
+	FF (b, c, d, a, in[7], S14, UL(4249261313)); /* 8 */
+	FF (a, b, c, d, in[8], S11, UL(1770035416)); /* 9 */
+	FF (d, a, b, c, in[9], S12, UL(2336552879)); /* 10 */
+	FF (c, d, a, b, in[10], S13, UL(4294925233)); /* 11 */
+	FF (b, c, d, a, in[11], S14, UL(2304563134)); /* 12 */
+	FF (a, b, c, d, in[12], S11, UL(1804603682)); /* 13 */
+	FF (d, a, b, c, in[13], S12, UL(4254626195)); /* 14 */
+	FF (c, d, a, b, in[14], S13, UL(2792965006)); /* 15 */
+	FF (b, c, d, a, in[15], S14, UL(1236535329)); /* 16 */
+OLLVM MD5
+通过 OLLVM 混淆 C/C++ 代码。
+关于 OLLVM 的编译和移植到 NDK 可以参考下面的文章：
+移植 OLLVM 到 LLVM 18，C&C++代码混淆
+移植 OLLVM 到 Android NDK，Android Studio 中使用 OLLVM
+比如，给 md5 方法添加下面注解启用虚假控制流
+__attribute__((annotate("bcf"))) 
+修改后：
+extern "C"
+JNIEXPORT jstring JNICALL
+__attribute__((annotate("bcf"))) Java_com_cyrus_example_md5_MD5Utils_changeConstant(JNIEnv *env, jclass, jstring input) {
+    const char *inputChars = env->GetStringUTFChars(input, nullptr);
+    if (!inputChars) return nullptr;
+
+    MD5_CTX ctx;
+    MD5_Init_(&ctx);
+    MD5_Update_(&ctx, (unsigned char *) inputChars, strlen(inputChars));
+
+    uint8_t digest[16];
+    MD5_Final_(digest, &ctx);
+
+    env->ReleaseStringUTFChars(input, inputChars);
+
+    std::string md5Hash = bytesToHex(digest, 16);
+    return env->NewStringUTF(md5Hash.c_str());
+}
+经过混淆后的 md5 方法反汇编视图
+
+
+变形 SHA-1 算法
+标准 SHA1
+SHA1（Secure Hash Algorithm 1）是一种广泛使用的 加密哈希函数，用于生成固定长度的 160 位（20 字节）哈希值。它由 美国国家安全局（NSA） 设计，并由 NIST（美国国家标准与技术研究院） 在 1995 年作为 FIPS PUB 180-1 标准发布。
+SHA1 的基本特点
+输出长度：160 位（20 字节）的哈希值，通常以长度为 40 的 hex 字符串表示
+使用 5 个固定的初始哈希值（MD5 是 4 个）
+不可逆性：无法从哈希值反推出原文
+固定性：相同的输入始终会产生相同的输出
+雪崩效应：输入的微小变化会导致输出哈希值的巨大变化
+抗碰撞性（已破坏）：理论上很难找到两个不同的输入产生相同的哈希值
+SHA1 C++ 标准实现如下：
+sha1.h
+#ifndef SHA1_H
+#define SHA1_H
+#include <stdlib.h>
+#include <string.h>
+#include <asm/types.h>
+#define os_memcpy   memcpy
+#define os_memset   memset
+#define os_memcmp   memcmp
+#define os_strlen   strlen
+#define MAX_SHA1_LEN    32
+#define SHA1_MAC_LEN    20
+typedef __u8 u8;
+typedef __u32 u32;
+struct SHA1Context {
+    u32 state[5];
+    u32 count[2];
+    unsigned char buffer[64];
+};
+typedef struct SHA1Context SHA1_CTX;
+void SHA1Init(SHA1_CTX *context);
+void SHA1Update(SHA1_CTX *context, const unsigned char *data, u32 len);
+void SHA1Final(unsigned char digest[20], SHA1_CTX *context);
+#endif /* SHA1_H */
+sha1.cpp
+#include "sha1.h"
+#define SHA1HANDSOFF
+#define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
+/* blk0() and blk() perform the initial expand. */
+/* I got the idea of expanding during the round function from SSLeay */
+#ifndef WORDS_BIGENDIAN
+#define blk0(i) (block->l[i] = (rol(block->l[i], 24) & 0xFF00FF00) | \
+    (rol(block->l[i], 8) & 0x00FF00FF))
+#else
+#define blk0(i) block->l[i]
+#endif
+#define blk(i) (block->l[i & 15] = rol(block->l[(i + 13) & 15] ^ \
+    block->l[(i + 8) & 15] ^ block->l[(i + 2) & 15] ^ block->l[i & 15], 1))
+/* (R0+R1), R2, R3, R4 are the different operations used in SHA1 */
+#define R0(v,w,x,y,z,i) \
+    z += ((w & (x ^ y)) ^ y) + blk0(i) + 0x5A827999 + rol(v, 5); \
+    w = rol(w, 30);
+#define R1(v,w,x,y,z,i) \
+    z += ((w & (x ^ y)) ^ y) + blk(i) + 0x5A827999 + rol(v, 5); \
+    w = rol(w, 30);
+#define R2(v,w,x,y,z,i) \
+    z += (w ^ x ^ y) + blk(i) + 0x6ED9EBA1 + rol(v, 5); w = rol(w, 30);
+#define R3(v,w,x,y,z,i) \
+    z += (((w | x) & y) | (w & x)) + blk(i) + 0x8F1BBCDC + rol(v, 5); \
+    w = rol(w, 30);
+#define R4(v,w,x,y,z,i) \
+    z += (w ^ x ^ y) + blk(i) + 0xCA62C1D6 + rol(v, 5); \
+    w=rol(w, 30);
+#ifdef VERBOSE  /* SAK */
+void SHAPrintContext(SHA1_CTX *context, char *msg)
+{
+    printf("%s (%d,%d) %x %x %x %x %x\n",
+           msg,
+           context->count[0], context->count[1], 
+           context->state[0],
+           context->state[1],
+           context->state[2],
+           context->state[3],
+           context->state[4]);
+}
+#endif
+/* Hash a single 512-bit block. This is the core of the algorithm. */
+static void SHA1Transform(u32 state[5], const unsigned char buffer[64])
+{
+    u32 a, b, c, d, e;
+    typedef union {
+       unsigned char c[64];
+       u32 l[16];
+    } CHAR64LONG16;
+    CHAR64LONG16* block;
+#ifdef SHA1HANDSOFF
+    CHAR64LONG16 workspace;
+    block = &workspace;
+    os_memcpy(block, buffer, 64);
+#else
+    block = (CHAR64LONG16 *) buffer;
+#endif
+    /* Copy context->state[] to working vars */
+    a = state[0];
+    b = state[1];
+    c = state[2];
+    d = state[3];
+    e = state[4];
+    /* 4 rounds of 20 operations each. Loop unrolled. */
+    R0(a,b,c,d,e, 0); R0(e,a,b,c,d, 1); R0(d,e,a,b,c, 2); R0(c,d,e,a,b, 3);
+    R0(b,c,d,e,a, 4); R0(a,b,c,d,e, 5); R0(e,a,b,c,d, 6); R0(d,e,a,b,c, 7);
+    R0(c,d,e,a,b, 8); R0(b,c,d,e,a, 9); R0(a,b,c,d,e,10); R0(e,a,b,c,d,11);
+    R0(d,e,a,b,c,12); R0(c,d,e,a,b,13); R0(b,c,d,e,a,14); R0(a,b,c,d,e,15);
+    R1(e,a,b,c,d,16); R1(d,e,a,b,c,17); R1(c,d,e,a,b,18); R1(b,c,d,e,a,19);
+    R2(a,b,c,d,e,20); R2(e,a,b,c,d,21); R2(d,e,a,b,c,22); R2(c,d,e,a,b,23);
+    R2(b,c,d,e,a,24); R2(a,b,c,d,e,25); R2(e,a,b,c,d,26); R2(d,e,a,b,c,27);
+    R2(c,d,e,a,b,28); R2(b,c,d,e,a,29); R2(a,b,c,d,e,30); R2(e,a,b,c,d,31);
+    R2(d,e,a,b,c,32); R2(c,d,e,a,b,33); R2(b,c,d,e,a,34); R2(a,b,c,d,e,35);
+    R2(e,a,b,c,d,36); R2(d,e,a,b,c,37); R2(c,d,e,a,b,38); R2(b,c,d,e,a,39);
+    R3(a,b,c,d,e,40); R3(e,a,b,c,d,41); R3(d,e,a,b,c,42); R3(c,d,e,a,b,43);
+    R3(b,c,d,e,a,44); R3(a,b,c,d,e,45); R3(e,a,b,c,d,46); R3(d,e,a,b,c,47);
+    R3(c,d,e,a,b,48); R3(b,c,d,e,a,49); R3(a,b,c,d,e,50); R3(e,a,b,c,d,51);
+    R3(d,e,a,b,c,52); R3(c,d,e,a,b,53); R3(b,c,d,e,a,54); R3(a,b,c,d,e,55);
+    R3(e,a,b,c,d,56); R3(d,e,a,b,c,57); R3(c,d,e,a,b,58); R3(b,c,d,e,a,59);
+    R4(a,b,c,d,e,60); R4(e,a,b,c,d,61); R4(d,e,a,b,c,62); R4(c,d,e,a,b,63);
+    R4(b,c,d,e,a,64); R4(a,b,c,d,e,65); R4(e,a,b,c,d,66); R4(d,e,a,b,c,67);
+    R4(c,d,e,a,b,68); R4(b,c,d,e,a,69); R4(a,b,c,d,e,70); R4(e,a,b,c,d,71);
+    R4(d,e,a,b,c,72); R4(c,d,e,a,b,73); R4(b,c,d,e,a,74); R4(a,b,c,d,e,75);
+    R4(e,a,b,c,d,76); R4(d,e,a,b,c,77); R4(c,d,e,a,b,78); R4(b,c,d,e,a,79);
+    /* Add the working vars back into context.state[] */
+    state[0] += a;
+    state[1] += b;
+    state[2] += c;
+    state[3] += d;
+    state[4] += e;
+    /* Wipe variables */
+    a = b = c = d = e = 0;
+#ifdef SHA1HANDSOFF
+    os_memset(block, 0, 64);
+#endif
+}
+/* SHA1Init - Initialize new context */
+void SHA1Init(SHA1_CTX* context)
+{
+    /* SHA1 initialization constants */
+    context->state[0] = 0x67452301;
+    context->state[1] = 0xEFCDAB89;
+    context->state[2] = 0x98BADCFE;
+    context->state[3] = 0x10325476;
+    context->state[4] = 0xC3D2E1F0;
+    context->count[0] = context->count[1] = 0;
+}
+/* Run your data through this. */
+void SHA1Update(SHA1_CTX* context, const unsigned char *_data, u32 len)
+{
+    u32 i, j;
+    const unsigned char *data = _data;
+#ifdef VERBOSE
+    SHAPrintContext(context, "before");
+#endif
+    j = (context->count[0] >> 3) & 63;
+    if ((context->count[0] += len << 3) < (len << 3))
+       context->count[1]++;
+    context->count[1] += (len >> 29);
+    if ((j + len) > 63) {
+       os_memcpy(&context->buffer[j], data, (i = 64-j));
+       SHA1Transform(context->state, context->buffer);
+       for ( ; i + 63 < len; i += 64) {
+          SHA1Transform(context->state, &data[i]);
+       }
+       j = 0;
+    }
+    else i = 0;
+    os_memcpy(&context->buffer[j], &data[i], len - i);
+#ifdef VERBOSE
+    SHAPrintContext(context, "after ");
+#endif
+}
+/* Add padding and return the message digest. */
+void SHA1Final(unsigned char digest[20], SHA1_CTX* context)
+{
+    u32 i;
+    unsigned char finalcount[8];
+    for (i = 0; i < 8; i++) {
+       finalcount[i] = (unsigned char)
+          ((context->count[(i >= 4 ? 0 : 1)] >>
+            ((3-(i & 3)) * 8) ) & 255);  /* Endian independent */
+    }
+    SHA1Update(context, (unsigned char *) "\200", 1);
+    while ((context->count[0] & 504) != 448) {
+       SHA1Update(context, (unsigned char *) "\0", 1);
+    }
+    SHA1Update(context, finalcount, 8);  /* Should cause a SHA1Transform()*/
+    for (i = 0; i < 20; i++) {
+       digest[i] = (unsigned char)
+          ((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) &
+           255);
+    }
+    /* Wipe variables */
+    i = 0;
+    os_memset(context->buffer, 0, 64);
+    os_memset(context->state, 0, 20);
+    os_memset(context->count, 0, 8);
+    os_memset(finalcount, 0, 8);
+}
+参考：
+https://android.googlesource.com/platform/system/netd/+/9178b7390f9927aed57ae4a2da5b48991ed2aeea/sha1.c
+https://android.googlesource.com/platform/system/netd/+/9178b7390f9927aed57ae4a2da5b48991ed2aeea/sha1.h
+kotlin 层声明 native 方法 sha1
+package com.cyrus.example.sha1
+import android.R
+import java.security.MessageDigest
+class SHA1Utils {
+    companion object {
+        // 加载 native 库
+        init {
+            System.loadLibrary("sha1")
+        }
+        // 声明 native 静态方法
+        @JvmStatic
+        external fun sha1(input: String): String
+    }
+}
+实现 sha1 方法
+#include <jni.h>
+#include <string>
+#include "sha1.h"
+// 将字节数组转换为十六进制字符串
+std::string bytesToHex(const unsigned char* bytes, size_t length) {
+    std::string hex;
+    const char hexDigits[] = "0123456789abcdef";
+    for (size_t i = 0; i < length; i++) {
+        hex += hexDigits[(bytes[i] >> 4) & 0x0F];
+        hex += hexDigits[bytes[i] & 0x0F];
+    }
+    return hex;
+}
+// JNI 方法实现
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_cyrus_example_sha1_SHA1Utils_sha1(JNIEnv* env, jclass clazz, jstring input) {
+    const char* inputStr = env->GetStringUTFChars(input, nullptr);
+    if (!inputStr) {
+        return nullptr; // 内存分配失败
+    }
+    // 初始化 SHA1 上下文
+    SHA1_CTX ctx;
+    unsigned char digest[SHA1_MAC_LEN];
+    SHA1Init(&ctx);
+    SHA1Update(&ctx, (const unsigned char*)inputStr, (u32)strlen(inputStr));
+    SHA1Final(digest, &ctx);
+    env->ReleaseStringUTFChars(input, inputStr);
+    // 转换为 hex 字符串
+    std::string hexResult = bytesToHex(digest, SHA1_MAC_LEN);
+    // 返回结果
+    return env->NewStringUTF(hexResult.c_str());
+}
+和 MD5 算法类似，SHA1 也有 Init、 Update 、Final 函数。
+SHA1Init
+SHA1Init 是 SHA1 算法中的一个初始化函数，用于初始化 SHA1 的上下文 (SHA1_CTX)，设置初始状态和计数器，为后续的哈希计算做好准备。
+我们可以修改 5 个固定的初始哈希值来实现 SHA1 算法变形，比如：
+void SHA1Init(SHA1_CTX* context)
+{
+    /* SHA1 initialization constants */
+    context->state[0] = 0xAA452301;
+    context->state[1] = 0xBBCDAB89;
+    context->state[2] = 0xCCBADCFE;
+    context->state[3] = 0xDD325476;
+    context->state[4] = 0xEED2E1F0;
+    context->count[0] = context->count[1] = 0;
+}
+SHA1Update
+SHA1Update 用于处理输入数据。它会将数据划分为 512 位（64 字节）的块，并对每个块执行一次 SHA1Transform 运算，同时更新哈希状态。
+我们可以通过调用 SHA1Update 去拼接自定义的字符串实现 SHA1 算法变形，比如：
+const char* inputStr = env->GetStringUTFChars(input, nullptr);
+if (!inputStr) {
+    return nullptr; // 内存分配失败
+}
+// 初始化 SHA1 上下文
+SHA1_CTX ctx;
+unsigned char digest[SHA1_MAC_LEN];
+SHA1Init(&ctx);
+SHA1Update(&ctx, (const unsigned char*)"cyrus", (u32)strlen(inputStr));
+SHA1Update(&ctx, (const unsigned char*)inputStr, (u32)strlen(inputStr));
+SHA1Update(&ctx, (const unsigned char*)"studio", (u32)strlen(inputStr));
+SHA1Final(digest, &ctx);
+env->ReleaseStringUTFChars(input, inputStr);
+// 转换为 hex 字符串
+std::string hexResult = bytesToHex(digest, SHA1_MAC_LEN);
+// 返回结果
+return env->NewStringUTF(hexResult.c_str());
+宏 R0, R1, R2, R3, R4
+在 SHA1 算法中，R0、R1、R2、R3、R4 是 SHA1 的五个主要轮次（Rounds），每个轮次包含 20 次操作，总共 80 次迭代。
+这些轮次的核心是基于位运算的消息调度和非线性函数的应用，用于将输入数据混淆并生成最终的哈希值。
+轮次简介：
+R0 (Round 0)：初始阶段，对输入数据进行简单的消息扩展。
+R1 (Round 1)：进一步扩展数据，使用简单的逻辑运算。
+R2 (Round 2)：采用异或运算进行复杂的混淆。
+R3 (Round 3)：使用更多的位运算，引入更多的非线性。
+R4 (Round 4)：最终的轮次，进一步强化数据的不可逆性。
+我们可以通过修改宏中的常量实现 SHA1 算法变形，比如：
+/* (R0+R1), R2, R3, R4 are the different operations used in SHA1 */
+#define R0(v,w,x,y,z,i) \
+    z += ((w & (x ^ y)) ^ y) + blk0(i) + 0xAA827999 + rol(v, 5); \
+    w = rol(w, 30);
+#define R1(v,w,x,y,z,i) \
+    z += ((w & (x ^ y)) ^ y) + blk(i) + 0xBB827999 + rol(v, 5); \
+    w = rol(w, 30);
+#define R2(v,w,x,y,z,i) \
+    z += (w ^ x ^ y) + blk(i) + 0xCCD9EBA1 + rol(v, 5); w = rol(w, 30);
+#define R3(v,w,x,y,z,i) \
+    z += (((w | x) & y) | (w & x)) + blk(i) + 0xDD1BBCDC + rol(v, 5); \
+    w = rol(w, 30);
+#define R4(v,w,x,y,z,i) \
+    z += (w ^ x ^ y) + blk(i) + 0xEE62C1D6 + rol(v, 5); \
+    w=rol(w, 30);
+    
+    
+标准 Base64 太好逆？试试自定义码表 + 动态规则的魔改版本
+Java 实现标准 Base64 编码和解码
+Base64 编码：
+val encoded = Base64.encodeToString(str.toByteArray(), Base64.DEFAULT)
+Base64 解码：
+val decoded = Base64.decode(str, Base64.DEFAULT)
+val decodedString = String(decoded)
+C++ 实现标准 Base64 编码和解码
+创建 base64.cpp 实现 Base64 编码和解码
+#include <jni.h>
+#include <string>
+#include <android/log.h>
+static const std::string base64_chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz"
+        "0123456789+/";
+// 检查字符是否是 Base64 字符
+static inline bool is_base64(unsigned char c) {
+    return (isalnum(c) || (c == '+') || (c == '/'));
+}
+// Base64 编码函数
+std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
+    std::string ret;
+    int i = 0;
+    int j = 0;
+    unsigned char char_array_3[3];
+    unsigned char char_array_4[4];
+    while (in_len--) {
+        char_array_3[i++] = *(bytes_to_encode++);
+        if (i == 3) {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+
+            for (i = 0; i < 4; i++) {
+                ret += base64_chars[char_array_4[i]];
+            }
+            i = 0;
+        }
+    }
+    if (i) {
+        for (int j = i; j < 3; j++) {
+            char_array_3[j] = '\0';
+        }
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+        for (int j = 0; j < i + 1; j++) {
+            ret += base64_chars[char_array_4[j]];
+        }
+        while ((i++ < 3)) {
+            ret += '=';
+        }
+    }
+    return ret;
+}
+// Base64 解码函数
+std::string base64_decode(std::string const& encoded_string) {
+    int in_len = encoded_string.size();
+    int i = 0;
+    int j = 0;
+    int in_ = 0;
+    unsigned char char_array_4[4], char_array_3[3];
+    std::string ret;
+    while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
+        char_array_4[i++] = encoded_string[in_];
+        in_++;
+        if (i == 4) {
+            for (i = 0; i < 4; i++) {
+                char_array_4[i] = base64_chars.find(char_array_4[i]);
+            }
+            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+            for (i = 0; i < 3; i++) {
+                ret += char_array_3[i];
+            }
+            i = 0;
+        }
+    }
+    if (i) {
+        for (int j = i; j < 4; j++) {
+            char_array_4[j] = 0;
+        }
+        for (int j = 0; j < 4; j++) {
+            char_array_4[j] = base64_chars.find(char_array_4[j]);
+        }
+        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+        for (int j = 0; j < i - 1; j++) {
+            ret += char_array_3[j];
+        }
+    }
+    return ret;
+}
+参考：Base64 decode snippet in C++
+Kotlin 层中声明 native 编码和解码函数
+// 标准 Base64（C++）
+external fun nativeBase64Encode(data: ByteArray): String
+external fun nativeBase64Decode(input: String): ByteArray
+实现 native 函数并调用 C++ 中 Base64 编码和解码函数
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_cyrus_example_base64_Base64Activity_nativeBase64Encode(JNIEnv* env, jobject, jbyteArray input) {
+    jsize input_len = env->GetArrayLength(input);
+    unsigned char* bytes_to_encode = reinterpret_cast<unsigned char*>(env->GetByteArrayElements(input, nullptr));
+    std::string encoded = base64_encode(bytes_to_encode, input_len);
+    env->ReleaseByteArrayElements(input, reinterpret_cast<jbyte*>(bytes_to_encode), 0);
+    return env->NewStringUTF(encoded.c_str());
+}
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_base64_Base64Activity_nativeBase64Decode(JNIEnv* env, jobject, jstring input) {
+    const char* encoded_chars = env->GetStringUTFChars(input, nullptr);
+    std::string encoded_string(encoded_chars);
+    std::string decoded_string = base64_decode(encoded_string);
+    env->ReleaseStringUTFChars(input, encoded_chars);
+    jbyteArray decoded_byte_array = env->NewByteArray(decoded_string.size());
+    env->SetByteArrayRegion(decoded_byte_array, 0, decoded_string.size(), reinterpret_cast<const jbyte*>(decoded_string.c_str()));
+    return decoded_byte_array;
+}
+Kotlin 中调用编码函数
+val encoded = nativeBase64Encode(selected.toByteArray())
+Kotlin 中调用解码函数
+val decodedString = String(nativeBase64Decode(selected))
+自定义码表
+Base64 的标准编码表是：
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+自定义 Base64 码表就是 替换这个字符映射，比如：
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_
+这里我把大小写字母顺序调转，还有用 -_ 代替了 +/。
+Kotlin 端用 external 关键字声明对应的 native 方法。
+// 自定义 Base64 编码和解码
+external fun customBase64Encode(data: ByteArray): String
+external fun customBase64Decode(encoded: String): ByteArray
+C++ 实现 customBase64Encode 和 customBase64Decode（使用自定义 Base64 码表）。
+#include <jni.h>
+#include <string>
+#include <vector>
+#include <android/log.h>
+#define LOG_TAG "Base64Custom"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+// 自定义 Base64 码表
+static const std::string CUSTOM_BASE64_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+// **自定义 Base64 编码**
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_cyrus_example_base64_Base64Activity_customBase64Encode(JNIEnv *env, jobject thiz, jbyteArray data) {
+    jsize len = env->GetArrayLength(data);
+    std::vector<unsigned char> input(len);
+    env->GetByteArrayRegion(data, 0, len, reinterpret_cast<jbyte *>(input.data()));
+    std::string encoded;
+    int val = 0, valb = -6;
+    for (unsigned char c : input) {
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0) {
+            encoded.push_back(CUSTOM_BASE64_ALPHABET[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+    if (valb > -6) {
+        encoded.push_back(CUSTOM_BASE64_ALPHABET[((val << 8) >> (valb + 8)) & 0x3F]);
+    }
+    return env->NewStringUTF(encoded.c_str());
+}
+// **自定义 Base64 解码**
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_base64_Base64Activity_customBase64Decode(JNIEnv *env, jobject thiz, jstring encodedStr) {
+    const char *encoded = env->GetStringUTFChars(encodedStr, nullptr);
+    if (encoded == nullptr) return nullptr; // 内存分配失败
+    std::string input(encoded);
+    env->ReleaseStringUTFChars(encodedStr, encoded);
+    std::vector<unsigned char> output;
+    std::vector<int> T(256, -1);
+    for (int i = 0; i < CUSTOM_BASE64_ALPHABET.size(); i++) {
+        T[CUSTOM_BASE64_ALPHABET[i]] = i;
+    }
+    int val = 0, valb = -8;
+    for (unsigned char c : input) {
+        if (T[c] == -1) break;
+        val = (val << 6) + T[c];
+        valb += 6;
+        if (valb >= 0) {
+            output.push_back((val >> valb) & 0xFF);
+            valb -= 8;
+        }
+    }
+    jbyteArray result = env->NewByteArray(output.size());
+    env->SetByteArrayRegion(result, 0, output.size(), reinterpret_cast<jbyte *>(output.data()));
+    return result;
+}
+Kotlin 中调用编码函数
+val encoded = customBase64Encode(selected.toByteArray())
+Kotlin 中调用解码函数
+val decodedString = String(customBase64Decode(selected))
+动态码表
+基于输入字符串长度的动态 Base64 码表，让 Base64 码表动态变化，方法是：
+根据输入字符串的长度计算一个 XOR（异或）值。
+使用 XOR 值对标准 Base64 码表进行偏移，生成新的 Base64 码表。
+在编码和解码时使用这个动态码表。
+计算 xor_key = length % 64，用于 异或 码表索引
+xor_key 控制字符映射偏移。
+i ^ xor_key 让字符位置变化。
+#include <jni.h>
+#include <string>
+#include <vector>
+#include <android/log.h>
+#define TAG "DynamicBase64"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
+// 标准 Base64 码表
+static const std::string BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+// 根据字符串长度生成 Base64 动态码表
+std::string generateDynamicBase64Alphabet(size_t length) {
+    std::string dynamicBase64(64, ' ');
+    int xor_key = length % 64;
+    for (int i = 0; i < 64; i++) {
+        int new_index = i ^ xor_key;  // 计算新的索引
+        dynamicBase64[new_index] = BASE64_ALPHABET[i];  // 重新排列字符
+    }
+    return dynamicBase64;
+}
+动态 Base64 编码
+码表基于 输入长度变化，用 异或（XOR）运算 生成新字符映射。
+使 Base64 在不同长度下编码不同的字符串。
+// 动态 Base64 编码
+std::string dynamicBase64Encode(const uint8_t* data, size_t length) {
+    std::string base64Alphabet = generateDynamicBase64Alphabet(length);
+    std::string encoded;
+    int val = 0, valb = -6;
+
+    for (size_t i = 0; i < length; i++) {
+        val = (val << 8) + data[i];
+        valb += 8;
+        while (valb >= 0) {
+            encoded.push_back(base64Alphabet[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+    if (valb > -6) {
+        encoded.push_back(base64Alphabet[((val << 8) >> (valb + 8)) & 0x3F]);
+    }
+    return encoded;
+}
+动态 Base64 解码
+用 相同的 XOR 码表恢复原数据。
+需 传入原始字符串长度 以正确解码。
+// 动态 Base64 解码
+std::vector<uint8_t> dynamicBase64Decode(const std::string& input, size_t originalLength) {
+    std::string base64Alphabet = generateDynamicBase64Alphabet(originalLength);
+    std::vector<int> T(256, -1);
+    for (int i = 0; i < 64; i++) {
+        T[base64Alphabet[i]] = i;  // 生成解码表
+    }
+    std::vector<uint8_t> decoded;
+    int val = 0, valb = -8;
+    for (unsigned char c : input) {
+        if (T[c] == -1) break;
+        val = (val << 6) + T[c];
+        valb += 6;
+        if (valb >= 0) {
+            decoded.push_back((val >> valb) & 0xFF);
+            valb -= 8;
+        }
+    }
+    return decoded;
+}
+声明 native 编码和解码函数
+// 动态 Base64 编码和解码
+external fun dynamicBase64Encode(input: ByteArray): String
+external fun dynamicBase64Decode(input: String, originalLength: Int): ByteArray
+C++ 中实现 native 编码和解码函数
+// JNI 动态 Base64 编码
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_cyrus_example_base64_Base64Activity_dynamicBase64Encode(JNIEnv* env, jobject, jbyteArray input) {
+    jsize length = env->GetArrayLength(input);
+    jbyte* data = env->GetByteArrayElements(input, nullptr);
+    std::string encoded = dynamicBase64Encode(reinterpret_cast<uint8_t*>(data), length);
+    env->ReleaseByteArrayElements(input, data, JNI_ABORT);
+    return env->NewStringUTF(encoded.c_str());
+}
+// JNI 动态 Base64 解码
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_base64_Base64Activity_dynamicBase64Decode(JNIEnv* env, jobject, jstring input, jint originalLength) {
+    const char* encodedStr = env->GetStringUTFChars(input, nullptr);
+    std::vector<uint8_t> decoded = dynamicBase64Decode(std::string(encodedStr), originalLength);
+    env->ReleaseStringUTFChars(input, encodedStr);
+
+    jbyteArray output = env->NewByteArray(decoded.size());
+    env->SetByteArrayRegion(output, 0, decoded.size(), reinterpret_cast<jbyte*>(decoded.data()));
+    return output;
+}
+Kotlin 中调用 native 方法编码
+val data = str.toByteArray()
+stringLength = data.size
+val encoded = dynamicBase64Encode(data)
+Kotlin 中调用 native 方法解码
+val decodedBytes = dynamicBase64Decode(selected, stringLength)
+val decodedString = String(decodedBytes)
+
+
+深入解析 AES 加密算法：原理、变体与 LibTomCrypt 在 Android 中的实战应用
+AES（Advanced Encryption Standard，高级加密标准） 是一种 对称加密算法，用于加密和解密数据。AES 由 美国国家标准与技术研究院（NIST） 在 2001 年正式发布，取代了 DES 和 3DES，目前被广泛应用于 网络安全、金融、通信 等领域。
+支持 128（16字节）、192（24字节）、256（32字节） 位密钥。
+特性	描述
+加密方式	对称加密（加密和解密使用相同的密钥）
+分组长度	128 位（16 字节）
+密钥长度	128 位、192 位、256 位（分别对应 10、12、14 轮加密）
+安全性	目前无已知有效攻击，比 3DES 更安全
+运算模式	支持 ECB、CBC、CFB、OFB、CTR 等模式
+相关文章：一文搞懂常用加解密算法：编码、哈希、对称&非对称加密与压缩全解析
+LibTomCrypt
+LibTomCrypt 是一个开源的轻量级加密库，提供了多种加密算法和密码学相关功能。它是用 C 语言编写的，专注于嵌入式系统和资源受限的设备，非常适合在 Android 等平台上使用。
+特点:
+算法支持丰富：包括对称加密（AES、DES 等）、非对称加密（RSA、ECC 等）、哈希算法（SHA-256、MD5 等）
+轻量级，代码简单。
+支持多种加密模式：ECB、CBC、CFB、OFB 等。
+适用场景: 如果你需要一个开源、可自定义的库。
+集成 LibTomCrypt 到 Android 工程
+在 Android Studio 中集成 LibTomCrypt 并调用 JNI，可以按以下步骤操作：
+1. 下载 LibTomCrypt
+从官方 GitHub 仓库下载最新的源码：https://github.com/libtom/libtomcrypt
+解压后，将整个 libtomcrypt/src 文件夹复制到 Android 工程中的 app/src/main/cpp 目录下。
+2. 配置 CMakeLists.txt
+在 app/src/main/cpp/CMakeLists.txt 中添加以下配置：
+# 添加 libtomcrypt 头文件路径
+include_directories(libtomcrypt/src/headers)
+# 查找 libtomcrypt 所有的 C 文件
+file(GLOB LIBTOMCRYPT_SOURCES
+        libtomcrypt/src/*.c
+        libtomcrypt/src/misc/*.c
+        libtomcrypt/src/misc/crypt/*.c
+        libtomcrypt/src/ciphers/aes/*.c
+        libtomcrypt/src/modes/cbc/*.c
+        libtomcrypt/src/modes/cfb/*.c
+        libtomcrypt/src/modes/ctr/*.c
+        libtomcrypt/src/modes/ecb/*.c
+)
+# 编译 LibTomCrypt
+add_library(libtomcrypt STATIC ${LIBTOMCRYPT_SOURCES})
+使用 LibTomCrypt 的实现 AES CBC 加解密
+注意：
+数据对齐：AES CBC 模式要求输入数据的长度是 16 的倍数，如果不是，需要使用 PKCS7 Padding 或其他填充方式。。
+Key 和 IV 长度：AES 支持 128、192、256 位密钥，Key 长度需要符合实际配置。
+LibTomCrypt 本身不提供直接的 PKCS5Padding 实现，但你可以自己实现它。
+PKCS5Padding 的规则是：
+每个填充值的值等于填充字节的数量。
+如果数据刚好是 16 字节的倍数，则会再添加一整块填充。
+填充值范围：0x01 ~ 0x10。
+填充函数实现（PKCS5Padding）
+void pkcs5_pad(uint8_t *data, int dataLen, int blockSize, int *paddedLen) {
+    int padding = blockSize - (dataLen % blockSize);
+    for (int i = 0; i < padding; i++) {
+        data[dataLen + i] = (uint8_t)padding;
+    }
+    *paddedLen = dataLen + padding;
+}
+data：原始数据缓冲区，确保其有足够的空间存储填充后的数据。
+dataLen：原始数据长度。
+blockSize：通常为 16（AES）。
+paddedLen：返回填充后的总长度。
+去除填充函数（PKCS5UnPadding）
+int pkcs5_unpad(uint8_t *data, int dataLen) {
+    if (dataLen <= 0) return 0;
+    uint8_t padding = data[dataLen - 1];
+    if (padding > dataLen || padding > 16) return -1; // 不合法的填充
+    for (int i = 0; i < padding; i++) {
+        if (data[dataLen - 1 - i] != padding) return -1; // 填充不一致
+    }
+    return dataLen - padding;
+}
+data：解密后的数据。
+dataLen：解密后的数据长度。
+返回值：去除填充后的实际数据长度。
+AES CBC 加密
+方法解析
+register_cipher：确保 AES 算法已注册（返回 index != -1）
+cbc_start：初始化 CBC 模式
+cbc_encrypt：加密数据
+cbc_decrypt：解密数据
+cbc_done：清理资源
+// AES CBC 加密方法
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_aes_NativeAESUtils_aesCBCEncode(JNIEnv *env, jclass clazz, jbyteArray data) {
+    uint8_t *dataBytes = (uint8_t *) env->GetByteArrayElements(data, nullptr);
+    int dataLen = env->GetArrayLength(data);
+    // 转换密钥和 IV 为字节数组
+    uint8_t *keyBytes = stringToSecretKey(KEY);
+    uint8_t *ivBytes = stringToIV(IV);
+    // PKCS5Padding
+    int paddedLen = dataLen + 16 - (dataLen % 16);
+    uint8_t *paddedData = (uint8_t *) malloc(paddedLen);
+    memcpy(paddedData, dataBytes, dataLen);
+    pkcs5_pad(paddedData, dataLen, 16, &paddedLen);
+    // 加密
+    int cipher_index = register_cipher(&aes_desc);
+    symmetric_CBC cbc;
+    if (cbc_start(cipher_index, ivBytes, keyBytes, AES_KEYLEN, 0, &cbc) != CRYPT_OK) {
+        LOGD("cbc_start failed.");
+        free(paddedData);
+        return nullptr;
+    }
+    uint8_t *output = (uint8_t *) malloc(paddedLen);
+    if (cbc_encrypt(paddedData, output, paddedLen, &cbc) != CRYPT_OK) {
+        LOGD("cbc_encrypt failed.");
+        free(paddedData);
+        free(output);
+        return nullptr;
+    }
+    cbc_done(&cbc);
+    jbyteArray result = env->NewByteArray(paddedLen);
+    env->SetByteArrayRegion(result, 0, paddedLen, reinterpret_cast<jbyte *>(output));
+    // 释放资源
+    env->ReleaseByteArrayElements(data, (jbyte *) dataBytes, 0);
+    free(paddedData);
+    free(output);
+    // 释放资源
+    delete[] keyBytes;
+    delete[] ivBytes;
+    return result;
+}
+AES CBC 解密
+// AES CBC 解密方法
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_aes_NativeAESUtils_aesCBCDecode(JNIEnv *env, jclass clazz, jbyteArray data) {
+    // 获取数据
+    uint8_t *dataBytes = (uint8_t *) env->GetByteArrayElements(data, nullptr);
+    int dataLen = env->GetArrayLength(data);
+    // 注册 AES 算法
+    if (register_cipher(&aes_desc) == -1) {
+        env->ReleaseByteArrayElements(data, (jbyte *) dataBytes, 0);
+        return nullptr;
+    }
+    // 转换密钥和 IV 为字节数组
+    uint8_t *keyBytes = stringToSecretKey(KEY);
+    uint8_t *ivBytes = stringToIV(IV);
+    // 解密
+    int cipher_index = register_cipher(&aes_desc);
+    symmetric_CBC cbc;
+    if (cbc_start(cipher_index, ivBytes, keyBytes, AES_KEYLEN, 0, &cbc) != CRYPT_OK) {
+        LOGD("cbc_start failed.");
+        return nullptr;
+    }
+    uint8_t *output = (uint8_t *) malloc(dataLen);
+    if (cbc_decrypt(dataBytes, output, dataLen, &cbc) != CRYPT_OK) {
+        LOGD("cbc_decrypt failed.");
+        free(output);
+        return nullptr;
+    }
+    cbc_done(&cbc);
+    // 去除 PKCS5Padding
+    int unpaddedLen = pkcs5_unpad(output, dataLen);
+    if (unpaddedLen < 0) {
+        LOGD("PKCS5 unpadding failed.");
+        free(output);
+        return nullptr;
+    }
+    // 返回结果
+    jbyteArray result = env->NewByteArray(unpaddedLen);
+    env->SetByteArrayRegion(result, 0, unpaddedLen, reinterpret_cast<jbyte *>(output));
+    // 释放资源
+    free(output);
+    env->ReleaseByteArrayElements(data, (jbyte *) dataBytes, 0);
+    delete[] keyBytes;
+    delete[] ivBytes;
+    return result;
+}
+完整代码
+#include <jni.h>
+#include <android/log.h>
+#include <tomcrypt.h>
+#define AES_BLOCKLEN 16 // Block length in bytes AES is 128 b block only
+#define AES_KEYLEN 16   // Key length in bytes
+#define LOG_TAG "aes_jni.cpp"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+const char * KEY = "CYRUS STUDIO    ";
+const char * IV = "CYRUS STUDIO    ";
+// 将 const char* 转换为字节数组 (IV)
+uint8_t *stringToIV(const char *str) {
+    auto iv = new uint8_t[AES_BLOCKLEN];
+    for (int i = 0; i < AES_BLOCKLEN; ++i) {
+        iv[i] = static_cast<uint8_t>(str[i]);
+    }
+    return iv;
+}
+// 将 const char* 转换为字节数组 (Key)
+uint8_t *stringToSecretKey(const char *str) {
+    auto key = new uint8_t[AES_KEYLEN];
+    for (int i = 0; i < AES_KEYLEN; ++i) {
+        key[i] = static_cast<uint8_t>(str[i]);
+    }
+    return key;
+}
+void pkcs5_pad(uint8_t *data, int dataLen, int blockSize, int *paddedLen) {
+    int padding = blockSize - (dataLen % blockSize);
+    for (int i = 0; i < padding; i++) {
+        data[dataLen + i] = (uint8_t)padding;
+    }
+    *paddedLen = dataLen + padding;
+}
+int pkcs5_unpad(uint8_t *data, int dataLen) {
+    if (dataLen <= 0) return 0;
+    uint8_t padding = data[dataLen - 1];
+    if (padding > dataLen || padding > 16) return -1; // 不合法的填充
+    for (int i = 0; i < padding; i++) {
+        if (data[dataLen - 1 - i] != padding) return -1; // 填充不一致
+    }
+    return dataLen - padding;
+}
+// AES CBC 加密方法
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_aes_NativeAESUtils_aesCBCEncode(JNIEnv *env, jclass clazz, jbyteArray data) {
+    uint8_t *dataBytes = (uint8_t *) env->GetByteArrayElements(data, nullptr);
+    int dataLen = env->GetArrayLength(data);
+    // 转换密钥和 IV 为字节数组
+    uint8_t *keyBytes = stringToSecretKey(KEY);
+    uint8_t *ivBytes = stringToIV(IV);
+    // PKCS5Padding
+    int paddedLen = dataLen + 16 - (dataLen % 16);
+    uint8_t *paddedData = (uint8_t *) malloc(paddedLen);
+    memcpy(paddedData, dataBytes, dataLen);
+    pkcs5_pad(paddedData, dataLen, 16, &paddedLen);
+    // 加密
+    int cipher_index = register_cipher(&aes_desc);
+    symmetric_CBC cbc;
+    if (cbc_start(cipher_index, ivBytes, keyBytes, AES_KEYLEN, 0, &cbc) != CRYPT_OK) {
+        LOGD("cbc_start failed.");
+        free(paddedData);
+        return nullptr;
+    }
+    uint8_t *output = (uint8_t *) malloc(paddedLen);
+    if (cbc_encrypt(paddedData, output, paddedLen, &cbc) != CRYPT_OK) {
+        LOGD("cbc_encrypt failed.");
+        free(paddedData);
+        free(output);
+        return nullptr;
+    }
+    cbc_done(&cbc);
+    jbyteArray result = env->NewByteArray(paddedLen);
+    env->SetByteArrayRegion(result, 0, paddedLen, reinterpret_cast<jbyte *>(output));
+    // 释放资源
+    env->ReleaseByteArrayElements(data, (jbyte *) dataBytes, 0);
+    free(paddedData);
+    free(output);
+    // 释放资源
+    delete[] keyBytes;
+    delete[] ivBytes;
+    return result;
+}
+// AES CBC 解密方法
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_aes_NativeAESUtils_aesCBCDecode(JNIEnv *env, jclass clazz, jbyteArray data) {
+    // 获取数据
+    uint8_t *dataBytes = (uint8_t *) env->GetByteArrayElements(data, nullptr);
+    int dataLen = env->GetArrayLength(data);
+    // 注册 AES 算法
+    if (register_cipher(&aes_desc) == -1) {
+        env->ReleaseByteArrayElements(data, (jbyte *) dataBytes, 0);
+        return nullptr;
+    }
+    // 转换密钥和 IV 为字节数组
+    uint8_t *keyBytes = stringToSecretKey(KEY);
+    uint8_t *ivBytes = stringToIV(IV);
+    // 解密
+    int cipher_index = register_cipher(&aes_desc);
+    symmetric_CBC cbc;
+    if (cbc_start(cipher_index, ivBytes, keyBytes, AES_KEYLEN, 0, &cbc) != CRYPT_OK) {
+        LOGD("cbc_start failed.");
+        return nullptr;
+    }
+    uint8_t *output = (uint8_t *) malloc(dataLen);
+    if (cbc_decrypt(dataBytes, output, dataLen, &cbc) != CRYPT_OK) {
+        LOGD("cbc_decrypt failed.");
+        free(output);
+        return nullptr;
+    }
+    cbc_done(&cbc);
+    // 去除 PKCS5Padding
+    int unpaddedLen = pkcs5_unpad(output, dataLen);
+    if (unpaddedLen < 0) {
+        LOGD("PKCS5 unpadding failed.");
+        free(output);
+        return nullptr;
+    }
+    // 返回结果
+    jbyteArray result = env->NewByteArray(unpaddedLen);
+    env->SetByteArrayRegion(result, 0, unpaddedLen, reinterpret_cast<jbyte *>(output));
+    // 释放资源
+    free(output);
+    env->ReleaseByteArrayElements(data, (jbyte *) dataBytes, 0);
+    delete[] keyBytes;
+    delete[] ivBytes;
+    return result;
+}
+AES ECB 模式
+ECB 模式没有 IV，因此只需要密钥即可。
+// AES ECB 加密
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_aes_NativeAESUtils_aesECBEncode(
+        JNIEnv *env,
+        jclass clazz,
+        jbyteArray data
+) {
+    uint8_t *dataBytes = (uint8_t *) env->GetByteArrayElements(data, nullptr);
+    int dataLen = env->GetArrayLength(data);
+    // PKCS5Padding
+    int paddedLen = dataLen + 16 - (dataLen % 16);
+    uint8_t *paddedData = (uint8_t *) malloc(paddedLen);
+    memcpy(paddedData, dataBytes, dataLen);
+    pkcs5_pad(paddedData, dataLen, 16, &paddedLen);
+    // 设置 AES ECB
+    symmetric_ECB ecb;
+    int cipher_index = register_cipher(&aes_desc);
+    // 转换密钥为字节数组
+    uint8_t *keyBytes = stringToSecretKey(KEY);
+    if (ecb_start(cipher_index, keyBytes, AES_KEYLEN, 0, &ecb) != CRYPT_OK) {
+        LOGD("ecb_start failed.");
+        delete[] keyBytes;
+        free(paddedData);
+        return nullptr;
+    }
+    // 加密
+    uint8_t *output = (uint8_t *) malloc(paddedLen);
+    if (ecb_encrypt(paddedData, output, paddedLen, &ecb) != CRYPT_OK) {
+        LOGD("ecb_encrypt failed.");
+        delete[] keyBytes;
+        free(paddedData);
+        free(output);
+        return nullptr;
+    }
+    ecb_done(&ecb);
+    jbyteArray result = env->NewByteArray(paddedLen);
+    env->SetByteArrayRegion(result, 0, paddedLen, reinterpret_cast<jbyte *>(output));
+    // 释放资源
+    delete[] keyBytes;
+    free(paddedData);
+    free(output);
+    env->ReleaseByteArrayElements(data, (jbyte *) dataBytes, 0);
+    return result;
+}
+// AES ECB 解密
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_aes_NativeAESUtils_aesECBDecode(
+        JNIEnv *env,
+        jclass clazz,
+        jbyteArray data
+) {
+    uint8_t *dataBytes = (uint8_t *) env->GetByteArrayElements(data, nullptr);
+    int dataLen = env->GetArrayLength(data);
+    // 初始化 ECB
+    symmetric_ECB ecb;
+    int cipher_index = register_cipher(&aes_desc);
+    // 转换密钥为字节数组
+    uint8_t *keyBytes = stringToSecretKey(KEY);
+    if (ecb_start(cipher_index, keyBytes, AES_KEYLEN, 0, &ecb) != CRYPT_OK) {
+        LOGD("ecb_start failed.");
+        delete[] keyBytes;
+        return nullptr;
+    }
+    // 解密
+    uint8_t *output = (uint8_t *) malloc(dataLen);
+    if (ecb_decrypt(dataBytes, output, dataLen, &ecb) != CRYPT_OK) {
+        LOGD("ecb_decrypt failed.");
+        delete[] keyBytes;
+        free(output);
+        return nullptr;
+    }
+    ecb_done(&ecb);
+    // 去除 PKCS5Padding
+    int unpaddedLen = pkcs5_unpad(output, dataLen);
+    if (unpaddedLen < 0) {
+        LOGD("PKCS5 unpadding failed.");
+        free(output);
+        return nullptr;
+    }
+    jbyteArray result = env->NewByteArray(unpaddedLen);
+    env->SetByteArrayRegion(result, 0, unpaddedLen, reinterpret_cast<jbyte *>(output));
+    // 释放资源
+    delete[] keyBytes;
+    free(output);
+    env->ReleaseByteArrayElements(data, (jbyte *) dataBytes, 0);
+    return result;
+}
+AES CTR 模式
+CTR 模式需要 IV 和 Key，并且加密和解密使用相同的逻辑。
+// AES CTR 加密
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_aes_NativeAESUtils_aesCTREncode(
+        JNIEnv *env,
+        jclass clazz,
+        jbyteArray data
+) {
+    uint8_t *dataBytes = (uint8_t *) env->GetByteArrayElements(data, nullptr);
+    int dataLen = env->GetArrayLength(data);
+    // 设置 AES CTR
+    symmetric_CTR ctr;
+    int cipher_index = register_cipher(&aes_desc);
+    // 转换密钥和 IV 为字节数组
+    uint8_t *keyBytes = stringToSecretKey(KEY);
+    uint8_t *ivBytes = stringToIV(IV);
+    if (ctr_start(cipher_index, ivBytes, keyBytes, AES_KEYLEN, 0, CTR_COUNTER_LITTLE_ENDIAN, &ctr) != CRYPT_OK) {
+        LOGD("ctr_start failed.");
+        delete[] keyBytes;
+        delete[] ivBytes;
+        return nullptr;
+    }
+    // 加密 / 解密
+    uint8_t *output = (uint8_t *) malloc(dataLen);
+    if (ctr_encrypt(dataBytes, output, dataLen, &ctr) != CRYPT_OK) {
+        LOGD("ctr_encrypt failed.");
+        delete[] keyBytes;
+        delete[] ivBytes;
+        free(output);
+        return nullptr;
+    }
+    ctr_done(&ctr);
+    jbyteArray result = env->NewByteArray(dataLen);
+    env->SetByteArrayRegion(result, 0, dataLen, reinterpret_cast<jbyte *>(output));
+    // 释放资源
+    delete[] keyBytes;
+    delete[] ivBytes;
+    free(output);
+    env->ReleaseByteArrayElements(data, (jbyte *) dataBytes, 0);
+    return result;
+}
+// AES CTR 解密
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_cyrus_example_aes_NativeAESUtils_aesCTRDecode(
+        JNIEnv *env,
+        jclass clazz,
+        jbyteArray data
+) {
+    return Java_com_cyrus_example_aes_NativeAESUtils_aesCTREncode(env, clazz, data);
+}
+AES 工作原理
+AES 的加密过程分为多个轮次，每轮包含以下4个主要步骤：
+字节代替 (SubBytes)：使用 S-Box（替代盒）对每个字节进行非线性替换。
+行移位 (ShiftRows)：将数据分为4行，每行按特定规则循环移位。
+列混合 (MixColumns)：使用矩阵运算对每列的数据进行混合。
+轮密钥加 (AddRoundKey)：使用密钥进行 XOR 运算。
+加密轮次：
+128位密钥：10轮
+192位密钥：12轮
+256位密钥：14轮
+解密过程与加密过程类似，只是顺序相反，并使用逆S-Box和逆变换。
+实现 AES 算法变体
+在 LibTomCrypt 中，AES 算法的 S-Box（替代盒）是通过查找表（lookup table）实现的，而 AES 的表（如 S-Box）主要是存在于 src/cipher/aes/aes_tab.c 文件中。
+该 S-Box 是一个 256 字节的查找表，用于将每个输入字节替换成加密的字节。
+理论上，你可以通过修改 LibTomCrypt 中的 S-Box 或其他查找表，来实现你自己的 AES 变体。
+比如，把 0xc66363a5UL 改成 0xaa6363a5UL。
+AES 算法变体加密结果：
+标准 AES 算法加密结果：
+可以看到加密结果已经和标准的 AES 不一样了，解密结果还是一样的。
+
+
+常见的 256 条 Dalvik 字节码指令
+Dalvik 字节码指令是 Android 虚拟机的指令集，广泛用于处理 .dex 文件中的代码。下面列出一些常用的 Dalvik 指令，但 Dalvik 指令集有很多操作码，这里仅列出 256 个常用指令及其功能简述。为简明起见，指令按类别分类。
+1. 常量加载
+const vA, #+B - 加载常量 B 到寄存器 vA
+const/4 vA, #+B - 加载 4 位常量 B 到寄存器 vA
+const/16 vA, #+BBBB - 加载 16 位常量 B 到寄存器 vA
+const/high16 vA, #+BBBB0000 - 加载高 16 位常量
+const-wide vA, #+BBBBBBBBBBBBBBBB - 加载 64 位常量
+const-wide/16 vA, #+BBBB - 加载 16 位宽常量
+const-wide/high16 vA, #+BBBB000000000000 - 加载高 16 位宽常量
+2. 堆栈操作
+move vA, vB - 将 vB 寄存器的值移动到 vA
+move/from16 vAA, vBBBB - 从 vBBBB 寄存器移动到 vAA
+move-wide vA, vB - 移动 64 位数据
+move-result vA - 从上一次操作中获取结果
+move-result-wide vA - 获取上一次操作的 64 位结果
+move-exception vA - 从异常对象获取值
+move-object vA, vB - 移动引用类型
+3. 数组操作
+aget vA, vB, vC - 获取数组中的元素
+aget-wide vA, vB, vC - 获取数组中的 64 位元素
+aget-object vA, vB, vC - 获取数组中的对象
+aput vA, vB, vC - 将值存入数组
+aput-wide vA, vB, vC - 将 64 位值存入数组
+aput-object vA, vB, vC - 将对象存入数组
+4. 算术运算
+add-int vA, vB, vC - 整数加法
+sub-int vA, vB, vC - 整数减法
+mul-int vA, vB, vC - 整数乘法
+div-int vA, vB, vC - 整数除法
+rem-int vA, vB, vC - 取模
+neg-int vA, vB - 取反
+add-long vA, vB, vC - 64 位加法
+sub-long vA, vB, vC - 64 位减法
+mul-long vA, vB, vC - 64 位乘法
+div-long vA, vB, vC - 64 位除法
+add-float vA, vB, vC - 浮点数加法
+sub-float vA, vB, vC - 浮点数减法
+mul-float vA, vB, vC - 浮点数乘法
+div-float vA, vB, vC - 浮点数除法
+5. 逻辑运算
+and-int vA, vB, vC - 按位与
+or-int vA, vB, vC - 按位或
+xor-int vA, vB, vC - 按位异或
+shl-int vA, vB, vC - 左移位
+shr-int vA, vB, vC - 算术右移
+ushr-int vA, vB, vC - 逻辑右移
+6. 比较操作
+cmpl-float vA, vB, vC - 比较浮点数 (L)
+cmpg-float vA, vB, vC - 比较浮点数 (G)
+cmpl-double vA, vB, vC - 比较双精度浮点数 (L)
+cmpg-double vA, vB, vC - 比较双精度浮点数 (G)
+cmp-long vA, vB, vC - 比较长整型
+7. 条件跳转
+if-eq vA, vB, +CCCC - 如果 vA == vB 跳转
+if-ne vA, vB, +CCCC - 如果 vA != vB 跳转
+if-lt vA, vB, +CCCC - 如果 vA < vB 跳转
+if-ge vA, vB, +CCCC - 如果 vA >= vB 跳转
+if-gt vA, vB, +CCCC - 如果 vA > vB 跳转
+if-le vA, vB, +CCCC - 如果 vA <= vB 跳转
+8. 无条件跳转
+goto +AA - 无条件跳转
+goto/16 +AAAA - 16 位无条件跳转
+goto/32 +AAAAAAAA - 32 位无条件跳转
+9. 方法调用
+invoke-virtual {vC, vD, …}, method@BBBB - 调用虚方法
+invoke-super {vC, vD, …}, method@BBBB - 调用父类方法
+invoke-direct {vC, vD, …}, method@BBBB - 直接调用方法
+invoke-static {vC, vD, …}, method@BBBB - 调用静态方法
+invoke-interface {vC, vD, …}, method@BBBB - 调用接口方法
+10. 字段操作
+iget vA, vB, field@CCCC - 获取实例字段
+iput vA, vB, field@CCCC - 设置实例字段
+iget-wide vA, vB, field@CCCC - 获取 64 位实例字段
+iput-wide vA, vB, field@CCCC - 设置 64 位实例字段
+iget-object vA, vB, field@CCCC - 获取对象字段
+iput-object vA, vB, field@CCCC - 设置对象字段
+11. 对象操作
+new-instance vA, type@BBBB - 创建新实例
+new-array vA, vB, type@CCCC - 创建新数组
+filled-new-array {vC, vD, …}, type@BBBB - 填充数组
+check-cast vA, type@BBBB - 类型检查
+instance-of vA, vB, type@CCCC - 判断实例类型
+12. 异常处理
+throw vA - 抛出异常
+return-void - 返回 void
+return vA - 返回
+return-wide vA - 返回 64 位值
+return-object vA - 返回对象
+13. 监控指令
+monitor-enter vA - 获取锁
+monitor-exit vA - 释放锁
+14. 扩展指令
+packed-switch vA, +CCCCCCCC - 执行 packed switch
+sparse-switch vA, +CCCCCCCC - 执行 sparse switch
+fill-array-data vA, +CCCCCCCC - 填充数组数据
+15. 其它指令
+nop - 空操作
+throw vA - 抛出异常
+move-object/from16 vAA, vBBBB - 对象移动
+16. 宽指令（用于64位）
+move-wide/from16 vAA, vBBBB - 从 vBBBB 移动 64 位数据到 vAA
+move-wide/16 vAAAA, vBBBB - 从 vBBBB 移动 64 位数据到 vAAAA
+这 256 条指令涵盖了 Dalvik 指令集中常用的加载、移动、算术运算、逻辑运算、条件跳转、方法调用等指令类别
+    
+
+别让 so 裸奔！移植 OLLVM 到 NDK 并集成到 Android Studio
+在 Android 应用安全中，Native 层 so 库往往是最容易被逆向分析的目标 。无论是游戏的核心逻辑，还是 App 的关键算法，一旦 so 被反编译，核心代码就可能暴露无遗。
+传统的 Java 层混淆工具（如 ProGuard、R8）对 C/C++ 代码无能为力，因此 NDK 层代码的保护 成了安全加固中的难点。解决思路：在编译阶段对 so 进行混淆处理 ，让逆向难度大幅提升。
+LLVM 生态中有一个安全扩展 —— OLLVM (Obfuscator-LLVM) ，它在编译流程里插入了混淆 Pass，能对 C/C++ 代码做 控制流平坦化、虚假控制流、指令替换 等处理，从而显著增加逆向门槛。
+本文将带你实战：如何将 OLLVM 移植到 LLVM/NDK，并在 Android Studio 工程中使用它，为 Native 代码加上一层混淆保护。
+OLLVM、LLVM 与 Android NDK
+LLVM 是一个高度模块化的编译器框架，它能够将 C/C++ 等高级语言源码编译为中间表示（LLVM IR），再经过优化、生成目标机器码。它不仅仅是一个编译器，更是一个“编译基础设施”。
+在 Android 平台上，自 NDK r18 开始，Google 就全面弃用了 GCC，转而采用 LLVM/Clang 作为官方工具链。也就是说，所有的 C/C++ 代码编译、优化、生成 so 库的过程，底层都是由 LLVM 驱动完成的。
+OLLVM (Obfuscator-LLVM) 则是在 LLVM 基础上扩展的一个安全项目。它在 LLVM 编译流程中增加了混淆 Pass，可以对 C/C++ 代码进行 控制流平坦化、虚假控制流、指令替换 等混淆处理，从而有效提高逆向分析和反编译的难度，保护 Android 应用中 Native so 层的核心逻辑不被轻易破解。
+最终实现编译流程大概如下：
+          ┌──────────────────┐
+          │   C / C++ 源码    │
+          └────────┬─────────┘
+                   │
+                   ▼
+          ┌──────────────────┐
+          │   LLVM (Clang)   │  ← Android NDK 内置的官方编译器工具链
+          │   前端：生成 IR   │
+          └────────┬─────────┘
+                   │ LLVM IR
+                   ▼
+          ┌──────────────────┐
+          │    OLLVM Pass    │  ← 基于 LLVM 的扩展：混淆（控制流平坦化、指令替换等）
+          │   （插入在中间）  │
+          └────────┬─────────┘
+                   │ 混淆后的 IR
+                   ▼
+          ┌──────────────────┐
+          │   LLVM 后端优化   │
+          │   + 代码生成      │
+          └────────┬─────────┘
+                   │ 汇编
+                   ▼
+          ┌──────────────────┐
+          │   链接生成 so     │ ← 最终供 Android 应用调用的 native 库
+          └──────────────────┘
+编译 LLVM
+1. 下载源码
+NDK 中 LLVM 所在路径：<android-ndk>/toolchains/llvm/prebuilt/<host-system>/bin/
+查看 clang 版本，这里版本是 18.0.2
+(base) PS D:\App\android\sdk\ndk\27.1.12297006\toolchains\llvm\prebuilt\windows-x86_64\bin> ./clang --version
+Android (12285214, based on r522817b) clang version 18.0.2 (https://android.googlesource.com/toolchain/llvm-project d8003a456d14a3deb8054cdaa529ffbf02d9b262)
+Target: x86_64-w64-windows-gnu
+Thread model: posix
+InstalledDir: D:/App/android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/windows-x86_64/bin
+根据 NDK 中 clang 的版本，下载和编译版本相近的 LLVM。
+关于 LLVM 源码下载和编译参考：LLVM 全面解析：NDK 为什么离不开它？如何亲手编译调试 clang
+2. 构建环境设置
+创建并进入构建目录
+mkdir build && cd build
+配置编译目标
+cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="/utf-8" -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_EH=ON -DLLVM_ENABLE_PROJECTS="clang;lld" ../llvm
+3. 编译
+编译目标设置完成后，执行 ninja 开始编译。
+D:\Projects\llvm-project\build>ninja
+[1651/2426] Building CXX object tools\lld\ELF\CMakeFiles\lldELF.dir\Arch\LoongArch.cpp.obj
+D:\Projects\llvm-project\lld\ELF\Arch\LoongArch.cpp(705): warning C4334: “<<”: 32 位移位的结果被隐式转换为 64 位(是否希望进行 64 位移位?)
+[2426/2426] Linking CXX executaset PATH=%PATH%;D:\Projects\llvm-project\build\bin
+移植 OLLVM 到 Android NDK
+这是 Android NDK 中 toolchains\llvm\prebuilt\windows-x86_64 目录下的文件夹结构
+其中主要几个文件夹：
+bin：包含可执行文件，例如编译器（clang、clang++）、链接器（ld）等，主要用于 NDK 工具链的操作。
+include：包含头文件，提供编译时所需的接口定义。例如，标准 C/C++ 库的头文件以及与 Android 平台相关的头文件。
+lib：包含静态库和动态库，提供编译和链接时使用的库文件。例如，支持标准 C/C++ 函数的实现库。
+这些文件共同组成了 Android NDK 的工具链，用于开发和调试 Android native 代码。
+当我们成功把 OLLVM 移植到 LLVM，并编译完成后可以在构建目录下看到同样也有相关目录
+关于 OLLVM 移植到 LLVM 过程参考：
+OLLVM 移植 LLVM 18 实战，轻松实现 C&C++ 代码混淆
+OLLVM 移植 LLVM18 踩坑：一步步调试修复控制流平坦化
+复制并替换 bin、include、lib 目录到 ndk 中
+Android Studio 中使用 OLLVM
+1. 创建 native 工程
+2. 配置 OLLVM NDK
+编辑 local.properties 添加 ndk.dir 配置为 ollvm ndk 路径
+ndk.dir=D\:\\App\\android\\sdk\\ndk\\27.1.12297006
+3. 代码实现
+创建 OLLVMActivity，定义并调用 native 方法
+/**
+ * 移植 OLLVM 到 Android NDK
+ */
+class OLLVMActivity : AppCompatActivity() {
+    // 声明 native 方法
+    external fun sub(a: Int, b: Int): Int
+    external fun bcf(input: String?): String?
+    external fun fla(x: Int, y: Int): String?
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_ollvmactivity)
+        // 加载本地库
+        System.loadLibrary("ollvm-lib");
+        // 调用 native 方法并显示结果
+        val textView = findViewById<TextView>(R.id.textView)
+        val subResult = sub(10, 5)
+        val bcfResult = bcf("Hello OLLVM!")
+        val flaResult = fla(3, 2)
+        val resultText = """
+            sub(10, 5) = $subResult
+            bcf("Hello OLLVM!") = $bcfResult
+            fla(x, y) = $flaResult
+            """.trimIndent()
+        textView.text = resultText
+    }
+}
+创建 ollvm-lib.cpp 实现 native 方法
+#include <jni.h>
+#include <string>
+// sub 方法：两个整数相减
+extern "C" JNIEXPORT jint JNICALL
+Java_com_cyrus_example_ollvm_OLLVMActivity_sub(JNIEnv* env, jobject, jint a, jint b) {
+    return a - b;
+}
+// bcf 方法：接收字符串并返回拼接后的字符串
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_cyrus_example_ollvm_OLLVMActivity_bcf(JNIEnv* env, jobject, jstring input) {
+    const char* inputStr = env->GetStringUTFChars(input, nullptr);
+    std::string result = std::string("BCF: ") + inputStr;
+    env->ReleaseStringUTFChars(input, inputStr);
+    return env->NewStringUTF(result.c_str());
+}
+// fla 方法：两个int相加判断大小并返回结果字符串
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_cyrus_example_ollvm_OLLVMActivity_fla(JNIEnv *env, jobject , jint x, jint y) {
+    int sum = x + y;
+    // 使用字符串流拼接结果
+    std::ostringstream result;
+    if (sum < 5) {
+        result << "x = " << x << ", y = " << y << ", x + y " << "小于 5";
+    } else if(sum == 5){
+        result << "x = " << x << ", y = " << y << ", x + y " << "等于 5";
+    } else{
+        result << "x = " << x << ", y = " << y << ", x + y " << "大于 5";
+    }
+    // 返回拼接好的字符串
+    return env->NewStringUTF(result.str().c_str());
+}
+编辑 CMakeLists.txt，添加动态库 ollvm-lib
+add_library( # 设置库的名称
+        ollvm-lib
+        # 设置库的类型
+        SHARED
+        # 设置源文件路径
+        ollvm-lib.cpp)
+4. 全局混淆
+编辑 CMakeLists.txt，添加如下配置启用 OLLVM 混淆
+# 全局启用指令替换
+add_definitions("-mllvm -sub")
+通过 -mllvm 选项开启 OLLVM 的代码混淆功能：
+-mllvm -bcf：启用基本块控制流混淆。
+-mllvm -fla：启用控制流平坦化。
+-mllvm -sub：启用指令替换。
+5. 动态库混淆
+编辑 CMakeLists.txt，只为 ollvm-lib 动态库启用虚假控制流
+# 为 ollvm-lib 动态库启用虚假控制流
+target_compile_options(
+        ollvm-lib
+        PRIVATE
+        -mllvm -bcf)
+如果有多个编译项
+target_compile_options(
+    ollvm-lib
+    PRIVATE
+    -mllvm -bcf  # 启用 Bogus Control Flow 混淆
+    -mllvm -sub  # 启用 Substitution 混淆
+    -mllvm -fla  # 启用 Flattening 混淆
+)
+6. 函数混淆
+通过注解为 fla 方法禁用虚假控制流和启用控制流平坦化
+extern "C" JNIEXPORT jstring JNICALL
+__attribute__((annotate("nobcf,fla"))) Java_com_cyrus_example_ollvm_OLLVMActivity_fla(JNIEnv *env, jobject, jint x, jint y) {
+    int sum = x + y;
+    // 使用字符串流拼接结果
+    std::ostringstream result;
+    if (sum < 5) {
+        result << "x = " << x << ", y = " << y << ", x + y " << "小于 5";
+    } else if(sum == 5){
+        result << "x = " << x << ", y = " << y << ", x + y " << "等于 5";
+    } else{
+        result << "x = " << x << ", y = " << y << ", x + y " << "大于 5";
+    }
+    // 返回拼接好的字符串
+    return env->NewStringUTF(result.str().c_str());
+}
+测试与验证
+编译运行正常
+把 apk 中的 so 文件解压出来
+使用 IDA 打开 libollvm-lib.so，可以看到 sub 函数反汇编视图如下（启用虚假控制流+指令替换）
+bcf 函数反汇编视图（启用虚假控制流+指令替换）
+fla 函数反汇编视图（禁用虚假控制流并启用控制流平坦化）
+其他动态库中函数（未启用 OLLVM 混淆）
 
 
 godot/redot C++源代码，编译，打包
@@ -957,9 +4253,6 @@ keytool -importkeystore -srckeystore APPkeystore.jks -destkeystore APPkeystore.j
 jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore APPkeystore.jks -storepass 123456 com.immomo.momo_repack.apk key0
 jarsigner -verify com.immomo.momo_repack.apk
 zipalign 4 com.immomo.momo_repack.apk com.immomo.momo_final.apk
-
- apk生成新签名
-keytool -genkey -alias testalias -keyalg RSA -keysize 2048 -validity 36500 -keystore gdgame.jks -storepass gdgame789123 -keypass gdgame789123 -dname "CN=None, OU=None, O=None, L=None, ST=None, C=None"
 
 查看当前界面Activity
 adb shell "dumpsys activity top | grep ACTIVITY | tail -n 1"
